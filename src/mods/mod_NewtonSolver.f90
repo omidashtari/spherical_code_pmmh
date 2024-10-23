@@ -155,7 +155,7 @@ subroutine continuation_convective_solver()
 
     ! Set parameters for continuation in Ra
     Ra_max = 75.
-    delta_Ra = - 1.5
+    delta_Ra = - 0.2
     Ra_max_flag = .false.
 
     ! Set parameters for continuation in Ek
@@ -500,24 +500,37 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
 
     integer :: i_newt, k, j, lm, k_max, lm_max, lm_init, gmres_iters
 
+    double complex, dimension(:), pointer :: E_ptr_cplx, F_ptr_cplx, T_ptr_cplx
+    double precision :: max_E, max_F, max_T
+    integer :: loc_max_E, loc_max_F, loc_max_T
+
+    call c_f_pointer(c_loc(E), E_ptr_cplx, [KK2 * shtns%nlm])
+    call c_f_pointer(c_loc(F), F_ptr_cplx, [KK4 * shtns%nlm])
+    call c_f_pointer(c_loc(T), T_ptr_cplx, [KK2 * shtns%nlm])
+
     ! Compute wavespeed location - search for biggest modulus of the k, l, m = M_wave coefficient 
     max_real = 0.
-    lm_init = shtns_lmidx(shtns_c, 1, M_wave) ! lm index for l = 1, m = M_wave
-    lm_max = lm_init + LL + 1 - M_wave        ! Maximum lm for m = M_wave
+    lm_init = shtns_lmidx(shtns_c, M_wave, M_wave) ! lm index for l = 1, m = M_wave
+    lm_max = shtns_lmidx(shtns_c, LL + 1, M_wave)  ! Maximum lm for m = M_wave
 
-    do k = 1, KK2
-      do j = lm_init, lm_max
-        if (abs(E(k, j)) > max_real) then
-            max_real = abs(E(k, j))
-            k_max = k
-            lm = j
-        end if
-      end do
-    end do
+    max_E = maxval(real(E_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)))
+    loc_max_E = maxloc(real(E_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)), dim=1)
+    max_F = maxval(real(F_ptr_cplx(KK4 * (lm_init - 1) + 1 : KK4 * lm_max)))
+    loc_max_F = maxloc(real(F_ptr_cplx(KK4 * (lm_init - 1) + 1 : KK4 * lm_max)), dim=1)
+    max_T = maxval(real(T_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)))
+    loc_max_T = maxloc(real(T_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)), dim=1)
 
-    wavespeed_loc = 2 * (lm - 1) * KK2 + 2 * k_max ! For E
-    ! wavespeed_loc = 2 * shtns%nlm * KK2 + 2 * (lm - 1) * KK4 + 2 * k_max ! For F
-    ! wavespeed_loc = 2 * shtns%nlm * (KK2 + KK4) + 2 * (lm - 1) * KK2 + 2 * k_max ! For T
+    print*, "This is max_E = ", max_E
+    print*, "This is max_F = ", max_F
+    print*, "This is max_T = ", max_T
+
+    if (max_E > max(max_F, max_T)) then
+        wavespeed_loc = 2 * (KK2 * (lm_init - 1) + loc_max_E)
+    else if (max_F > max(max_T, max_E)) then
+        wavespeed_loc = 2 * shtns%nlm * KK2 + 2 * (KK4 * (lm_init - 1) + loc_max_F)
+    else if (max_T > max(max_E, max_F)) then
+        wavespeed_loc = 2 * shtns%nlm * (KK2 + KK4) + 2 * (KK2 * (lm_init - 1) + loc_max_T)
+    end if
 
     print*
     print*, "------------------ Beginning Newton iteration ------------------"
