@@ -579,7 +579,11 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
         print*, "############## End Newton iteration n°", i_newt
         print*
         
-        if (norm_EFT_best / norm_EFT_new <= newt_delta) exit
+        if (norm_EFT_best / norm_EFT_new <= newt_delta) then
+            print*, "Newton method did not converge, delta criterion attained"
+            print*, "Stopping simulation..."
+            stop
+        end if
 
     end do
 
@@ -587,9 +591,9 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     print*, "Exiting Newton solver and saving data"
     print*
 
-    if ((i_newt == max_newt + 1) .and. (norm_EFT_best / norm_EFT_new >= newt_delta) .and. &
-        & (norm_FU >= newt_eps)) then
-        print*, "Newton method did not converge, stopping simulation..."
+    if ((i_newt == max_newt + 1) .and. (norm_FU >= newt_eps)) then
+        print*, "Newton method did not converge, maximum number of iterations attained" 
+        print*, "Stopping simulation..."
         stop
     end if
 
