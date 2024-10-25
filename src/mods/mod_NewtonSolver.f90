@@ -148,14 +148,14 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 10.
+    gamma = 20.
 
     ! Initialise max_flag
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
-    Ra_max = 75.
-    delta_Ra = - 0.2
+    Ra_max = 140.
+    delta_Ra = 2.5
     Ra_max_flag = .false.
 
     ! Set parameters for continuation in Ek
@@ -520,10 +520,6 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     max_T = maxval(real(T_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)))
     loc_max_T = maxloc(real(T_ptr_cplx(KK2 * (lm_init - 1) + 1 : KK2 * lm_max)), dim=1)
 
-    print*, "This is max_E = ", max_E
-    print*, "This is max_F = ", max_F
-    print*, "This is max_T = ", max_T
-
     if (max_E > max(max_F, max_T)) then
         wavespeed_loc = 2 * (KK2 * (lm_init - 1) + loc_max_E)
     else if (max_F > max(max_T, max_E)) then
@@ -535,6 +531,8 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     print*
     print*, "------------------ Beginning Newton iteration ------------------"
     print*
+
+    gmres_its = 0
 
     do i_newt = 1, max_newt
 
@@ -553,10 +551,10 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
         call gmresm(LinNonLinTimeStep_ptr, restart_gmres, 2 * shtns%nlm * (2 * KK2 + KK4), max_gmres, &
                     & tol_gmres, EFT_RHS, EFT_best, gmres_iters)
 
-        ! Save amount of GMRES iterations in first Newton step in case we are in continuation method
-        if (((solver == "continuation_convective_explicit") .or. &
-            & (solver == "continuation_convective_implicit")) .and. (i_newt == 2)) then
-            gmres_its = gmres_iters ! Saving gmres_its in second Newton step for export. It is a good reference to evaluate convergence.
+        ! Save total amount of GMRES iterations
+        if ((solver == "continuation_convective_explicit") .or. &
+            & (solver == "continuation_convective_implicit")) then
+            gmres_its = gmres_its + gmres_iters
         end if
 
         ! Compute the norm of EFT_best (with c_per inside)
@@ -569,7 +567,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
         ! Update C_base
         C_base = C_base - c_per
 
-        ! Update EFT and compute norm - Here we hsould include C
+        ! Update EFT and compute norm - Here we should include C
         call update_EFT(EFT_best(1), EFT_best(2 * shtns%nlm * KK2 + 1), &
                         & EFT_best(2 * shtns%nlm * (KK2 + KK4) + 1), norm_EFT_new)
 

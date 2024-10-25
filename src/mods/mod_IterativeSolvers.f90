@@ -143,7 +143,7 @@ subroutine gmresm(time_stepping_sub, m, n, itmax, tol, b, ubest, gmres_iters)
 
       print*, 'gmresm: iteration = ', its, ' residual = ', res
 
-      ! done = (res <= tol .or. its == imx .or. res > res_)
+      ! done = (res <= tol .or. its == imx .or. res > res_) ! From original routine by Willis, A.
       done = (res <= tol .or. its == itmax)
 
       if (done .or. j == m) then
@@ -213,7 +213,6 @@ subroutine hookstep(j, h, m, beta, del, y, info)
   call dot(j+1, p, p, del)
   del = sqrt(del)
 end subroutine hookstep
-
 
 subroutine dot(n, x, y, s)
 
