@@ -83,7 +83,7 @@ subroutine continuation_convective_solver()
 
     procedure(), pointer :: NonLinTimeStep_ptr, LinNonLinTimeStep_ptr
 
-    double precision :: delta_Ra, Ra_max ! For continuation in Ra
+    double precision :: delta_Ra, Ra_max, Ra_min ! For continuation in Ra
 
     double precision :: delta_Ek, Ek_min ! For continuation in Ek
 
@@ -91,7 +91,7 @@ subroutine continuation_convective_solver()
     
     logical ::  condition
 
-    logical :: Ra_max_flag  ! For continuation in Ra
+    logical :: Ra_max_flag, adapt_Ra  ! For continuation in Ra
 
     logical :: Ek_min_flag  ! For continuation in Ek
 
@@ -148,19 +148,21 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 20.
+    gamma = 25.
 
     ! Initialise max_flag
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
     Ra_max = 140.
-    delta_Ra = 2.5
+    Ra_min = 65.
+    delta_Ra = - 2.5
     Ra_max_flag = .false.
+    adapt_Ra = .true.
 
     ! Set parameters for continuation in Ek
-    Ek_min = 1.0e-6
-    delta_Ek = 1 / (10. ** (1./3.))
+    Ek_min = 1.0e-4
+    delta_Ek = 1 / (10. ** (1./30.))
     Ek_min_flag = .false.
     
     ! Initialise dsmax
@@ -178,7 +180,8 @@ subroutine continuation_convective_solver()
     ! Then we'll have different assign_new_value functions that will be called using a pointer
 
     ! Set condition
-    condition = Ra <= Ra_max ! For continuation in Ra
+    ! condition = Ra <= Ra_max ! For continuation in Ra
+    condition = Ra >= Ra_min ! For continuation in Ra
     ! condition = Ek >= Ek_min ! For continuation in Ek
 
     do while (condition)
@@ -210,15 +213,16 @@ subroutine continuation_convective_solver()
         print*, 'This is dsmax = ', dsmax
         print*, 'This is dRa = ', dRa ! For continuation in Ra
 
-        call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag) ! For continuation in Ra
-        ! call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag) ! For continuation in Ek
+        call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
+        ! call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag)         ! For continuation in Ek
 
         print*
         print*, "############## End continuation step n°", count
         print*
 
         ! Update condition
-        condition = Ra <= Ra_max ! For continuation in Ra
+        ! condition = Ra <= Ra_max ! For continuation in Ra
+        condition = Ra >= Ra_min ! For continuation in Ra
         ! condition = Ek >= Ek_min ! For continuation in Ek
 
     end do
@@ -229,7 +233,7 @@ subroutine continuation_convective_solver()
 
 end subroutine continuation_convective_solver
 
-subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag)
+subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra)
 
     implicit none
     
@@ -240,6 +244,8 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag)
     double precision, intent(in) :: Ra_max ! This may not be necessary as input
 
     logical, intent(inout) ::  Ra_max_flag
+
+    logical, intent(in) :: adapt_Ra
 
     double precision :: a, b, c, x, delta_x
 
@@ -259,10 +265,12 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag)
         end if
 
         if (count == 2) then
-            Ra_nm2 = Ra_nm1                                                       ! Save Ra from previous iteration
-            Ra_nm1 = Ra                                                           ! Save Ra from current iteration
-            delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
-            Ra = Ra_nm1 + delta_Ra                                                ! Compute new Ra
+            Ra_nm2 = Ra_nm1                                                           ! Save Ra from previous iteration
+            Ra_nm1 = Ra                                                               ! Save Ra from current iteration
+            if (adapt_Ra) then
+                delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
+            end if
+            Ra = Ra_nm1 + delta_Ra                                                    ! Compute new Ra
 
             E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
             E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
@@ -278,11 +286,13 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag)
         end if
 
         if (count >= 3) then
-            Ra_nm3 = Ra_nm2                                                       ! Save Ra from previous to previous iteration
-            Ra_nm2 = Ra_nm1                                                       ! Save Ra from previous iteration
-            Ra_nm1 = Ra                                                           ! Save Ra from current iteration
-            delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
-            Ra = Ra_nm1 + delta_Ra                                                ! Compute new Ra
+            Ra_nm3 = Ra_nm2                                                           ! Save Ra from previous to previous iteration
+            Ra_nm2 = Ra_nm1                                                           ! Save Ra from previous iteration
+            Ra_nm1 = Ra                                                               ! Save Ra from current iteration
+            if (adapt_Ra) then
+                delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
+            end if
+            Ra = Ra_nm1 + delta_Ra                                                    ! Compute new Ra
 
             ! Check that we are not going over the limit
             if ((Ra > Ra_max) .and. (Ra_max_flag .eqv. .false.)) then

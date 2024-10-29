@@ -1,7 +1,18 @@
-This version is an evolution of V4.
+This version features the following solvers:
 
-Now all arrays have the same size (no kU, kT, kB and so on, just KK, LL and MM).
+- convective_explicit
+- convective_implicit
+- newton_convective_explicit
+- newton_convective_implicit
+- continuation_convective_explicit
+- continuation_convective_implicit
 
-The auto_grid variable is now called dealiasing.
+No MHD in this version.
 
-There are bits of code that we begun to program for the steady state solver.
+SH are solved using the SHTns library. 
+
+No vector spherical harmonics.
+
+No FFT in Chebyshev
+
+No parallelisation in CPU nor GPU.
