@@ -200,9 +200,9 @@ subroutine continuation_convective_solver()
                           & newt_steps=newt_steps, gmres_its=gmres_its)
 
         write(51,"(I5,8x,I5,10x,I5,7x,E16.6,7x,E16.6,2x,E16.6,5x,E16.6)") count, newt_steps, & 
-            & gmres_its, Ra, Ekin, C_base, Ur(kN / 2, lN / 2, 1) ! For continuation in Ra
+            & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
         ! write(51,"(I5,3x,I5,3x,I5,3x,E16.6,3x,E16.6,3x,E16.6,3x,E16.6)") count, newt_steps, & 
-        !     & gmres_its, Ek, Ekin, C_base, Ur(kN / 2, lN / 2, 1) ! For continuation in Ek
+        !     & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
 
         ! Flush the file buffer to ensure data is written
         flush(51)
