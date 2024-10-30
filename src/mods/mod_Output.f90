@@ -248,63 +248,54 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
     suffix = "_" // trim(adjustl(nom))
   end if
 
-  open(unit=14, file=trim(directory)//"/Ur_eq_plane"//trim(adjustl(suffix))//".dat", form="formatted")
-  open(unit=15, file=trim(directory)//"/T_mid_gap"//trim(adjustl(suffix))//".dat"  , form="formatted")
-  open(unit=16, file=trim(directory)//"/Ur_mid_gap"//trim(adjustl(suffix))//".dat" , form="formatted")
-  open(unit=17, file=trim(directory)//"/T_r_profile"//trim(adjustl(suffix))//".dat", form="formatted")
-  open(unit=18, file=trim(directory)//"/T_eq_plane"//trim(adjustl(suffix))//".dat" , form="formatted")
-  open(unit=19, file=trim(directory)//"/Ekin_spectral"//trim(adjustl(suffix))//".dat" , form="formatted")
-  open(unit=20, file=trim(directory)//"/Up_mer_plane"//trim(adjustl(suffix))//".dat" , form="formatted")
-  open(unit=21, file=trim(directory)//"/T_k_spectral"//trim(adjustl(suffix))//".dat" , form="formatted")
+  open(unit=14, file=trim(directory)//"/Data_eq_plane"//trim(adjustl(suffix))//".dat", form="formatted")
+  open(unit=15, file=trim(directory)//"/Data_mer_plane"//trim(adjustl(suffix))//".dat"  , form="formatted")
+  open(unit=16, file=trim(directory)//"/Data_mid_gap"//trim(adjustl(suffix))//".dat" , form="formatted")
+  open(unit=17, file=trim(directory)//"/Ekin_spectral"//trim(adjustl(suffix))//".dat" , form="formatted")
+  open(unit=18, file=trim(directory)//"/T_k_spectral"//trim(adjustl(suffix))//".dat" , form="formatted")
+
+  ! Write the header
+  write(14, "(A10, 3x, A16, 3x, A16, 3x, A16)") "Ur", "Ut", "Up", "T"
+  write(15, "(A10, 3x, A16, 3x, A16, 3x, A16)") "Ur", "Ut", "Up", "T"
+  write(16, "(A10, 3x, A16, 3x, A16, 3x, A16)") "Ur", "Ut", "Up", "T"
+  write(17, '(A5, 3x, A15)') "m", "Ekin_spec"
+  write(18, '(A5, 3x, A12)') "k", "T_k"
 
   do k = 1, kN
-    write(17,"(E16.6)", advance="no") rN(k)
-    write(17,"(E16.6)") T_real(k, int(lN/2), mN)
     do m  = 1, mN
-      write(18,"(E16.6)", advance="no") T_real(k, int(lN/2), m)
-      write(18,"(A1)", advance="no") ','
-      write(14,"(E16.6)", advance="no") Ur(k, int(lN/2), m)
-      write(14,"(A1)", advance="no") ','
+      write(14, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, int(lN/2), m), Ut(k, int(lN/2), m) / SinTh(int(lN/2)), & 
+            & Up(k, int(lN/2), m) / SinTh(int(lN/2)), T_real(k, int(lN/2), m) ! We recall Ut and Up are multiplied by sin(theta)
     end do
     do l = 1, lN
-      write(20,"(E16.6)", advance="no") Up(k, l, 1) / SinTh(l) ! We recall Ut and Up are multiplied by sin(theta)
-      write(20,"(A1)", advance="no") ','
+      write(15, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, l, 1), Ut(k, l, 1) / SinTh(l), &
+            & Up(k, l, 1) / SinTh(l), T_real(k, l, 1) ! We recall Ut and Up are multiplied by sin(theta)
     end do
-    write(14,*)
-    write(18,*)
-    write(20,*)
   end do
 
   do l = 1, lN
     do m = 1, mN
-      write(15,"(E16.6)", advance="no") T_real(int(kN/2), l, m)
-      write(15,"(A1)", advance="no") ','
-      write(16,"(E16.6)", advance="no") Ur(int(kN/2), l, m)
-      write(16,"(A1)", advance="no") ','
+      write(16, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(int(kN/2), l, m), Ut(int(kN/2), l, m)  / SinTh(l), &
+            & Up(int(kN/2), l, m)  / SinTh(l),  T_real(int(kN/2), l, m)  ! We recall Ut and Up are multiplied by sin(theta)
     end do
-    write(15,*)
-    write(16,*)
   end do
 
   ! Compute spectral Kinetic Energy
   call comp_spectral_KE(Ekin_spec)
 
   do m = 0, MM
-    write(19, '(I5, 3x, E16.6)') m, Ekin_spec(m)
+    write(17, '(I5, 3x, E16.6)') m, Ekin_spec(m)
   end do
 
   do k = 1, KK2
-    write(21, '(I5, 3x, E16.6)') k, dot_product(real(T(k, :)), real(T(k, :))) + dot_product(aimag(T(k, :)), aimag(T(k, :)))
+    write(18, '(I5, 3x, E16.6)') k, dot_product(real(T(k, :)), real(T(k, :))) + dot_product(aimag(T(k, :)), aimag(T(k, :)))
   end do
 
   close(14)
   close(15)
   close(16)
   close(17)
+  close(17)
   close(18)
-  close(19)
-  close(20)
-  close(21)
 
 end subroutine Output_files
 
