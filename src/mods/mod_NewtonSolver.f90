@@ -150,7 +150,7 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 20.
+    gamma = 25.
 
     ! Initialise max_flag
     max_flag = .false.
