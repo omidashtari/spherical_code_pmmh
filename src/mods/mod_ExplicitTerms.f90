@@ -36,13 +36,6 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
 
   integer :: k, l
 
-  !--- Testing
-  double complex, dimension(KK2, shtns%nlm) :: E_base_rot
-  double complex, dimension(KK4, shtns%nlm) :: F_base_rot
-  double complex, dimension(KK2, shtns%nlm) :: T_base_rot
-  double precision, dimension(kN, lN, mN) :: Ur_rot, Ut_rot, Up_rot, T_real_rot
-  !-----
-
   DE = 0.
   DF = 0.
   DT = 0.
@@ -51,16 +44,6 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
   call comp_curlU(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
   call ToReal(T, T_real, KK2)
   call comp_gradT(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
-
-  !--- Testing
-  call comp_cdphi(C_base, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
-  ! E_base_rot = E_base; F_base_rot = F_base; T_base_rot = T_base;
-  ! call comp_Rotation(- C_base, E_base_rot, KK2)
-  ! call comp_Rotation(- C_base, F_base_rot, KK4)
-  ! call comp_Rotation(- C_base, T_base_rot, KK2)
-  call comp_U(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
-  call ToReal(T_base_rot, T_real_rot, KK2)
-  !------
 
   !--- Forcing terms for U
 
@@ -73,24 +56,15 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
 
   do k = 1, kN
     do l = 1, lN
-      ! Fr(k, l, :) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) / (SinTh(l)**2) &
-      !             & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1)) &
-      !             & + 2.d0 * Up(k,l,:)
-      ! Gt(k, l, :) = (Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) &
-      !             & + 2.d0 * CosTh(l) * Up(k,l,:)) / (SinTh(l)**2) ! Here we compute Gt = Ft / sin(theta)
-      ! Gp(k, l, :) = (Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) &
-      !             & - 2.d0 * (CosTh(l)*Ut(k,l,:) +  SinTh(l)**2*Ur(k,l,:))) / (SinTh(l)**2) ! Here we compute Gp = Fp / sin(theta)
-      ! UgradT(k, l, :) = - Ur(k,l,:) * gTr(k,l,:) &
-      !                 & - (Ut(k,l,:) * gTt(k,l,:) + Up(k,l,:) * gTp(k,l,:)) / (SinTh(l)**2)
       Fr(k, l, :) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) / (SinTh(l)**2) &
                   & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1)) &
-                  & + 2.d0 * Up(k,l,:) + Ur_rot(k,l,:) * Ek
+                  & + 2.d0 * Up(k,l,:)
       Gt(k, l, :) = (Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) &
-                  & + 2.d0 * CosTh(l) * Up(k,l,:) + Ut_rot(k,l,:) * Ek) / (SinTh(l)**2) ! Here we compute Gt = Ft / sin(theta)
+                  & + 2.d0 * CosTh(l) * Up(k,l,:)) / (SinTh(l)**2) ! Here we compute Gt = Ft / sin(theta)
       Gp(k, l, :) = (Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) &
-                  & - 2.d0 * (CosTh(l)*Ut(k,l,:) +  SinTh(l)**2*Ur(k,l,:)) + Up_rot(k,l,:) * Ek) / (SinTh(l)**2) ! Here we compute Gp = Fp / sin(theta)
+                  & - 2.d0 * (CosTh(l)*Ut(k,l,:) +  SinTh(l)**2*Ur(k,l,:))) / (SinTh(l)**2) ! Here we compute Gp = Fp / sin(theta)
       UgradT(k, l, :) = - Ur(k,l,:) * gTr(k,l,:) &
-                      & - (Ut(k,l,:) * gTt(k,l,:) + Up(k,l,:) * gTp(k,l,:)) / (SinTh(l)**2) + T_real_rot(k,l,:)
+                      & - (Ut(k,l,:) * gTt(k,l,:) + Up(k,l,:) * gTp(k,l,:)) / (SinTh(l)**2)
     end do
   end do
 
