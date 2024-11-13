@@ -50,8 +50,10 @@ subroutine PrecompSH()
     ! see https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/spat.html
     layout = SHT_GAUSS + SHT_THETA_CONTIGUOUS
 
-    mres = 1 ! The series is truncated at degree LL and order MM*mres - 
+    mres = 4 ! The series is truncated at degree LL and order MM*mres - 
              ! see https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/spec.html
+
+    MM = MM / mres
 
     !--- Define the size of the spectral description
     shtns_c = shtns_create(LL + 1, MM, mres, norm)
@@ -77,7 +79,7 @@ subroutine PrecompSH()
     allocate(ell(shtns%nlm))
 
     i = 1
-    do m=0, MM
+    do m=0, MM*mres, mres
         do l = m, LL + 1
             ell(i) = l
             i = i + 1
@@ -147,8 +149,8 @@ subroutine PrecompSH()
     allocate(Ur(kN, lN, mN), Ut(kN, lN, mN), Up(kN, lN, mN), T_real(kN, lN, mN))
 
     ! Allocation and computation of spherical harmonics norm
-    allocate(SH_norm(0 : MM, 0 : LL))
-    do m = 0, MM
+    allocate(SH_norm(0 : MM*mres, 0 : LL))
+    do m = 0, MM*mres
         do l = m, LL
             if ((l == 0) .and. (m == 0)) then
                 SH_norm(m, l) = 1.
@@ -184,12 +186,12 @@ subroutine PrecompSH()
     ! Allocation and computation of even and odd indexes for implicit Coriolis
     if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
         & .or. (solver == "continuation_convective_implicit")) then
-        allocate(idx_odd(sum([(((LL + mod(LL, 2)) + 1 - m) / 2, m=0, MM)])))
-        allocate(idx_even(sum([(((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2), m=0, MM)])))
+        allocate(idx_odd(sum([(((LL + mod(LL, 2)) + 1 - m) / 2, m=0, MM*mres, mres)])))
+        allocate(idx_even(sum([(((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2), m=0, MM*mres, mres)])))
         i_even = 1
         i_odd = 1
         i = 1
-        do m = 0, MM
+        do m = 0, MM*mres, mres
             do l = max(m, 1), LL
                 lm = shtns_lmidx(shtns_c, l, m)
                 if (mod(l, 2) /= 0) then ! odd case
@@ -206,15 +208,15 @@ subroutine PrecompSH()
 
     ! Allocation and discretisation of phi
     allocate(phi(mN))
-    do i = 0, mN-1
-        phi(i + 1) = 2 * pi * i / (mN)
+    do i = 0, mN-1 
+        phi(i + 1) = 2 * pi * i / (mN * mres)
     end do
 
     ! Allocation and initialisation of Laplacian operator and d/dphi
     allocate(ll1(shtns%nlm), dphi(shtns%nlm))
     ll1 = 0.
     dphi = 0.
-    do m = 0, MM
+    do m = 0, MM*mres, mres
         do l = m, LL + 1
             lm = shtns_lmidx(shtns_c, l, m)
             ll1(lm) = dble(l * (l + 1))

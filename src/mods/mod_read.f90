@@ -12,11 +12,24 @@ subroutine readDim()
 
   implicit none
 
+  integer :: ios  ! Status of the I/O operation
+
   open(unit=12, file=trim(directory)//"/"//trim(dim_filename),form="unformatted")
   read(12) KKp
   read(12) LLp
   read(12) MMp
   read(12) nlmp
+
+  ! The lines that follows are due to the fact that in previous versions mres could not be controlled by the user.
+  ! Attempt to read mresp
+  read(12, IOSTAT=ios) mresp
+  
+  if (ios /= 0) then
+    ! If reading mresp fails (ios is non-zero), set a default value for mresp
+    mresp = 1
+  end if
+  
+  ! Close the file
   close(12)
   
 end subroutine readDim
@@ -57,7 +70,7 @@ subroutine readRestart()
     ! We recreate previous grid
     lNp = 0
     mNp = 0
-    shtns_c_p = shtns_create(LLp, MMp, mres, norm)
+    shtns_c_p = shtns_create(LLp, MMp, mresp, norm)
     call shtns_set_grid_auto(shtns_c_p, layout, eps_polar, 2, lNp, mNp)
 
     !-- C/Fortran pointer mapping
@@ -65,7 +78,7 @@ subroutine readRestart()
 
     ! Tracking and initialising
     i = 1
-    do m = 0, MM
+    do m = 0, MM*mres, mres
       do l = m, LL
         lm = shtns_lmidx(shtns_c, l, m) ! indexing of actual grid
         lmp = shtns_lmidx(shtns_c_p, l, m) ! indexing of previous grid

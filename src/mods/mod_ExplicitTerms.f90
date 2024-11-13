@@ -921,10 +921,10 @@ subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
     rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
   end do
 
-  do m = 1, MM
-    lm = shtns_lmidx(shtns_c, LL+1, 1)
-    rCF_spec(:, lm) = 0.
-  end do
+  ! do m = 1, MM*mres, mres
+  !   lm = shtns_lmidx(shtns_c, LL+1, 1)
+  !   rCF_spec(:, lm) = 0.
+  ! end do
 
 end subroutine rCurlF
 
@@ -971,10 +971,10 @@ subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
                         & + (aimag(Fr_spec(:, lm)) * ll1(lm))
   end do
 
-  do m = 1, MM
-    lm = shtns_lmidx(shtns_c, LL+1, 1)
-    rCCF_spec(:, lm) = 0.
-  end do
+  ! do m = 1, MM*mres, mres
+  !   lm = shtns_lmidx(shtns_c, LL+1, 1)
+  !   rCCF_spec(:, lm) = 0.
+  ! end do
 
 end subroutine rCurlCurlF
 

@@ -102,7 +102,7 @@ subroutine compute_time_step_convective_implicit_PC()
 
   implicit none
 
-  integer :: lm, k, m, n_even, n_odd, top
+  integer :: lm, k, m, n_even, n_odd, top, m_idx
 
   !--- Compute Explicit terms for the predictor Step
   call comp_ImplicitRHS(DE, DF, DT)
@@ -132,17 +132,20 @@ subroutine compute_time_step_convective_implicit_PC()
   !--- Predictor Step for E, F and T
 
   !--- For E and F
+  m_idx = 0
   Ap = 0.
-  do m = 0, MM
+
+  do m = 0, MM*mres, mres
     DA1 = 0.
     A1 = 0.
     n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
     n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
     top = 2 * (KK2 + KK4) * (n_even + n_odd)
 
-    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m), 4*(KK2 + KK4) - 1, A(:top, m), DA(:top, m))
-    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m))
-    Ap(:top, m) = A1(:top, 1)
+    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m_idx), 4*(KK2 + KK4) - 1, A(:top, m_idx), DA(:top, m_idx))
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m_idx))
+    Ap(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
   end do
 
   !--- For T
@@ -189,16 +192,19 @@ subroutine compute_time_step_convective_implicit_PC()
   !--- Corrector Step for E, F and T
 
   !--- For E and F
-  do m = 0, MM
+  m_idx = 0
+
+  do m = 0, MM*mres, mres
     DA1 = 0.
     A1 = 0.
     n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
     n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
     top = 2 * (KK2 + KK4) * (n_even + n_odd)
 
-    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m), 4*(KK2 + KK4) -1, A(:top, m), DA(:top, m))
-    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m))
-    A(:top, m) = A1(:top, 1)
+    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m_idx), 4*(KK2 + KK4) -1, A(:top, m_idx), DA(:top, m_idx))
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m_idx))
+    A(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
   end do
 
   !--- For T
@@ -271,7 +277,7 @@ subroutine compute_time_step_convective_implicit_IEE()
 
   implicit none
 
-  integer :: lm, k, m, n_even, n_odd, top
+  integer :: lm, k, m, n_even, n_odd, top, m_idx
 
   !--- Compute Explicit terms
   call Implicit_RHS_ptr(DE, DF, DT)
@@ -301,17 +307,20 @@ subroutine compute_time_step_convective_implicit_IEE()
   !--- Solution of the linear system
 
   !--- For E and F
+  m_idx = 0
   Ap = 0.
-  do m = 0, MM
+
+  do m = 0, MM*mres, mres
     DA1 = 0.
     A1 = 0.
     n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
     n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
     top = 2 * (KK2 + KK4) * (n_even + n_odd)
 
-    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m), 4*(KK2 + KK4) - 1, A(:top, m), DA(:top, m))
-    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m))
-    Ap(:top, m) = A1(:top, 1)
+    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m_idx), 4*(KK2 + KK4) - 1, A(:top, m_idx), DA(:top, m_idx))
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m_idx))
+    Ap(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
   end do
 
   !--- For T
@@ -394,7 +403,7 @@ subroutine compute_lin_time_step_convective_implicit(E_per, F_per, T_per)
   double complex, dimension(KK4, shtns%nlm), intent(inout) :: F_per
   double complex, dimension(KK2, shtns%nlm), intent(inout) :: T_per
 
-  integer :: lm, k, m, n_even, n_odd, top
+  integer :: lm, k, m, n_even, n_odd, top, m_idx
 
   !--- Compute Explicit terms
   call comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, DT)
@@ -424,17 +433,20 @@ subroutine compute_lin_time_step_convective_implicit(E_per, F_per, T_per)
   !--- Solution of the linear system
 
   !--- For E and F
+  m_idx = 0
   Ap = 0.
-  do m = 0, MM
+
+  do m = 0, MM*mres, mres
     DA1 = 0.
     A1 = 0.
     n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
     n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
     top = 2 * (KK2 + KK4) * (n_even + n_odd)
 
-    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m), 4*(KK2 + KK4) - 1, A(:top, m), DA(:top, m))
-    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m))
-    Ap(:top, m) = A1(:top, 1)
+    DA1 = Banded_Mult(top, 2*(KK2 + KK4) - 1, Yef(:, :top, m_idx), 4*(KK2 + KK4) - 1, A(:top, m_idx), DA(:top, m_idx))
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA1, PIVOT(:top, m_idx))
+    Ap(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
   end do
 
   !--- For T

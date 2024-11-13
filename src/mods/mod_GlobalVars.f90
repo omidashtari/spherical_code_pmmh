@@ -31,7 +31,7 @@ module mod_Globalvars
   integer :: KK2, KK4 ! These are KK+2 and KK+4
 
   ! Truncation parameters of restart file
-  integer :: KKp, LLp, MMp, nlmp
+  integer :: KKp, LLp, MMp, nlmp, mresp
 
   !--- Size of the domain
 

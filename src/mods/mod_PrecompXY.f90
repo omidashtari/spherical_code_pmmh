@@ -605,7 +605,7 @@ subroutine PrecompimplicitXY()
   implicit none
 
   integer :: step, mid, top, i, j, l, m, p
-  integer :: l_odd, l_even, n_even, n_odd
+  integer :: l_odd, l_even, n_even, n_odd, m_idx
   double precision, dimension(2 * KK4 + 4 * KK2, 2 * KK4) :: ColumnFX, ColumnFY
   double precision, dimension(2 * KK2 + 4 * KK4, 2 * KK2) :: ColumnEX, ColumnEY
 
@@ -614,8 +614,10 @@ subroutine PrecompimplicitXY()
   PIVOT = 0
 
   step = 2 * (KK2 + KK4)
+
+  m_idx = 0
     
-  do m = 0, MM
+  do m = 0, MM*mres, mres
 
     ColumnEX = 0.
     ColumnFX = 0.
@@ -639,15 +641,15 @@ subroutine PrecompimplicitXY()
 
       do i = 1, 2 * KK2 + 4 * KK4 ! Odds of e are in the first symmetry group
         do j = 1, 2 * KK2
-          Xef(step + i - j + 2 * KK2 - 1, 2 * KK4 * p + l_odd * step + j, m) = ColumnEX(i, j)
-          Yef(i - j + 2 * KK2 - 1 + 1, 2 * KK4 * p + l_odd * step + j, m) = ColumnEY(i, j)
+          Xef(step + i - j + 2 * KK2 - 1, 2 * KK4 * p + l_odd * step + j, m_idx) = ColumnEX(i, j)
+          Yef(i - j + 2 * KK2 - 1 + 1, 2 * KK4 * p + l_odd * step + j, m_idx) = ColumnEY(i, j)
         end do
       end do
 
       do i = 1, 2 * KK4 + 4 * KK2 ! Odds of f are in the second symmetry group
         do j = 1, 2 * KK4
-          Xef(step + i - j + 2 * KK4 - 1, 2 * KK2 * p + mid + l_odd * step + j, m) = ColumnFX(i, j) 
-          Yef(i - j + 2 * KK4 - 1 + 1, 2 * KK2 * p + mid + l_odd * step + j, m) = ColumnFY(i, j)
+          Xef(step + i - j + 2 * KK4 - 1, 2 * KK2 * p + mid + l_odd * step + j, m_idx) = ColumnFX(i, j) 
+          Yef(i - j + 2 * KK4 - 1 + 1, 2 * KK2 * p + mid + l_odd * step + j, m_idx) = ColumnFY(i, j)
         end do
       end do
 
@@ -662,22 +664,24 @@ subroutine PrecompimplicitXY()
 
       do i = 1, 2 * KK4 + 4 * KK2 ! Evens of f are in the first symmetry group
         do j = 1, 2 * KK4
-          Xef(step + i - j + 2 * KK4 - 1, 2 * KK2 * (1 - p) + l_even * step + j, m) = ColumnFX(i, j)
-          Yef(i - j + 2 * KK4 - 1 + 1, 2 * KK2 * (1 - p) + l_even * step + j, m) = ColumnFY(i, j)
+          Xef(step + i - j + 2 * KK4 - 1, 2 * KK2 * (1 - p) + l_even * step + j, m_idx) = ColumnFX(i, j)
+          Yef(i - j + 2 * KK4 - 1 + 1, 2 * KK2 * (1 - p) + l_even * step + j, m_idx) = ColumnFY(i, j)
         end do
       end do
 
       do i = 1, 2 * KK2 + 4 * KK4 ! Evens of e are in the second symmetry group
         do j = 1, 2 * KK2
-          Xef(step + i - j + 2 * KK2 - 1, 2 * KK4 * (1 - p) + mid + l_even * step + j, m) = ColumnEX(i, j) 
-          Yef(i - j + 2 * KK2 - 1 + 1, 2 * KK4 * (1 - p) + mid + l_even * step + j, m) = ColumnEY(i, j)
+          Xef(step + i - j + 2 * KK2 - 1, 2 * KK4 * (1 - p) + mid + l_even * step + j, m_idx) = ColumnEX(i, j) 
+          Yef(i - j + 2 * KK2 - 1 + 1, 2 * KK4 * (1 - p) + mid + l_even * step + j, m_idx) = ColumnEY(i, j)
         end do
       end do
 
       l_even = l_even + 1
     end do
 
-    call Banded_LU_decomp(top, 2 * (KK2 + KK4) - 1, 6 * (KK2 + KK4) - 2, Xef(:, :top, m), PIVOT(:top, m))
+    call Banded_LU_decomp(top, 2 * (KK2 + KK4) - 1, 6 * (KK2 + KK4) - 2, Xef(:, :top, m_idx), PIVOT(:top, m_idx))
+
+    m_idx = m_idx + 1
 
   end do
 
