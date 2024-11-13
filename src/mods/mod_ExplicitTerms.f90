@@ -921,8 +921,9 @@ subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
     rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
   end do
 
-  do m = 1, MM
-    lm = shtns_lmidx(shtns_c, LL+1, 1)
+  ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
+  do m = 0, MM
+    lm = shtns_lmidx(shtns_c, LL+1, m)
     rCF_spec(:, lm) = 0.
   end do
 
@@ -971,11 +972,11 @@ subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
                         & + (aimag(Fr_spec(:, lm)) * ll1(lm))
   end do
 
-  do m = 1, MM
-    lm = shtns_lmidx(shtns_c, LL+1, 1)
+  ! The following loop fixes a numerical issue and allows for correct computation of rCCF up to the l mode LL (excluded)
+  do m = 0, MM
+    lm = shtns_lmidx(shtns_c, LL+1, m)
     rCCF_spec(:, lm) = 0.
   end do
-
 end subroutine rCurlCurlF
 
 end module mod_ExplicitTerms
