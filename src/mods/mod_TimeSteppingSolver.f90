@@ -10,6 +10,7 @@ module mod_TimeSteppingSolver
     use mod_TimeStep
     use mod_IterativeSolvers
     use mod_Output
+    use, intrinsic :: ieee_arithmetic
   
     implicit none
   
@@ -113,6 +114,12 @@ subroutine convective_solver()
 
     ! Compute, print and save kinetic energy
     call comp_KineticEnergy(Ur, Ut, Up)
+    ! Check if Ekin is NaN
+    if (ieee_is_nan(Ekin)) then
+        print*, "The Kinetic Energy has turned into a NaN"
+        print*, "Stopping simulation..."
+        stop
+    end if
     print*, "Kinetic energy:", Ekin
     write(51,"(E16.6,3x,E16.6)") time, Ekin
 
