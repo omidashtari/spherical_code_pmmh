@@ -80,11 +80,11 @@ subroutine convective_solver()
 
     ! Open file for KE time series
     open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
-    write(14, "(A12, 4x, A16)") "time", "E_kin"
+    write(51, "(A12, 4x, A16)") "time", "E_kin"
 
     ! Open file for saven Ur in mid gap, equatorial plane
     if (save_Ur_mgep_t /= 0) open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
-    write(14, "(A12, 4x, A16)") "time", "Ur"
+    write(52, "(A12, 4x, A16)") "time", "Ur"
 
 
     print*, "Volume of the shell = ", Vol
