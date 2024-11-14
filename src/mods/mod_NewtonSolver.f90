@@ -550,7 +550,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     print*, "------------------ Beginning Newton iteration ------------------"
     print*
 
-    gmres_its = 0
+    if (present(gmres_its)) gmres_its = 0
 
     do i_newt = 1, max_newt
 
@@ -570,10 +570,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
                     & tol_gmres, EFT_RHS, EFT_best, gmres_iters)
 
         ! Save total amount of GMRES iterations
-        if ((solver == "continuation_convective_explicit") .or. &
-            & (solver == "continuation_convective_implicit")) then
-            gmres_its = gmres_its + gmres_iters
-        end if
+        if (present(gmres_its)) gmres_its = gmres_its + gmres_iters
 
         ! Compute the norm of EFT_best (with c_per inside)
         norm_EFT_best = sqrt(EFT_best .dot. EFT_best)
