@@ -24,7 +24,7 @@ module mod_Globalvars
   character(len=100) :: restart_filename, dim_filename
 
   !--- Truncation parameters
-  integer :: LL, MM, KK 
+  integer :: LL, MM, KK, mres
   integer :: kN ! Number of r points in physical space
   integer :: lN = 0, mN = 0 ! Numer of theta and phi points in physical space
 

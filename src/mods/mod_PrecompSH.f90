@@ -15,7 +15,7 @@ module mod_PrecompSH
     double precision, pointer :: CosTh(:), SinTh(:)
     double precision, dimension(:), allocatable :: phi
     double precision :: eps_polar                             ! Polar optimisation threshold
-    integer :: mres, nthreads, norm, layout, nlm
+    integer :: nthreads, norm, layout, nlm
     double precision, dimension(:), allocatable :: ll1, dphi  ! Arrays for the Laplacian and d/dphi
     double precision, dimension(:), allocatable :: sth_dth    ! Array to perform sin(theta).d/dtheta
     double precision, dimension(:), allocatable :: costh_mul  ! Array to perform multiplication by cos(theta)
@@ -50,10 +50,8 @@ subroutine PrecompSH()
     ! see https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/spat.html
     layout = SHT_GAUSS + SHT_THETA_CONTIGUOUS
 
-    mres = 4 ! The series is truncated at degree LL and order MM*mres - 
-             ! see https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/spec.html
-
-    MM = MM / mres
+    ! The series is truncated at degree LL and order MM*mres - 
+    ! see https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/spec.html
 
     !--- Define the size of the spectral description
     shtns_c = shtns_create(LL + 1, MM, mres, norm)

@@ -13,14 +13,14 @@ subroutine parse_command_line_arguments()
 
     ! Declare local variables
     character(len=100) :: arg, param, param_lc, value
-    character(len=100), dimension(31) :: params_string_array
+    character(len=100), dimension(32) :: params_string_array
     integer :: i, lc, ic
 
     ! Set params_string_array
     params_string_array = [character(len=100) :: &
         "-delta_t", "-nts", "-save_every", "-save_restart", &
         "-solver", "-restart", "-dealiasing", "-directory", &
-        "-kk", "-ll", "-mm", "-rin", "-rout", "-pr", "-ek", &
+        "-kk", "-ll", "-mm", "-mres", "-rin", "-rout", "-pr", "-ek", &
         "-ro", "-ra", "-ier", "-save_ur_mgep_t", "-init", &
         "-init_amp", "-max_newt", "-max_gmres", "-restart_gmres", &
         "-newt_eps", "-newt_delta", "-tol_gmres", "-m_wave", &
@@ -42,6 +42,7 @@ subroutine parse_command_line_arguments()
     save_every = 0
     save_restart = 0
     save_Ur_mgep_t = 0
+    mres = 0
 
 ! Parse command line arguments
     i = 1
@@ -146,6 +147,9 @@ subroutine parse_command_line_arguments()
 
             case ("-mm")
                 read(value, *) MM
+
+            case ("-mres")
+                read(value, *) mres
 
             case ("-rin")
                 read(value, *) Rin
@@ -394,6 +398,16 @@ subroutine check_arg_validity()
         stop
     else
         print*, "The number of Fourier modes is ", MM
+    end if
+
+    if (mres < 0) then
+        print *, "Simulation stopped - mres has an invalid value"
+        stop
+    else if (mres == 0) then
+        print*, "mres not fixed, setting to mres = 1"
+        mres = 1
+    else
+        print*, "The resolution of the Fourier transform is ", mres
     end if
 
     if (((solver == "convective_explicit") .or. (solver == "convective_implicit")) .and. &

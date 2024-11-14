@@ -158,14 +158,14 @@ subroutine continuation_convective_solver()
     ! Set parameters for continuation in Ra
     Ra_max = 140.
     Ra_min = 88.
-    delta_Ra = 2.5
+    delta_Ra = 1.
     Ra_max_flag = .false.
-    adapt_Ra = .true.
+    adapt_Ra = .false.
 
     ! Set parameters for continuation in Ek
     Ek_max = 1.0e-2 
-    Ek_min = 1.0e-4
-    delta_Ek = 10. ** (1./30.) !1 / (10. ** (1./20.))
+    Ek_min = 1.0e-5
+    delta_Ek = 1 / (10. ** (1./30.))
     Ek_min_flag = .false.
     
     ! Initialise dsmax
