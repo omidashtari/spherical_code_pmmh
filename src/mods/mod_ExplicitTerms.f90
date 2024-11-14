@@ -922,7 +922,7 @@ subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
   end do
 
   ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
-  do m = 0, MM
+  do m = 0, MM*mres, mres
     lm = shtns_lmidx(shtns_c, LL+1, m)
     rCF_spec(:, lm) = 0.
   end do
@@ -973,7 +973,7 @@ subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
   end do
 
   ! The following loop fixes a numerical issue and allows for correct computation of rCCF up to the l mode LL (excluded)
-  do m = 0, MM
+  do m = 0, MM*mres, mres
     lm = shtns_lmidx(shtns_c, LL+1, m)
     rCCF_spec(:, lm) = 0.
   end do

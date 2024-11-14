@@ -65,7 +65,7 @@ subroutine comp_spectral_KE(Ekin_spec)
 
   double precision :: U2 ! To store modulus of the velocity components
 
-  integer :: k, l, m, lm
+  integer :: k, l, m, lm, m_idx
 
   ! Ititialise arrays
   Ur_m = 0. ; Ut_m = 0. ; Up_m = 0. ;
@@ -84,17 +84,21 @@ subroutine comp_spectral_KE(Ekin_spec)
     Sh = Up(k, :, :)
     call spat_to_SH(shtns_c, Sh, Slm_p)
 
-    do m = 0, MM
+    m_idx = 0
+
+    do m = 0, MM*mres, mres
       lm = shtns_lmidx(shtns_c, m, m)
 
-      call SH_to_spat_ml(shtns_c, m, Slm_r(lm:lm + (LL + 1 - m)), Sm, LL+1)
-      Ur_m(k, :, m) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
+      call SH_to_spat_ml(shtns_c, m_idx, Slm_r(lm:lm + (LL + 1 - m)), Sm, LL+1)
+      Ur_m(k, :, m_idx) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
 
-      call SH_to_spat_ml(shtns_c, m, Slm_t(lm:lm + (LL + 1 - m)), Sm, LL+1)
-      Ut_m(k, :, m) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
+      call SH_to_spat_ml(shtns_c, m_idx, Slm_t(lm:lm + (LL + 1 - m)), Sm, LL+1)
+      Ut_m(k, :, m_idx) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
 
-      call SH_to_spat_ml(shtns_c, m, Slm_p(lm:lm + (LL + 1 - m)), Sm, LL+1)
-      Up_m(k, :, m) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
+      call SH_to_spat_ml(shtns_c, m_idx, Slm_p(lm:lm + (LL + 1 - m)), Sm, LL+1)
+      Up_m(k, :, m_idx) = Sm * (1. + dble(min(1, max(0, m)))) ! We need to multiply Fourier by 2 for every m >= 0
+
+      m_idx = m_idx + 1
     end do
   end do
 
@@ -203,6 +207,7 @@ subroutine writeDim(Ra, Ek)
   write(12) LL
   write(12) MM
   write(12) shtns%nlm
+  write(12) mres
   close(12)
 end subroutine writeDim
 
@@ -224,7 +229,7 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
   character(len = 50) :: suffix
   integer :: Ra_int  ! To store the rounded Ra as integer
   character(len = 20) :: Ek_str  ! To store Ek in scientific notation
-  integer :: i, k, l, m
+  integer :: i, k, l, m, merid_plane
 
   ! Determine if we use Ra, Ek, or the step in the file name
   if (present(Ra)) then
@@ -261,14 +266,16 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
   write(17, '(A5, 3x, A15)') "m", "Ekin_spec"
   write(18, '(A5, 3x, A12)') "k", "T_k"
 
+  merid_plane = maxloc(abs(Up(kN/2, lN/2, :) / SinTh(lN/2)), dim=1) ! Choosing a meridional plane
+
   do k = 1, kN
-    do m  = 1, mN
+    do m = 1, mN
       write(14, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, int(lN/2), m), Ut(k, int(lN/2), m) / SinTh(int(lN/2)), & 
             & Up(k, int(lN/2), m) / SinTh(int(lN/2)), T_real(k, int(lN/2), m) ! We recall Ut and Up are multiplied by sin(theta)
     end do
     do l = 1, lN
-      write(15, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, l, 1), Ut(k, l, 1) / SinTh(l), &
-            & Up(k, l, 1) / SinTh(l), T_real(k, l, 1) ! We recall Ut and Up are multiplied by sin(theta)
+      write(15, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, l, merid_plane), Ut(k, l, merid_plane) / SinTh(l), &
+            & Up(k, l, merid_plane) / SinTh(l), T_real(k, l, merid_plane) ! We recall Ut and Up are multiplied by sin(theta)
     end do
   end do
 
@@ -282,8 +289,8 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
   ! Compute spectral Kinetic Energy
   call comp_spectral_KE(Ekin_spec)
 
-  do m = 0, MM
-    write(17, '(I5, 3x, E16.6)') m, Ekin_spec(m)
+  do m = 0, MM*mres, mres
+    write(17, '(I5, 3x, E16.6)') m, Ekin_spec(m / mres)
   end do
 
   do k = 1, KK2
