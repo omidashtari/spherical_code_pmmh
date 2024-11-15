@@ -83,8 +83,10 @@ subroutine convective_solver()
     write(51, "(A12, 4x, A16)") "time", "E_kin"
 
     ! Open file for saven Ur in mid gap, equatorial plane
-    if (save_Ur_mgep_t /= 0) open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
-    write(52, "(A12, 4x, A16)") "time", "Ur"
+    if (save_Ur_mgep_t /= 0) then 
+        open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
+        write(52, "(A12, 4x, A16)") "time", "Ur"
+    end if
 
 
     print*, "Volume of the shell = ", Vol
@@ -108,8 +110,8 @@ subroutine convective_solver()
 
     ! Save restart files
     if ((mod(step, save_restart) == 0) .or. step == NTS) then
-        call writeRestart()
-        call writeDim()
+        call writeRestart(step=step)
+        call writeDim(step=step)
     end if
 
     ! Compute, print and save kinetic energy
@@ -127,7 +129,6 @@ subroutine convective_solver()
     if ((save_Ur_mgep_t > 0) .and. (step >= (NTS-save_Ur_mgep_t))) then
         write(52,"(E16.6,3x,E16.6)") time, Ur(kN / 2, lN / 2, 1)
     end if
-
 
     if (mod(step, save_every)==0) then
         call Output_files(Ur, Up, T_real, step=step)

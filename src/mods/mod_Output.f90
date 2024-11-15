@@ -118,10 +118,11 @@ end subroutine comp_spectral_KE
 
 !-------------------------------------------------------------------------------------
 
-subroutine writeRestart(Ra, Ek)
+subroutine writeRestart(step, Ra, Ek)
 
   implicit none
 
+  integer, optional, intent(in) :: step
   double precision, optional, intent(in) :: Ra
   double precision, optional, intent(in) :: Ek
 
@@ -151,8 +152,10 @@ subroutine writeRestart(Ra, Ek)
     open(unit=11, file=trim(directory)//"/Restart"//trim(adjustl(suffix))//".b", form="unformatted")
   end if
 
-  if ((.not. present(Ra)) .and. (.not. present(Ek))) then
-    open(unit=11, file=trim(directory)//"/Restart.b", form="unformatted")
+  if (present(step)) then
+    write(nom, "(I10)") step
+    suffix = "_" // trim(adjustl(nom))
+    open(unit=11, file=trim(directory)//"/Restart"//trim(adjustl(suffix))//".b", form="unformatted")
   end if
 
   write(11) E
@@ -166,10 +169,11 @@ end subroutine writeRestart
 
 !-------------------------------------------------------------------------------------
 
-subroutine writeDim(Ra, Ek)
+subroutine writeDim(step, Ra, Ek)
 
   implicit none
 
+  integer, optional, intent(in) :: step
   double precision, optional, intent(in) :: Ra
   double precision, optional, intent(in) :: Ek
 
@@ -199,8 +203,10 @@ subroutine writeDim(Ra, Ek)
     open(unit=12, file=trim(directory)//"/Dim"//trim(adjustl(suffix))//".b", form="unformatted")
   end if
 
-  if ((.not. present(Ra)) .and. (.not. present(Ek))) then
-    open(unit=12, file=trim(directory)//"/Dim.b", form="unformatted")
+  if (present(step)) then
+    write(nom, "(I10)") step
+    suffix = "_" // trim(adjustl(nom))
+    open(unit=12, file=trim(directory)//"/Dim"//trim(adjustl(suffix))//".b", form="unformatted")
   end if
 
   write(12) KK
