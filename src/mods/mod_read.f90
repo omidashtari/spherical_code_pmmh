@@ -74,22 +74,27 @@ subroutine readRestart()
     ! We recreate previous grid
     lNp = 0
     mNp = 0
-    shtns_c_p = shtns_create(LLp, MMp, mresp, norm)
+    shtns_c_p = shtns_create(LLp + 1, MMp, mresp, norm)
     call shtns_set_grid_auto(shtns_c_p, layout, eps_polar, 2, lNp, mNp)
 
     !-- C/Fortran pointer mapping
     call c_f_pointer(cptr=shtns_c_p, fptr=shtns_p)
 
     ! Tracking and initialising
-    i = 1
     do m = 0, MM*mres, mres
-      do l = m, LL
-        lm = shtns_lmidx(shtns_c, l, m) ! indexing of actual grid
-        lmp = shtns_lmidx(shtns_c_p, l, m) ! indexing of previous grid
-        E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
-        F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
-        T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
-        i = i + 1
+      do l = m, LL + 1
+        if ((l <= LLp + 1) .and. (m <= MMp * mresp)) then
+          lm = shtns_lmidx(shtns_c, l, m) ! indexing of actual grid
+          lmp = shtns_lmidx(shtns_c_p, l, m) ! indexing of previous grid
+          E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
+          F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
+          T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
+        else
+          lm = shtns_lmidx(shtns_c, l, m)
+          E(:, lm) = 0.
+          F(:, lm) = 0.
+          T(:, lm) = 0.
+        end if
       end do
     end do
 

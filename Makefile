@@ -1,5 +1,5 @@
 # parameters
-DEBUG= -O2 -fdefault-real-8 -fdefault-double-8 -g -fcheck=all # -fopenmp -openmp-report2
+DEBUG= -O2 -fdefault-real-8 -fdefault-double-8 -g -fcheck=all # -fopenmp -openmp-report2 -Wall
 #DEBUG=  -fopenmp
 COMPILE=gfortran $(DEBUG)
 
