@@ -36,7 +36,9 @@ end subroutine readDim
 
 subroutine readRestart()
 
-  implicit none 
+  implicit none
+
+  integer :: ios  ! Status of the I/O operation
 
   integer :: i, l, m, lm, lmp, lNp, mNp
   double complex, dimension(:, :), allocatable :: E_p, F_p, T_p
@@ -52,8 +54,10 @@ subroutine readRestart()
   read(11) E_p
   read(11) F_p
   read(11) T_p
-  read(11) t0
-  read(11) step_0
+
+  ! Attempt to read t0 and step_0 from timestepping simulation binary files.
+  read(11, IOSTAT=ios) t0
+  read(11, IOSTAT=ios) step_0
   
   ! Initialise fields
   E = 0.

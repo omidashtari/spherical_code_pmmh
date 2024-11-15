@@ -139,9 +139,7 @@ subroutine writeRestart(step, Ra, Ek)
     write(nom, "(I0)") Ra_int  ! Use I0 format to remove leading spaces
     suffix = "_Ra_" // trim(adjustl(nom))
     open(unit=11, file=trim(directory)//"/Restart"//trim(adjustl(suffix))//".b", form="unformatted")
-  end if
-
-  if (present(Ek)) then
+  else if (present(Ek)) then
     write(Ek_str, "(ES10.1E2)") Ek  ! Scientific notation with format ES (e.g., 1e-3)
     do i = 1, len(Ek_str)
       if (Ek_str(i:i) == 'E') then
@@ -150,19 +148,21 @@ subroutine writeRestart(step, Ra, Ek)
     end do
     suffix = "_Ek_" // trim(adjustl(Ek_str))
     open(unit=11, file=trim(directory)//"/Restart"//trim(adjustl(suffix))//".b", form="unformatted")
-  end if
-
-  if (present(step)) then
+  else if (present(step)) then
     write(nom, "(I10)") step
     suffix = "_" // trim(adjustl(nom))
     open(unit=11, file=trim(directory)//"/Restart"//trim(adjustl(suffix))//".b", form="unformatted")
+  else
+    open(unit=11, file=trim(directory)//"/Restart.b", form="unformatted")
   end if
 
   write(11) E
   write(11) F
   write(11) T
-  write(11) time
-  write(11) step
+  if (present(step)) then
+    write(11) time
+    write(11) step
+  end if
   close(11)
 
 end subroutine writeRestart
@@ -190,9 +190,7 @@ subroutine writeDim(step, Ra, Ek)
     write(nom, "(I0)") Ra_int  ! Use I0 format to remove leading spaces
     suffix = "_Ra_" // trim(adjustl(nom))
     open(unit=12, file=trim(directory)//"/Dim"//trim(adjustl(suffix))//".b", form="unformatted")
-  end if
-
-  if (present(Ek)) then
+  else if (present(Ek)) then
     write(Ek_str, "(ES10.1E2)") Ek  ! Scientific notation with format ES (e.g., 1e-3)
     do i = 1, len(Ek_str)
       if (Ek_str(i:i) == 'E') then
@@ -201,12 +199,12 @@ subroutine writeDim(step, Ra, Ek)
     end do
     suffix = "_Ek_" // trim(adjustl(Ek_str))
     open(unit=12, file=trim(directory)//"/Dim"//trim(adjustl(suffix))//".b", form="unformatted")
-  end if
-
-  if (present(step)) then
+  else if (present(step)) then
     write(nom, "(I10)") step
     suffix = "_" // trim(adjustl(nom))
     open(unit=12, file=trim(directory)//"/Dim"//trim(adjustl(suffix))//".b", form="unformatted")
+  else
+    open(unit=12, file=trim(directory)//"/Dim.b", form="unformatted")
   end if
 
   write(12) KK
