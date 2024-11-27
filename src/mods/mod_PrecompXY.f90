@@ -312,7 +312,7 @@ function Xue(m, l, COEF)
       Chb0R = Chb0 / rK
 
       Xue(:KK, k) = - delta_t * 2. * COEF * dble(l * (l + abs(m) + 1) * (l + 2)) / dble(2 * l + 3) * &
-                  & (dble(l + 1) * Chb0R + Chb1) * SH_norm(m, l+1) / SH_norm(m, l)
+                  & (dble(l + 1) * Chb0R + Chb1) * sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
       
       !Boundary conditions
       Xue(KK + 1, k) = 0.
@@ -347,7 +347,7 @@ function Xuf(m, l, COEF)
       Chb0R = Chb0 / rK
 
       Xuf(:KK, k) = - delta_t * 2. * COEF / rK * dble(l * (l + abs(m) + 1) * (l + 2)) / dble(2 * l + 3) * &
-                  & (dble(l + 1) * Chb0R + Chb1) * SH_norm(m, l+1) / SH_norm(m, l)
+                  & (dble(l + 1) * Chb0R + Chb1) * sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
 
       !Boundary conditions
       Xuf(KK + 1, k) = 0.
@@ -380,7 +380,7 @@ function Xle(m, l, COEF)
       Chb0R = Chb0 / rK
 
       Xle(:KK, k) = delta_t * 2. * COEF * dble((l + 1) * (l - 1) * (l - abs(m))) / dble(2 * l - 1) * &
-                  & (dble(l) * Chb0R - Chb1) * SH_norm(m, l - 1) / SH_norm(m, l)
+                  & (dble(l) * Chb0R - Chb1) * sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
 
       !Boundary conditions
       Xle(KK + 1, k) = 0.
@@ -415,7 +415,7 @@ function Xlf(m, l, COEF)
       Chb0R = Chb0 / rK
 
       Xlf(:KK, k) = delta_t * 2. * COEF / rK * dble((l + 1) * (l - 1) * (l - abs(m))) / dble(2 * l - 1) * &
-                  & (dble(l) * Chb0R - Chb1) * SH_norm(m, l-1) / SH_norm(m, l)
+                  & (dble(l) * Chb0R - Chb1) * sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
 
       !Boundary conditions
       Xlf(KK + 1, k) = 0.

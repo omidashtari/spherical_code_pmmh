@@ -156,11 +156,11 @@ subroutine continuation_convective_solver()
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
-    Ra_max = 140.
+    Ra_max = 180.
     Ra_min = 88.
-    delta_Ra = 1.
+    delta_Ra = 2.5
     Ra_max_flag = .false.
-    adapt_Ra = .false.
+    adapt_Ra = .true.
 
     ! Set parameters for continuation in Ek
     Ek_max = 1.0e-2 
