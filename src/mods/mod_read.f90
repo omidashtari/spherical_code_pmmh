@@ -81,21 +81,13 @@ subroutine readRestart()
     call c_f_pointer(cptr=shtns_c_p, fptr=shtns_p)
 
     ! Tracking and initialising
-    do m = 0, MM*mres, mres
-      do l = m, LL + 1
-        if ((l <= LLp + 1) .and. (m <= MMp * mresp)) then
-          lm = shtns_lmidx(shtns_c, l, m) ! indexing of actual grid
-          lmp = shtns_lmidx(shtns_c_p, l, m) ! indexing of previous grid
-          E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
-          F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
-          T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
-        else
-          lm = shtns_lmidx(shtns_c, l, m)
-          E(:, lm) = 0.
-          F(:, lm) = 0.
-          T(:, lm) = 0.
-        end if
-      end do
+    do lmp = 1, nlmp
+      l = shtns_lm2l(shtns_c_p, lmp)
+      m = shtns_lm2m(shtns_c_p, lmp)
+      lm = shtns_lmidx(shtns_c, l, m)
+      E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
+      F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
+      T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
     end do
 
     ! Destroy previous grid
