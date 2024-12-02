@@ -84,10 +84,12 @@ subroutine readRestart()
     do lmp = 1, nlmp
       l = shtns_lm2l(shtns_c_p, lmp)
       m = shtns_lm2m(shtns_c_p, lmp)
-      lm = shtns_lmidx(shtns_c, l, m)
-      E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
-      F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
-      T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
+      if (mod(m, mres) == 0) then
+        lm = shtns_lmidx(shtns_c, l, m)
+        E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
+        F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
+        T(1:min(KK, KKp) + 2, lm) = T_p(1:min(KK, KKp) + 2, lmp)
+      end if
     end do
 
     ! Destroy previous grid
