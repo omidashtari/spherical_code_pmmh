@@ -87,8 +87,6 @@ subroutine continuation_convective_solver()
 
     double precision :: delta_Ek, Ek_max, Ek_min ! For continuation in Ek
 
-    double precision :: Ur_output
-
     integer :: count, newt_steps, gmres_its
     
     logical ::  condition
@@ -152,15 +150,15 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 40.
+    gamma = 110.
 
     ! Initialise max_flag
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
-    Ra_max = 140.
+    Ra_max = 160.
     Ra_min = 88.
-    delta_Ra = 2.5
+    delta_Ra = 1.
     Ra_max_flag = .false.
     adapt_Ra = .true.
 
@@ -203,15 +201,8 @@ subroutine continuation_convective_solver()
         call newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, &
                           & newt_steps=newt_steps, gmres_its=gmres_its)
 
-        ! Check sign of delta_Ra for Ur output
-        if (delta_Ra > 0.) then
-            Ur_output = maxval(Ur(kN / 2, lN / 2, :))
-        else
-            Ur_output = minval(Ur(kN / 2, lN / 2, :))
-        end if
-
         write(51,"(I5,8x,I5,10x,I5,7x,E16.6,7x,E16.6,2x,E16.6,5x,E16.6)") count, newt_steps, & 
-                & gmres_its, Ra, Ekin, C_base, Ur_output ! For continuation in Ra
+                & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
         ! write(51,"(I5,8x,I5,10x,I5,7x,E16.6,7x,E16.6,2x,E16.6,5x,E16.6)") count, newt_steps, & 
         !     & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
 
