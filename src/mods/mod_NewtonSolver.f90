@@ -88,6 +88,8 @@ subroutine continuation_convective_solver()
     double precision :: delta_Ek, Ek_max, Ek_min ! For continuation in Ek
 
     integer :: count, newt_steps, gmres_its
+
+    integer :: ios
     
     logical ::  condition
 
@@ -124,10 +126,18 @@ subroutine continuation_convective_solver()
 
     end if
 
-    ! Open file for KE continuation
-    open(51,file=trim(directory)//"/Continuation_params.dat", status='unknown', position='append')
-    write(51, "(A10,3x,A10,3x,A11,3x,A16,3x,A16,3x,A16,3x,A16)") "Cont. step", "Newt steps", & 
-        & "Total GMRES", "Cont. param", "Ekin", "Drift f", "Ur"
+    ! Open file for continuation, checking if file already exists
+    open(51, file=trim(directory)//"/Continuation_params.dat", status='unknown', action='read', iostat=ios)
+    close(51)
+    if (ios /= 0) then 
+        ! File does not exist
+        open(51,file=trim(directory)//"/Continuation_params.dat", status='unknown', position='append')
+        write(51, "(A10,3x,A10,3x,A11,3x,A16,3x,A16,3x,A16,3x,A16)") "Cont. step", "Newt steps", & 
+            & "Total GMRES", "Cont. param", "Ekin", "Drift f", "Ur"
+    else
+        ! File exists
+        open(51,file=trim(directory)//"/Continuation_params.dat", status='unknown', position='append')
+    end if
 
     print*
     print*, "--------------------- Initial values ---------------------------"
@@ -150,14 +160,14 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 110.
+    gamma = 100.
 
     ! Initialise max_flag
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
-    Ra_max = 160.
-    Ra_min = 88.
+    Ra_max = 260.
+    Ra_min = 80.
     delta_Ra = 1.
     Ra_max_flag = .false.
     adapt_Ra = .true.
