@@ -20,6 +20,8 @@ subroutine convective_solver()
 
     implicit none
 
+    integer :: ios
+
     procedure(), pointer :: TimeStep_ptr
 
     ! Check for solver type
@@ -78,16 +80,29 @@ subroutine convective_solver()
     time = t0
     NTS = NTS + step_0
 
-    ! Open file for KE time series
-    open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
-    write(51, "(A12, 4x, A16)") "time", "E_kin"
-
-    ! Open file for saven Ur in mid gap, equatorial plane
-    if (save_Ur_mgep_t /= 0) then 
-        open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
-        write(52, "(A12, 4x, A16)") "time", "Ur"
+    ! Open file for KE time series, checking if file already exists
+    open(51, file=trim(directory)//"/KE_timeserie.dat", status='unknown', action='read', iostat=ios)
+    close(51)
+    if (ios /= 0) then 
+        ! File does not exist
+        open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
+        write(51, "(A12, 4x, A16)") "time", "E_kin"
+    else
+        ! File exists
+        open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
     end if
 
+    ! Open file to save timeseries of Ur in mid gap, equatorial plane. Checking if file already exists
+    open(52, file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', action='read', iostat=ios)
+    close(52)
+    if (ios /= 0) then 
+        ! File does not exist
+        open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
+        write(52, "(A12, 4x, A16)") "time", "Ur"
+    else
+        ! File exists
+        open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
+    end if
 
     print*, "Volume of the shell = ", Vol
 
@@ -102,7 +117,7 @@ subroutine convective_solver()
 
     time = time + delta_t
 
-    print*, "Time = ",time
+    print*, "Time = ", time
     print*
 
     ! Now we compute the explicit timestep
