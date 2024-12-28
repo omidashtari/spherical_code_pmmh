@@ -84,7 +84,7 @@ subroutine readRestart()
     do lmp = 1, nlmp
       l = shtns_lm2l(shtns_c_p, lmp)
       m = shtns_lm2m(shtns_c_p, lmp)
-      if (mod(m, mres) == 0) then
+      if ((mod(m, mres) == 0) .and. (m <= MM*mres)) then
         lm = shtns_lmidx(shtns_c, l, m)
         E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
         F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
