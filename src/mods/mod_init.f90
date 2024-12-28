@@ -40,38 +40,11 @@ subroutine init_TEMP()
         end do
       end do
 
-    case("sym_2")
+    case("symmetric")
       do k = 1, kN
         do l = 1, lN
           do m = 1, mN
-            Ti(k, l, m) = init_amp * cos(2 * phi(m))
-          end do
-        end do
-      end do
-
-    case("sym_3")
-      do k = 1, kN
-        do l = 1, lN
-          do m = 1, mN
-            Ti(k, l, m) = init_amp * cos(3 * phi(m))
-          end do
-        end do
-      end do
-
-    case("sym_4")
-      do k = 1, kN
-        do l = 1, lN
-          do m = 1, mN
-            Ti(k, l, m) = init_amp * cos(4 * phi(m))
-          end do
-        end do
-      end do
-
-    case("sym_5")
-      do k = 1, kN
-        do l = 1, lN
-          do m = 1, mN
-            Ti(k, l, m) = init_amp * cos(5 * phi(m))
+            Ti(k, l, m) = init_amp * cos(sym * phi(m))
           end do
         end do
       end do

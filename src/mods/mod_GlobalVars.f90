@@ -47,6 +47,7 @@ module mod_Globalvars
   double precision :: IER = -1. ! Ratio beetwen the implicit and explicit steps as defined in eq (21)
                                 ! We set it to be -1. to detect if the user has no set it
   double precision :: init_amp  ! Amplitude for symmetric initial condition
+  integer          :: sym       ! M azymuthal symmetry for initial condition
 
   !--- Arrays containing the computed data
 

@@ -13,7 +13,7 @@ subroutine parse_command_line_arguments()
 
     ! Declare local variables
     character(len=100) :: arg, param, param_lc, value
-    character(len=100), dimension(32) :: params_string_array
+    character(len=100), dimension(33) :: params_string_array
     integer :: i, lc, ic
 
     ! Set params_string_array
@@ -22,7 +22,7 @@ subroutine parse_command_line_arguments()
         "-solver", "-restart", "-dealiasing", "-directory", &
         "-kk", "-ll", "-mm", "-mres", "-rin", "-rout", "-pr", "-ek", &
         "-ro", "-ra", "-ier", "-save_ur_mgep_t", "-init", &
-        "-init_amp", "-max_newt", "-max_gmres", "-restart_gmres", &
+        "-init_amp", "-sym", "-max_newt", "-max_gmres", "-restart_gmres", &
         "-newt_eps", "-newt_delta", "-tol_gmres", "-m_wave", &
         "-time_step", "-restart_filename", "-dim_filename" &
     ]
@@ -138,6 +138,9 @@ subroutine parse_command_line_arguments()
 
             case ("-init_amp")
                 read(value, *) init_amp
+
+            case ("-sym")
+                read(value, *) sym
 
             case ("-kk")
                 read(value, *) KK
@@ -281,7 +284,7 @@ subroutine check_arg_validity()
 
     if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename /= "no")) then
         print*, "Restaring fields from ", restart_filename
-    else 
+    else if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename == "no")) then
         print*, "Restart option activated but no filename given for field restart."
         print*, "Restarting fields from Restart.b file"
         restart_filename = "Restart.b"
@@ -289,7 +292,7 @@ subroutine check_arg_validity()
 
     if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename /= "no")) then
         print*, "Restaring dimensions from ", dim_filename
-    else 
+    else if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename == "no")) then
         print*, "Restart option activated but no filename given for dimensions restart."
         print*, "Restarting dimension from Dim.b file"
         dim_filename = "Dim.b"
@@ -300,27 +303,30 @@ subroutine check_arg_validity()
         print*, "Restart option not activated, restart_filename or dim_filename will not be used"
     end if
 
-    if (init == "Christensen") then
+    if (init == "christensen") then
         print*, "Starting simulation from Christensen et al. (2001) initial condition"
-    else if (init == "sym_2") then
-        print*, "Starting simulation with an m = 2 initial condition"
-    else if (init == "sym_3") then
-        print*, "Starting simulation with an m = 3 initial condition"
-    else if (init == "sym_4") then
-        print*, "Starting simulation with an m = 4 initial condition"
-    else if (init == "sym_5") then
-        print*, "Starting simulation with an m = 5 initial condition"
+    else if (init == "symmetric") then
+        print*, "Starting simulation from symmetric initial condition"
     else if (init /= 'no') then
         print*, "Simulation stopped - init has an invalid value"
         stop
     end if
 
-    if ((init == "sym_2") .or. (init == "sym_3") .or. (init == "sym_4") .or. (init == "sym_5")) then
+    if (init == "symmetric") then
         if (init_amp <= 0.0) then
             print *, "Simulation stopped - init_amp has an invalid value"
             stop
         else
-            print*, "The amplitude for the selected initial condition is ", init_amp
+            print*, "The amplitude for the symmetric initial condition is ", init_amp
+        end if
+    end if
+
+    if (init == "symmetric") then
+        if (sym <= 0) then
+            print*, "Simulation stopped - sym has an invalid value"
+            stop
+        else
+            print*, "The azimuthal symmetry of the initial condition is ", sym
         end if
     end if
 
