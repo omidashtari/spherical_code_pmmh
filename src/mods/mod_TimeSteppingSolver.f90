@@ -86,7 +86,7 @@ subroutine convective_solver()
     if (ios /= 0) then 
         ! File does not exist
         open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
-        write(51, "(A12, 4x, A16)") "time", "E_kin"
+        write(51, "(A15, 4x, A23)") "time", "E_kin"
     else
         ! File exists
         open(51,file=trim(directory)//"/KE_timeserie.dat", status='unknown', position='append')
@@ -98,7 +98,7 @@ subroutine convective_solver()
     if (ios /= 0) then 
         ! File does not exist
         open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
-        write(52, "(A12, 4x, A16)") "time", "Ur"
+        write(52, "(A15, 4x, A21)") "time", "Ur"
     else
         ! File exists
         open(52,file=trim(directory)//"/Ur_mgep_timeserie.dat", status='unknown', position='append')
@@ -138,11 +138,11 @@ subroutine convective_solver()
         stop
     end if
     print*, "Kinetic energy:", Ekin
-    write(51,"(E16.6,3x,E16.6)") time, Ekin
+    write(51,"(E24.16,3x,E24.16)") time, Ekin
 
     ! Save time series of Ur in mid gap, equatorial plane
     if ((save_Ur_mgep_t > 0) .and. (step >= (NTS-save_Ur_mgep_t))) then
-        write(52,"(E16.6,3x,E16.6)") time, Ur(kN / 2, lN / 2, 1)
+        write(52,"(E24.16,3x,E24.16)") time, Ur(kN / 2, lN / 2, 1)
     end if
 
     if (mod(step, save_every)==0) then

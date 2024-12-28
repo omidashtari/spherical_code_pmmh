@@ -132,7 +132,7 @@ subroutine continuation_convective_solver()
     if (ios /= 0) then 
         ! File does not exist
         open(51,file=trim(directory)//"/Continuation_params.dat", status='unknown', position='append')
-        write(51, "(A10,3x,A10,3x,A11,3x,A16,3x,A16,3x,A16,3x,A16)") "Cont. step", "Newt steps", & 
+        write(51, "(A10,3x,A10,3x,A11,3x,A19,3x,A24,3x,A25,3x,A22)") "Cont. step", "Newt steps", & 
             & "Total GMRES", "Cont. param", "Ekin", "Drift f", "Ur"
     else
         ! File exists
@@ -166,15 +166,15 @@ subroutine continuation_convective_solver()
     max_flag = .false.
 
     ! Set parameters for continuation in Ra
-    Ra_max = 260.
-    Ra_min = 80.
-    delta_Ra = 1.
+    Ra_max = 230.
+    Ra_min = 60.
+    delta_Ra = - 1.
     Ra_max_flag = .false.
     adapt_Ra = .true.
 
     ! Set parameters for continuation in Ek
     Ek_max = 1.0e-2 
-    Ek_min = 1.0e-5
+    Ek_min = 1.0e-6
     delta_Ek = 1 / (10. ** (1./30.))
     Ek_min_flag = .false.
     
@@ -193,8 +193,8 @@ subroutine continuation_convective_solver()
     ! Then we'll have different assign_new_value functions that will be called using a pointer
 
     ! Set condition
-    condition = Ra <= Ra_max ! For continuation in Ra
-    ! condition = Ra >= Ra_min ! For continuation in Ra
+    ! condition = Ra <= Ra_max ! For continuation in Ra
+    condition = Ra >= Ra_min ! For continuation in Ra
     ! condition = Ek >= Ek_min ! For continuation in Ek
     ! condition = Ek <= Ek_max ! For continuation in Ek
 
@@ -211,9 +211,9 @@ subroutine continuation_convective_solver()
         call newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, &
                           & newt_steps=newt_steps, gmres_its=gmres_its)
 
-        write(51,"(I5,8x,I5,10x,I5,7x,E16.6,7x,E16.6,2x,E16.6,5x,E16.6)") count, newt_steps, & 
+        write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
                 & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
-        ! write(51,"(I5,8x,I5,10x,I5,7x,E16.6,7x,E16.6,2x,E16.6,5x,E16.6)") count, newt_steps, & 
+        ! write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
         !     & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
 
         ! Flush the file buffer to ensure data is written
@@ -236,8 +236,8 @@ subroutine continuation_convective_solver()
         print*
 
         ! Update condition
-        condition = Ra <= Ra_max ! For continuation in Ra
-        ! condition = Ra >= Ra_min ! For continuation in Ra
+        ! condition = Ra <= Ra_max ! For continuation in Ra
+        condition = Ra >= Ra_min ! For continuation in Ra
         ! condition = Ek >= Ek_min ! For continuation in Ek
         ! condition = Ek <= Ek_max ! For continuation in Ek
 
