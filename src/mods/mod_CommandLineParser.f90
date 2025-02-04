@@ -13,6 +13,7 @@ subroutine parse_command_line_arguments()
 
     ! Declare local variables
     character(len=100) :: arg, param, param_lc, value
+    character(len=1024) :: command_line_string
     character(len=100), dimension(33) :: params_string_array
     integer :: i, lc, ic
 
@@ -44,7 +45,7 @@ subroutine parse_command_line_arguments()
     save_Ur_mgep_t = 0
     mres = 0
 
-! Parse command line arguments
+    ! Parse command line arguments
     i = 1
     do while (i <= command_argument_count())
        
@@ -210,6 +211,24 @@ subroutine parse_command_line_arguments()
     end do
 
     call check_arg_validity()
+
+    command_line_string = ""  ! Initialize the string
+  
+    i = 1
+
+    do while (i <= command_argument_count())
+      call get_command_argument(i, value=arg)
+      command_line_string = trim(command_line_string) // " " // trim(arg) ! Concatenate with spaces
+      i = i + 1
+    end do
+
+    ! Create file to save parameters
+    open(30,file=trim(directory)//"/parameters.dat", status='unknown', position='append')
+    write(30, '(a)') "These are the parameters used in this simulation:"
+    write(30, '(a)')
+    write(30, '(a)') trim(command_line_string)
+    write(30, '(a)')
+    close(30)
 
 end subroutine parse_command_line_arguments
 
