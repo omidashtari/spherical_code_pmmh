@@ -95,7 +95,7 @@ subroutine continuation_convective_solver()
 
     logical :: Ra_max_flag, adapt_Ra  ! For continuation in Ra
 
-    logical :: Ek_min_flag  ! For continuation in Ek
+    logical :: Ek_min_flag, adapt_Ek  ! For continuation in Ek
 
     ! Check for solver type
     if (solver == "continuation_convective_explicit") then
@@ -160,7 +160,7 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
     ! Set parameters for continuation method
-    gamma = 100.
+    gamma = 450.
 
     ! Initialise max_flag
     max_flag = .false.
@@ -174,9 +174,10 @@ subroutine continuation_convective_solver()
 
     ! Set parameters for continuation in Ek
     Ek_max = 1.0e-2 
-    Ek_min = 1.0e-6
-    delta_Ek = 1 / (10. ** (1./30.))
+    Ek_min = 1.0e-5
+    delta_Ek = - 1.0e-4
     Ek_min_flag = .false.
+    adapt_Ek = .true.
     
     ! Initialise dsmax
     dsmax = 0.
@@ -194,8 +195,8 @@ subroutine continuation_convective_solver()
 
     ! Set condition
     ! condition = Ra <= Ra_max ! For continuation in Ra
-    condition = Ra >= Ra_min ! For continuation in Ra
-    ! condition = Ek >= Ek_min ! For continuation in Ek
+    ! condition = Ra >= Ra_min ! For continuation in Ra
+    condition = Ek >= Ek_min ! For continuation in Ek
     ! condition = Ek <= Ek_max ! For continuation in Ek
 
     do while (condition)
@@ -203,18 +204,18 @@ subroutine continuation_convective_solver()
         count = count + 1
 
         print*, "############## Starting continuation step n°", count
-        print*, "Rayleigh number in current step Ra = ", Ra  ! For continuation in Ra
-        print*
-        ! print*, "Ekman number in current step Ek = ", Ek  ! For continuation in Ek
+        ! print*, "Rayleigh number in current step Ra = ", Ra  ! For continuation in Ra
         ! print*
+        print*, "Ekman number in current step Ek = ", Ek  ! For continuation in Ek
+        print*
 
         call newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, &
                           & newt_steps=newt_steps, gmres_its=gmres_its)
 
-        write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
-                & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
         ! write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
-        !     & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
+        !         & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
+        write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
+            & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
 
         ! Flush the file buffer to ensure data is written
         flush(51)
@@ -222,14 +223,16 @@ subroutine continuation_convective_solver()
         call max_search()
 
         dRa = abs(delta_Ra) / Ra
-        ! dEk = abs(delta_Ek) / Ek ! Not checked. 15/10/24
+        dEk = abs(delta_Ek / log10(Ek))
 
         if (count /= 1) print*, "This is S(idsmax) = ", S(idsmax)
         print*, 'This is dsmax = ', dsmax
-        print*, 'This is dRa = ', dRa ! For continuation in Ra
+        ! print*, 'This is dRa = ', dRa ! For continuation in Ra
+        print*, 'This is dEk = ', dEk ! For continuation in Ek
+        print*, 'This is dsmax / dEk', dsmax / dEk ! For continuation in Ek
 
-        call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
-        ! call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag)         ! For continuation in Ek
+        ! call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
+        call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)         ! For continuation in Ek
 
         print*
         print*, "############## End continuation step n°", count
@@ -237,8 +240,8 @@ subroutine continuation_convective_solver()
 
         ! Update condition
         ! condition = Ra <= Ra_max ! For continuation in Ra
-        condition = Ra >= Ra_min ! For continuation in Ra
-        ! condition = Ek >= Ek_min ! For continuation in Ek
+        ! condition = Ra >= Ra_min ! For continuation in Ra
+        condition = Ek >= Ek_min ! For continuation in Ek
         ! condition = Ek <= Ek_max ! For continuation in Ek
 
     end do
@@ -377,61 +380,104 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
 
 end subroutine assign_new_value_Ra
 
-subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag)
+subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)
 
     implicit none
     
     integer, intent(in) :: count, newt_steps
 
-    double precision, intent(in) :: delta_Ek ! This may not be necessary as input
+    double precision, intent(inout) :: delta_Ek ! This may not be necessary as input
 
     double precision, intent(in) :: Ek_min ! This may not be necessary as input
 
     logical, intent(inout) ::  Ek_min_flag
+    
+    logical, intent(in) :: adapt_Ek
 
     double precision :: a, b, c, x, delta_x
 
     integer :: N_opt, i
 
-    N_opt = 6
+    N_opt = 3
+
+    if ((dsmax < gamma * dEk) .or. (count <= 3)) then
+
+        if (max_flag) max_flag = .false. ! Reset max_flag
     
-    if (count == 1) then
-        Ek_nm1 = Ek                                     ! Save Ra from first iteration
-        Ek = Ek_nm1 * delta_Ek                          ! Compute new Ek
-        E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from first iteration
-        C_base_nm1 = C_base                             ! Save wavespeed from first iteration
-    end if
-
-    if (count == 2) then
-        Ek_nm2 = Ek_nm1                                                     ! Save Ek from previous iteration
-        Ek_nm1 = Ek                                                         ! Save Ek from current iteration
-        Ek = Ek_nm1 * delta_Ek                                              ! Compute new Ek
-
-        E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
-        E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
-        C_base_nm2 = C_base_nm1                         ! Save wavespeed from previous iteration
-        C_base_nm1 = C_base                             ! Save wavespeed from current iteration
-
-        ! Linear interpolation for new state
-        a = (Ek - Ek_nm2) / (Ek_nm1 - Ek_nm2) ! Compute slope
-        E_ptr = E_nm2 + a * (E_nm1 - E_nm2)
-        F_ptr = F_nm2 + a * (F_nm1 - F_nm2)
-        T_ptr = T_nm2 + a * (T_nm1 - T_nm2)
-        C_base = C_base_nm2 + a * (C_base_nm1 - C_base_nm2)
-    end if
-
-    if (count >= 3) then
-        Ek_nm3 = Ek_nm2                                                     ! Save Ek from previous to previous iteration
-        Ek_nm2 = Ek_nm1                                                     ! Save Ek from previous iteration
-        Ek_nm1 = Ek                                                         ! Save Ek from current iteration
-        Ek = Ek_nm1 * delta_Ek                                              ! Compute new Ek
-
-        ! Check that we are not going over the limit
-        if ((Ek < Ek_min) .and. (Ek_min_flag .eqv. .false.)) then
-            Ek = Ek_min
-            Ek_min_flag = .true.
+        if (count == 1) then
+            Ek_nm1 = Ek                                     ! Save Ra from first iteration
+            Ek = Ek_nm1 * 10 ** delta_Ek                    ! Compute new Ek
+            E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from first iteration
+            C_base_nm1 = C_base                             ! Save wavespeed from first iteration
         end if
 
+        if (count == 2) then
+            Ek_nm2 = Ek_nm1                                                                ! Save Ek from previous iteration
+            Ek_nm1 = Ek                                                                    ! Save Ek from current iteration
+            if (adapt_Ek) then
+                delta_Ek = dble(N_opt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_Ek
+            end if
+            Ek = Ek_nm1 * 10 ** delta_Ek                                                   ! Compute new Ek
+
+            E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
+            E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
+            C_base_nm2 = C_base_nm1                         ! Save wavespeed from previous iteration
+            C_base_nm1 = C_base                             ! Save wavespeed from current iteration
+
+            ! Linear interpolation for new state
+            a = log10(Ek / Ek_nm2) / log10(Ek_nm1 / Ek_nm2) ! Compute slope
+            E_ptr = E_nm2 + a * (E_nm1 - E_nm2)
+            F_ptr = F_nm2 + a * (F_nm1 - F_nm2)
+            T_ptr = T_nm2 + a * (T_nm1 - T_nm2)
+            C_base = C_base_nm2 + a * (C_base_nm1 - C_base_nm2)
+        end if
+
+        if (count >= 3) then
+            Ek_nm3 = Ek_nm2                                                                ! Save Ek from previous to previous iteration
+            Ek_nm2 = Ek_nm1                                                                ! Save Ek from previous iteration
+            Ek_nm1 = Ek                                                                    ! Save Ek from current iteration
+            if (adapt_Ek) then
+                delta_Ek = dble(N_opt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_Ek
+            end if
+            Ek = Ek_nm1 * 10 ** delta_Ek                                                   ! Compute new Ek
+
+            ! Check that we are not going over the limit
+            if ((Ek < Ek_min) .and. (Ek_min_flag .eqv. .false.)) then
+                Ek = Ek_min
+                Ek_min_flag = .true.
+            end if
+
+            E_nm3 = E_nm2 ; F_nm3 = F_nm2 ; T_nm3 = T_nm2 ; ! Save state from previous to previous iteration
+            E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
+            E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
+            C_base_nm3 = C_base_nm2                         ! Save wavespeed from previous to previous iteration
+            C_base_nm2 = C_base_nm1                         ! Save wavespeed from previous iteration
+            C_base_nm1 = C_base                             ! Save wavespeed from current iteration
+
+            ! Quadratic extrapolation for new state
+            a = log10(Ek / Ek_nm3) * log10(Ek / Ek_nm2) / (log10(Ek_nm1 / Ek_nm3) * log10(Ek_nm1 / Ek_nm2))
+            b = log10(Ek / Ek_nm3) * log10(Ek / Ek_nm1) / (log10(Ek_nm2 / Ek_nm3) * log10(Ek_nm2 / Ek_nm1))
+            c = log10(Ek / Ek_nm2) * log10(Ek / Ek_nm1) / (log10(Ek_nm3 / Ek_nm2) * log10(Ek_nm3 / Ek_nm1))
+
+            E_ptr = a * E_nm1 + b * E_nm2 + c * E_nm3
+            F_ptr = a * F_nm1 + b * F_nm2 + c * F_nm3
+            T_ptr = a * T_nm1 + b * T_nm2 + c * T_nm3
+            C_base = a * C_base_nm1 + b * C_base_nm2 + c * C_base_nm3
+        end if
+
+    else ! We have detected a turning point, we will extrapolate using S(idsmax)
+        print*, '###################################'
+        print*, '####### Extrapolating in Ui #######'
+        print*, '###################################'
+
+        ! First we compute the new guess for S(idsmax)
+        delta_x = S(idsmax) - S_nm1(idsmax)
+        x = S(idsmax) + delta_x
+
+        ! Saving
+        Ek_nm3 = Ek_nm2                                 ! Save Ek from previous to previous iteration
+        Ek_nm2 = Ek_nm1                                 ! Save Ek from previous iteration
+        Ek_nm1 = Ek                                     ! Save Ek from current iteration
         E_nm3 = E_nm2 ; F_nm3 = F_nm2 ; T_nm3 = T_nm2 ; ! Save state from previous to previous iteration
         E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
         E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
@@ -439,15 +485,26 @@ subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag)
         C_base_nm2 = C_base_nm1                         ! Save wavespeed from previous iteration
         C_base_nm1 = C_base                             ! Save wavespeed from current iteration
 
-        ! Quadratic extrapolation for new state
-        a = (Ek - Ek_nm3) * (Ek - Ek_nm2) / ((Ek_nm1 - Ek_nm3) * (Ek_nm1 - Ek_nm2))
-        b = (Ek - Ek_nm3) * (Ek - Ek_nm1) / ((Ek_nm2 - Ek_nm3) * (Ek_nm2 - Ek_nm1))
-        c = (Ek - Ek_nm2) * (Ek - Ek_nm1) / ((Ek_nm3 - Ek_nm2) * (Ek_nm3 - Ek_nm1))
+        ! Compute the extrapolation coefficients
+        a = (x - S_nm3(idsmax)) * (x - S_nm2(idsmax)) / ((S_nm1(idsmax) - S_nm3(idsmax)) * (S_nm1(idsmax) - S_nm2(idsmax)))
+        b = (x - S_nm3(idsmax)) * (x - S_nm1(idsmax)) / ((S_nm2(idsmax) - S_nm3(idsmax)) * (S_nm2(idsmax) - S_nm1(idsmax)))
+        c = (x - S_nm2(idsmax)) * (x - S_nm1(idsmax)) / ((S_nm3(idsmax) - S_nm2(idsmax)) * (S_nm3(idsmax) - S_nm1(idsmax)))
 
+        ! Perform extrapolation
         E_ptr = a * E_nm1 + b * E_nm2 + c * E_nm3
         F_ptr = a * F_nm1 + b * F_nm2 + c * F_nm3
         T_ptr = a * T_nm1 + b * T_nm2 + c * T_nm3
         C_base = a * C_base_nm1 + b * C_base_nm2 + c * C_base_nm3
+        Ek = 10 ** log10(Ek_nm1 ** a * Ek_nm2 ** b * Ek_nm3 ** c)
+
+        ! Set S(idsmax)
+        S(idsmax) = x
+
+        ! Compute delta_Ra
+        delta_Ek = log10(Ek / Ek_nm1)
+
+        ! Set max_flag
+        max_flag = .true.
     end if
 
     ! Now we re-compute the matrices
@@ -627,10 +684,10 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     ! Saving restart files
     if ((solver == "continuation_convective_explicit") .or. &
         & (solver == "continuation_convective_implicit")) then
-        call writeRestart(Ra=Ra) ! For continuation in Ra
-        call writeDim(Ra=Ra) ! For continuation in Ra
-        ! call writeRestart(Ek=Ek) ! For continuation in Ek
-        ! call writeDim(Ek=Ek) ! For continuation in Ek
+        ! call writeRestart(Ra=Ra) ! For continuation in Ra
+        ! call writeDim(Ra=Ra) ! For continuation in Ra
+        call writeRestart(Ek=Ek) ! For continuation in Ek
+        call writeDim(Ek=Ek) ! For continuation in Ek
     else
         call writeRestart()
         call writeDim()
@@ -639,8 +696,8 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     ! Compute velocity components and temperature for output
     call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
     call ToReal(T, T_real, KK2)
-    call Output_files(Ur, Up, T_real, Ra=Ra) ! For continuation in Ra
-    ! call Output_files(Ur, Up, T_real, Ek=Ek) ! For continuation in Ek
+    ! call Output_files(Ur, Up, T_real, Ra=Ra) ! For continuation in Ra
+    call Output_files(Ur, Up, T_real, Ek=Ek) ! For continuation in Ek
 
     call comp_KineticEnergy(Ur, Ut, Up) 
     print*, "Kinetic energy:", Ekin
