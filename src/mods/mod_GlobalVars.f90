@@ -94,9 +94,6 @@ module mod_Globalvars
   double precision :: C_base, c_per
 
   ! Continuation method
-  double precision, dimension(:), allocatable :: state     ! Array to store the state in current iteration
-  double precision, dimension(:), allocatable :: state_nm1 ! Array to store the state in iteration n minus 1
-  double precision, dimension(:), allocatable :: state_nm2 ! Array to store the state in iteration n minus 2
   double precision, dimension(:), allocatable, target :: E_nm1, F_nm1, T_nm1 ! Arrays to store the state in iteration n minus 1
   double precision, dimension(:), allocatable, target :: E_nm2, F_nm2, T_nm2 ! Arrays to store the state in iteration n minus 2
   double precision, dimension(:), allocatable, target :: E_nm3, F_nm3, T_nm3 ! Arrays to store the state in iteration n minus 3
@@ -108,6 +105,8 @@ module mod_Globalvars
   double precision :: gamma ! For turning point detection
   logical :: max_flag ! Flag to compute location of max in E, F and T for turning point detection
   integer :: idsmax, loc_dE, loc_dF, loc_dT ! To store location of max of dE, dF or dT for turning point detection
+  logical :: ur_SH, ur_Cheb ! Flags to check if we are underresolved in SH or Chebyshev when doing continuation in Ekman
+  integer :: refinement_count ! To store the amount of refinements done throughout continuation in Ekman.
 
 contains
 

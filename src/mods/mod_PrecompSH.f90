@@ -135,9 +135,6 @@ subroutine PrecompSH()
     ! To store states if continuation method selected
     if ((solver == "continuation_convective_explicit") .or. &
         & (solver == "continuation_convective_implicit")) then
-        allocate(state(2 * shtns%nlm * (2 * KK2 + KK4)))
-        allocate(state_nm1(2 * shtns%nlm * (2 * KK2 + KK4)))
-        allocate(state_nm2(2 * shtns%nlm * (2 * KK2 + KK4)))
         allocate(E_nm1(2 * shtns%nlm * KK2), F_nm1(2 * shtns%nlm * KK4), T_nm1(2 * shtns%nlm * KK2))
         allocate(E_nm2(2 * shtns%nlm * KK2), F_nm2(2 * shtns%nlm * KK4), T_nm2(2 * shtns%nlm * KK2))
         allocate(E_nm3(2 * shtns%nlm * KK2), F_nm3(2 * shtns%nlm * KK4), T_nm3(2 * shtns%nlm * KK2))

@@ -9,6 +9,7 @@ module mod_NewtonSolver
     use mod_IterativeSolvers
     use mod_TimeStep
     use mod_Output
+    use mod_tools
 
     implicit none
 
@@ -173,10 +174,13 @@ subroutine continuation_convective_solver()
     adapt_Ra = .true.
 
     ! Set parameters for continuation in Ek
+    refinement_count = 0
     Ek_max = 1.0e-2 
     Ek_min = 1.0e-5
-    delta_Ek = - 1.0e-4
+    delta_Ek = 1.0e-3
     Ek_min_flag = .false.
+    ur_SH = .false.
+    ur_Cheb = .false.
     adapt_Ek = .true.
     
     ! Initialise dsmax
@@ -192,6 +196,7 @@ subroutine continuation_convective_solver()
     ! We do a condition for the do while => do while (condition)
     ! And that condition will depend on the user's choice for continuation parameter
     ! Then we'll have different assign_new_value functions that will be called using a pointer
+    ! I think there should only be one adapt variable, not one for Ra and another one for Ek.
 
     ! Set condition
     ! condition = Ra <= Ra_max ! For continuation in Ra
@@ -205,7 +210,7 @@ subroutine continuation_convective_solver()
 
         print*, "############## Starting continuation step n°", count
         ! print*, "Rayleigh number in current step Ra = ", Ra  ! For continuation in Ra
-        ! print*
+        ! print*        
         print*, "Ekman number in current step Ek = ", Ek  ! For continuation in Ek
         print*
 
@@ -215,28 +220,44 @@ subroutine continuation_convective_solver()
         ! write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
         !         & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
         write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
-            & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
+             & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
 
         ! Flush the file buffer to ensure data is written
         flush(51)
 
-        call max_search()
+        if (ur_SH .or. ur_Cheb) then ! For continuation in Ek
+            print*, "The fields are underresolved. Increasing resolution..."
+            call grid_refinement()
+            ! Reset flags
+            ur_SH = .false.
+            ur_Cheb = .false.
+            ! Reset count
+            count = 0
+        end if
 
-        dRa = abs(delta_Ra) / Ra
-        dEk = abs(delta_Ek / log10(Ek))
+        if (count /= 0) then ! This might need to change in the future, we're basically checking that we've not fallen into 
+                             ! grid_refinement in Ekman continuation. We could make the following lines into two separate 
+                             ! subroutines depending on the continuation parameter, Ek or Ra.
 
-        if (count /= 1) print*, "This is S(idsmax) = ", S(idsmax)
-        print*, 'This is dsmax = ', dsmax
-        ! print*, 'This is dRa = ', dRa ! For continuation in Ra
-        print*, 'This is dEk = ', dEk ! For continuation in Ek
-        print*, 'This is dsmax / dEk', dsmax / dEk ! For continuation in Ek
+            call max_search()
 
-        ! call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
-        call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)         ! For continuation in Ek
+            dRa = abs(delta_Ra) / Ra
+            dEk = abs(delta_Ek / log10(Ek))
 
-        print*
-        print*, "############## End continuation step n°", count
-        print*
+            if (count /= 1) print*, "This is S(idsmax) = ", S(idsmax)
+            print*, 'This is dsmax = ', dsmax
+            ! print*, 'This is dRa = ', dRa ! For continuation in Ra
+            print*, 'This is dEk = ', dEk ! For continuation in Ek
+            print*, 'This is dsmax / dEk', dsmax / dEk ! For continuation in Ek
+
+            ! call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
+            call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)         ! For continuation in Ek
+
+            print*
+            print*, "############## End continuation step n°", count
+            print*
+
+        end if
 
         ! Update condition
         ! condition = Ra <= Ra_max ! For continuation in Ra
@@ -697,7 +718,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
     call ToReal(T, T_real, KK2)
     ! call Output_files(Ur, Up, T_real, Ra=Ra) ! For continuation in Ra
-    call Output_files(Ur, Up, T_real, Ek=Ek) ! For continuation in Ek
+    call Output_files(Ur, Up, T_real, Ek=Ek, ur_SH=ur_SH, ur_Cheb=ur_Cheb) ! For continuation in Ek
 
     call comp_KineticEnergy(Ur, Ut, Up) 
     print*, "Kinetic energy:", Ekin

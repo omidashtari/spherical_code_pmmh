@@ -20,12 +20,12 @@ FFTW3_NAME = fftw3
 LAPACK_FLAGS = -L$(LAPACK_PATH) -l$(LAPACK_NAME) -l$(BLAS_NAME) -l$(SHTNS_NAME) -l$(FFTW3_NAME) -lm -lc
 
 # final compilation
-MainMHD : MainMHD.o mod_GlobalVars.o mod_CommandLineParser.o mod_PrecompSH.o mod_Matrices.o mod_Tchebyshev.o mod_PrecompXY.o mod_read.o mod_ExplicitTerms.o mod_init.o mod_TimeStep.o mod_Output.o mod_TimeSteppingSolver.o mod_NewtonSolver.o mod_ActNewtonSolver.o mod_IterativeSolvers.o
+MainMHD : MainMHD.o mod_GlobalVars.o mod_CommandLineParser.o mod_PrecompSH.o mod_Matrices.o mod_Tchebyshev.o mod_PrecompXY.o mod_tools.o mod_read.o mod_ExplicitTerms.o mod_init.o mod_TimeStep.o mod_Output.o mod_TimeSteppingSolver.o mod_NewtonSolver.o mod_ActNewtonSolver.o mod_IterativeSolvers.o
 	$(COMPILE) -o MainMHD $(OBJ)/*.o $(LAPACK_FLAGS)
 	@echo compilation done
 
 # object compilation
-MainMHD.o : $(SRC)/MainMHD.f90 mod_GlobalVars.o mod_CommandLineParser.o mod_PrecompSH.o mod_Matrices.o mod_Tchebyshev.o mod_PrecompXY.o mod_read.o mod_ExplicitTerms.o mod_init.o mod_TimeStep.o mod_Output.o mod_TimeSteppingSolver.o mod_NewtonSolver.o mod_ActNewtonSolver.o mod_IterativeSolvers.o
+MainMHD.o : $(SRC)/MainMHD.f90 mod_GlobalVars.o mod_CommandLineParser.o mod_PrecompSH.o mod_Matrices.o mod_Tchebyshev.o mod_PrecompXY.o mod_tools.o mod_read.o mod_ExplicitTerms.o mod_init.o mod_TimeStep.o mod_Output.o mod_TimeSteppingSolver.o mod_NewtonSolver.o mod_ActNewtonSolver.o mod_IterativeSolvers.o
 	$(COMPILE) -I$(OBJ) -c $(SRC)/MainMHD.f90 -o$(OBJ)/MainMHD.o
 mod_Output.o : $(MOD)/mod_Output.f90 mod_GlobalVars.o mod_PrecompSH.o mod_Matrices.o  mod_Tchebyshev.o mod_ExplicitTerms.o
 	$(COMPILE) -I$(OBJ) -J$(OBJ) -c $(MOD)/mod_Output.f90 -o$(OBJ)/mod_Output.o
@@ -45,6 +45,8 @@ mod_ExplicitTerms.o : $(MOD)/mod_ExplicitTerms.f90 mod_GlobalVars.o mod_Matrices
 	$(COMPILE) -I$(OBJ) -J$(OBJ) -c $(MOD)/mod_ExplicitTerms.f90 -o$(OBJ)/mod_ExplicitTerms.o
 mod_read.o : $(MOD)/mod_read.f90 mod_GlobalVars.o mod_PrecompSH.o mod_Matrices.o
 	$(COMPILE) -I$(OBJ) -J$(OBJ) -c $(MOD)/mod_read.f90 -o$(OBJ)/mod_read.o
+mod_tools.o : $(MOD)/mod_tools.f90 mod_GlobalVars.o mod_Tchebyshev.o mod_PrecompSH.o mod_PrecompXY.o mod_Output.o mod_read.o 
+	$(COMPILE) -I$(OBJ) -J$(OBJ) -c $(MOD)/mod_tools.f90 -o$(OBJ)/mod_tools.o
 mod_PrecompXY.o : $(MOD)/mod_PrecompXY.f90 mod_GlobalVars.o mod_Matrices.o mod_Tchebyshev.o mod_PrecompSH.o
 	$(COMPILE) -I$(OBJ) -J$(OBJ) -c $(MOD)/mod_PrecompXY.f90 -o$(OBJ)/mod_PrecompXY.o
 mod_Tchebyshev.o : $(MOD)/mod_Tchebyshev.f90 mod_GlobalVars.o mod_Matrices.o

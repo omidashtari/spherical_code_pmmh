@@ -217,7 +217,7 @@ end subroutine writeDim
 
 !-------------------------------------------------------------------------------------
 
-subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
+subroutine Output_files(Ur, Up, T_real, step, Ra, Ek, ur_SH, ur_Cheb)
 
   double precision, dimension(kN, lN, mN), intent(in) :: Ur, Up, T_real
   
@@ -225,8 +225,11 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
   integer, optional, intent(in) :: step
   double precision, optional, intent(in) :: Ra
   double precision, optional, intent(in) :: Ek
+  ! Optional arguments for underresolution checks
+  logical, optional, intent(inout) :: ur_SH, ur_Cheb
 
   double precision, dimension(0:MM) :: Ekin_spec
+  double precision :: T1_mod, TKK2_mod ! Auxiliary variables
 
   character(len = 10) :: file
   character(len = 10) :: nom
@@ -297,9 +300,25 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
     write(17, '(I5, 3x, E16.6)') m, Ekin_spec(m / mres)
   end do
 
+  ! Check for underresolution in SH for continuation in Ekman
+  if (present(ur_SH) .and. (sqrt(Ekin_spec(MM) / maxval(Ekin_spec)) > 1e-6)) then
+    print*, "This is sqrt(Ekin_spec(MM) / maxval(Ekin_spec)) = ", sqrt(Ekin_spec(MM) / maxval(Ekin_spec))
+    ur_SH = .true.
+  end if
+
   do k = 1, KK2
     write(18, '(I5, 3x, E16.6)') k, dot_product(real(T(k, :)), real(T(k, :))) + dot_product(aimag(T(k, :)), aimag(T(k, :)))
   end do
+
+  ! Check for underresolution in Chebyshev for continuation in Ekman
+  if (present(ur_Cheb)) then
+    T1_mod = dot_product(real(T(1, :)), real(T(1, :))) + dot_product(aimag(T(1, :)), aimag(T(1, :)))
+    TKK2_mod = dot_product(real(T(KK2, :)), real(T(KK2, :))) + dot_product(aimag(T(KK2, :)), aimag(T(KK2, :)))
+    if (sqrt(TKK2_mod / T1_mod) > 1e-6) then
+      print*, "This is sqrt(TKK2_mod / T1_mod) = ", sqrt(TKK2_mod / T1_mod)
+      ur_Cheb = .true.
+    end if
+  end if
 
   close(14)
   close(15)
@@ -310,13 +329,23 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek)
 
 end subroutine Output_files
 
-subroutine output_coordinates()
+subroutine output_coordinates(step)
 
   integer :: k, l, m
+  integer, optional :: step
+  character(len = 10) :: suffix, nom
 
-  open(unit=11, file=trim(directory)//"/r.dat"    , form="formatted")
-  open(unit=12, file=trim(directory)//"/theta.dat", form="formatted")
-  open(unit=13, file=trim(directory)//"/phi.dat" , form="formatted")
+  if (present(step)) then
+    write(nom, "(I10)") step
+    suffix = "_" // trim(adjustl(nom))
+    open(unit=11, file=trim(directory)//"/r"//trim(adjustl(suffix))//".dat", form="formatted")
+    open(unit=12, file=trim(directory)//"/theta"//trim(adjustl(suffix))//".dat", form="formatted")
+    open(unit=13, file=trim(directory)//"/phi"//trim(adjustl(suffix))//".dat", form="formatted")
+  else
+    open(unit=11, file=trim(directory)//"/r.dat", form="formatted")
+    open(unit=12, file=trim(directory)//"/theta.dat", form="formatted")
+    open(unit=13, file=trim(directory)//"/phi.dat", form="formatted")
+  end if
 
   do k = 1, kN
     write(11,"(E16.6)") rN(k)
