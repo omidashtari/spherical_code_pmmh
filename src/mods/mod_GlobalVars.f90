@@ -25,8 +25,8 @@ module mod_Globalvars
 
   !--- Truncation parameters
   integer :: LL, MM, KK, mres
-  integer :: kN ! Number of r points in physical space
-  integer :: lN = 0, mN = 0 ! Numer of theta and phi points in physical space
+  integer :: kN     ! Number of r points in physical space
+  integer :: lN, mN ! Numer of theta and phi points in physical space
 
   integer :: KK2, KK4 ! These are KK+2 and KK+4
 

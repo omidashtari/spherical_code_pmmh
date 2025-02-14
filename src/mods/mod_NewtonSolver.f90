@@ -177,11 +177,11 @@ subroutine continuation_convective_solver()
     refinement_count = 0
     Ek_max = 1.0e-2 
     Ek_min = 1.0e-5
-    delta_Ek = 1.0e-3
+    delta_Ek = - 3.0e-4
     Ek_min_flag = .false.
     ur_SH = .false.
     ur_Cheb = .false.
-    adapt_Ek = .true.
+    adapt_Ek = .false.
     
     ! Initialise dsmax
     dsmax = 0.

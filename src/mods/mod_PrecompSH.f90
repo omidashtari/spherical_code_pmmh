@@ -58,6 +58,7 @@ subroutine PrecompSH()
 
     !--- Creation of the grid
     if ((dealiasing == 'yes') .or. (dealiasing == 'y')) then
+        lN = 0; mN = 0 ! They will be set to optimal values by SHTns
         call shtns_set_grid_auto(shtns_c, layout, eps_polar, 2, lN, mN)
     else
         lN = LL
