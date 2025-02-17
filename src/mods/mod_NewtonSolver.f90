@@ -175,13 +175,14 @@ subroutine continuation_convective_solver()
 
     ! Set parameters for continuation in Ek
     refinement_count = 0
+    threshold_count = 0
     Ek_max = 1.0e-2 
     Ek_min = 1.0e-5
-    delta_Ek = - 3.0e-4
+    delta_Ek = 3.0e-4
     Ek_min_flag = .false.
     ur_SH = .false.
     ur_Cheb = .false.
-    adapt_Ek = .false.
+    adapt_Ek = .true.
     
     ! Initialise dsmax
     dsmax = 0.
@@ -226,13 +227,23 @@ subroutine continuation_convective_solver()
         flush(51)
 
         if (ur_SH .or. ur_Cheb) then ! For continuation in Ek
-            print*, "The fields are underresolved. Increasing resolution..."
-            call grid_refinement()
-            ! Reset flags
-            ur_SH = .false.
-            ur_Cheb = .false.
-            ! Reset count
-            count = 0
+            if (threshold_count == 2) then 
+                print*, "The fields are underresolved. Increasing resolution..."
+                call grid_refinement()
+                ! Reset flags
+                ur_SH = .false.
+                ur_Cheb = .false.
+                ! Reset count
+                count = 0
+                ! Reset threshold_count
+                threshold_count = 0
+            else
+                ! Increase threshold_count
+                threshold_count = threshold_count + 1
+            end if
+        else
+            ! Reset threshold_count
+            threshold_count = 0
         end if
 
         if (count /= 0) then ! This might need to change in the future, we're basically checking that we've not fallen into 

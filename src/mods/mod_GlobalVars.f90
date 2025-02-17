@@ -107,6 +107,7 @@ module mod_Globalvars
   integer :: idsmax, loc_dE, loc_dF, loc_dT ! To store location of max of dE, dF or dT for turning point detection
   logical :: ur_SH, ur_Cheb ! Flags to check if we are underresolved in SH or Chebyshev when doing continuation in Ekman
   integer :: refinement_count ! To store the amount of refinements done throughout continuation in Ekman.
+  integer :: threshold_count ! To know how many times in a row the threshold is being overpassed
 
 contains
 
