@@ -88,6 +88,8 @@ subroutine continuation_convective_solver()
 
     double precision :: delta_Ek, Ek_max, Ek_min ! For continuation in Ek
 
+    double precision :: Ra_tilde ! For continuation in Ek
+
     integer :: count, newt_steps, gmres_its
 
     integer :: ios
@@ -176,9 +178,10 @@ subroutine continuation_convective_solver()
     ! Set parameters for continuation in Ek
     refinement_count = 0
     threshold_count = 0
+    Ra_tilde = Ra * Ek ** (1. / 3.) * Pr
     Ek_max = 1.0e-2 
     Ek_min = 1.0e-5
-    delta_Ek = 3.0e-4
+    delta_Ek = -7.0e-4
     Ek_min_flag = .false.
     ur_SH = .false.
     ur_Cheb = .false.
@@ -262,7 +265,9 @@ subroutine continuation_convective_solver()
             print*, 'This is dsmax / dEk', dsmax / dEk ! For continuation in Ek
 
             ! call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
-            call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)         ! For continuation in Ek
+            call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)   ! For continuation in Ek
+            Ra = Ra_tilde * Ek ** (- 1. / 3.) / Pr ! For continuation in Ek
+            print*, "This is the new Ra = ", Ra
 
             print*
             print*, "############## End continuation step n°", count
