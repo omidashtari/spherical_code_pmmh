@@ -84,10 +84,6 @@ subroutine continuation_convective_solver()
 
     procedure(), pointer :: NonLinTimeStep_ptr, LinNonLinTimeStep_ptr
 
-    double precision :: delta_Ra, Ra_max, Ra_min ! For continuation in Ra
-
-    double precision :: delta_Ek, Ek_max, Ek_min ! For continuation in Ek
-
     double precision :: Ra_tilde ! For continuation in Ek
 
     integer :: count, newt_steps, gmres_its
@@ -96,9 +92,9 @@ subroutine continuation_convective_solver()
     
     logical ::  condition
 
-    logical :: Ra_max_flag, adapt_Ra  ! For continuation in Ra
+    logical :: final_flag ! Flag to check if we have gone over the limit
 
-    logical :: Ek_min_flag, adapt_Ek  ! For continuation in Ek
+    character(len=6) :: cont_type
 
     ! Check for solver type
     if (solver == "continuation_convective_explicit") then
@@ -162,30 +158,26 @@ subroutine continuation_convective_solver()
     call c_f_pointer(c_loc(F_base), F_base_ptr, [2 * KK4 * shtns%nlm])
     call c_f_pointer(c_loc(T_base), T_base_ptr, [2 * KK2 * shtns%nlm])
 
-    ! Set parameters for continuation method
-    gamma = 450.
+    ! Check continuation parameter and direction of continuation
+    if (Ek_final /= 0.) then ! We are doing continuation in Ekman
+        if (Ek_final > Ek) then
+            cont_type = "Ek_max"
+        else 
+            cont_type = "Ek_min"
+        end if
+    else ! We are doing continuation in Rayleigh
+        if (Ra_final > Ra) then
+            cont_type = "Ra_max"
+        else 
+            cont_type = "Ra_min"
+        end if
+    end if
 
-    ! Initialise max_flag
+    ! Initialise flags
     max_flag = .false.
-
-    ! Set parameters for continuation in Ra
-    Ra_max = 230.
-    Ra_min = 60.
-    delta_Ra = - 1.
-    Ra_max_flag = .false.
-    adapt_Ra = .true.
-
-    ! Set parameters for continuation in Ek
-    refinement_count = 0
-    threshold_count = 0
-    Ra_tilde = Ra * Ek ** (1. / 3.) * Pr
-    Ek_max = 1.0e-2 
-    Ek_min = 1.0e-5
-    delta_Ek = -7.0e-4
-    Ek_min_flag = .false.
+    final_flag = .false.
     ur_SH = .false.
     ur_Cheb = .false.
-    adapt_Ek = .true.
     
     ! Initialise dsmax
     dsmax = 0.
@@ -196,78 +188,99 @@ subroutine continuation_convective_solver()
     ! Initialise count
     count = 0
 
+    ! Initialise counts for grid refinement
+    refinement_count = 0 ! How many times we have done grid refinement
+    threshold_count = 0  ! How many times we have gone over the threshold
+
+    ! Compute \tilde{Ra} = Ra_{Th} * EK^{4/3} = Ra_{rot} * Ek^{1/3} * Pr for continuation in Ek
+    Ra_tilde = Ra * Ek ** (1. / 3.) * Pr
+
     ! IDEAS ON HOW TO CODE ALL CONTINUATION METHODS IN ONE
     ! We do a condition for the do while => do while (condition)
     ! And that condition will depend on the user's choice for continuation parameter
     ! Then we'll have different assign_new_value functions that will be called using a pointer
     ! I think there should only be one adapt variable, not one for Ra and another one for Ek.
 
-    ! Set condition
-    ! condition = Ra <= Ra_max ! For continuation in Ra
-    ! condition = Ra >= Ra_min ! For continuation in Ra
-    condition = Ek >= Ek_min ! For continuation in Ek
-    ! condition = Ek <= Ek_max ! For continuation in Ek
+    ! Set condition according to cont_type
+    if (cont_type == "Ra_max") then
+        condition = Ra <= Ra_final
+    else if (cont_type == "Ra_min") then
+        condition = Ra >= Ra_final
+    else if (cont_type == "Ek_min") then
+        condition = Ek >= Ek_final
+    else
+        condition = Ek <= Ek_final
+    end if
 
     do while (condition)
 
         count = count + 1
 
         print*, "############## Starting continuation step n°", count
-        ! print*, "Rayleigh number in current step Ra = ", Ra  ! For continuation in Ra
-        ! print*        
-        print*, "Ekman number in current step Ek = ", Ek  ! For continuation in Ek
-        print*
+        if ((cont_type ==  "Ra_max") .or. (cont_type ==  "Ra_min")) then
+            print*, "Rayleigh number in current step Ra = ", Ra
+            print*
+        else
+            print*, "Ekman number in current step Ek = ", Ek
+            print*, "Rayleigh number in current step Ra = ", Ra
+            print*
+        end if
 
         call newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, &
-                          & newt_steps=newt_steps, gmres_its=gmres_its)
+                          & newt_steps=newt_steps, gmres_its=gmres_its, cont_type=cont_type)
 
-        ! write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
-        !         & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ra
-        write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
-             & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :)) ! For continuation in Ek
+        if ((cont_type ==  "Ra_max") .or. (cont_type ==  "Ra_min")) then
+            write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
+                    & gmres_its, Ra, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :))
+        else
+            write(51,"(I5,8x,I5,10x,I5,7x,E24.16,7x,E24.16,2x,E24.16,5x,E24.16)") count, newt_steps, & 
+                    & gmres_its, Ek, Ekin, C_base, maxval(Ur(kN / 2, lN / 2, :))
+        end if
 
         ! Flush the file buffer to ensure data is written
         flush(51)
 
-        if (ur_SH .or. ur_Cheb) then ! For continuation in Ek
-            if (threshold_count == 2) then 
-                print*, "The fields are underresolved. Increasing resolution..."
-                call grid_refinement()
-                ! Reset flags
-                ur_SH = .false.
-                ur_Cheb = .false.
-                ! Reset count
-                count = 0
+        if (grid_refine) then
+            if (ur_SH .or. ur_Cheb) then ! For continuation in Ek
+                if (threshold_count == 2) then 
+                    print*, "The fields are underresolved. Increasing resolution..."
+                    call grid_refinement()
+                    ! Reset flags
+                    ur_SH = .false.
+                    ur_Cheb = .false.
+                    ! Reset count
+                    count = 0
+                    ! Reset threshold_count
+                    threshold_count = 0
+                else
+                    ! Increase threshold_count
+                    threshold_count = threshold_count + 1
+                end if
+            else
                 ! Reset threshold_count
                 threshold_count = 0
-            else
-                ! Increase threshold_count
-                threshold_count = threshold_count + 1
             end if
-        else
-            ! Reset threshold_count
-            threshold_count = 0
         end if
 
-        if (count /= 0) then ! This might need to change in the future, we're basically checking that we've not fallen into 
-                             ! grid_refinement in Ekman continuation. We could make the following lines into two separate 
-                             ! subroutines depending on the continuation parameter, Ek or Ra.
+        if (count /= 0) then
 
-            call max_search()
-
-            dRa = abs(delta_Ra) / Ra
-            dEk = abs(delta_Ek / log10(Ek))
+            call max_search() ! dsmax and idsmax
 
             if (count /= 1) print*, "This is S(idsmax) = ", S(idsmax)
             print*, 'This is dsmax = ', dsmax
-            ! print*, 'This is dRa = ', dRa ! For continuation in Ra
-            print*, 'This is dEk = ', dEk ! For continuation in Ek
-            print*, 'This is dsmax / dEk', dsmax / dEk ! For continuation in Ek
 
-            ! call assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra) ! For continuation in Ra
-            call assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)   ! For continuation in Ek
-            Ra = Ra_tilde * Ek ** (- 1. / 3.) / Pr ! For continuation in Ek
-            print*, "This is the new Ra = ", Ra
+            if ((cont_type ==  "Ra_max") .or. (cont_type ==  "Ra_min")) then
+                dRa = abs(delta_param) / Ra
+                print*, 'This is dRa = ', dRa
+                print*, 'This is dsmax / dRa = ', dsmax / dRa
+                call assign_new_value_Ra(count, newt_steps, cont_type, final_flag)
+            else
+                dEk = abs(delta_param / log10(Ek))
+                print*, 'This is dEk = ', dEk
+                print*, 'This is dsmax / dEk = ', dsmax / dEk
+                call assign_new_value_Ek(count, newt_steps, cont_type, final_flag)
+                Ra = Ra_tilde * Ek ** (- 1. / 3.) / Pr
+            end if
 
             print*
             print*, "############## End continuation step n°", count
@@ -276,10 +289,15 @@ subroutine continuation_convective_solver()
         end if
 
         ! Update condition
-        ! condition = Ra <= Ra_max ! For continuation in Ra
-        ! condition = Ra >= Ra_min ! For continuation in Ra
-        condition = Ek >= Ek_min ! For continuation in Ek
-        ! condition = Ek <= Ek_max ! For continuation in Ek
+        if (cont_type == "Ra_max") then
+            condition = Ra <= Ra_final
+        else if (cont_type == "Ra_min") then
+            condition = Ra >= Ra_final
+        else if (cont_type == "Ek_min") then
+            condition = Ek >= Ek_final
+        else
+            condition = Ek <= Ek_final
+        end if
 
     end do
 
@@ -289,25 +307,19 @@ subroutine continuation_convective_solver()
 
 end subroutine continuation_convective_solver
 
-subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag, adapt_Ra)
+subroutine assign_new_value_Ra(count, newt_steps, cont_type, final_flag)
 
     implicit none
     
     integer, intent(in) :: count, newt_steps
 
-    double precision, intent(inout) :: delta_Ra ! This may not be necessary as input
+    character(len=6), intent(in) :: cont_type
 
-    double precision, intent(in) :: Ra_max ! This may not be necessary as input
-
-    logical, intent(inout) ::  Ra_max_flag
-
-    logical, intent(in) :: adapt_Ra
+    logical, intent(inout) ::  final_flag
 
     double precision :: a, b, c, x, delta_x
 
-    integer :: N_opt, i
-
-    N_opt = 6
+    integer :: i
 
     if ((dsmax < gamma * dRa) .or. (count <= 3)) then
 
@@ -315,7 +327,7 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
     
         if (count == 1) then
             Ra_nm1 = Ra                                     ! Save Ra from first iteration
-            Ra = Ra_nm1 + delta_Ra                          ! Compute new Ra
+            Ra = Ra_nm1 + delta_param                          ! Compute new Ra
             E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from first iteration
             C_base_nm1 = C_base                             ! Save wavespeed from first iteration
         end if
@@ -323,10 +335,10 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
         if (count == 2) then
             Ra_nm2 = Ra_nm1                                                           ! Save Ra from previous iteration
             Ra_nm1 = Ra                                                               ! Save Ra from current iteration
-            if (adapt_Ra) then
-                delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
+            if (adapt_param) then
+                delta_param = dble(Nopt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_param
             end if
-            Ra = Ra_nm1 + delta_Ra                                                    ! Compute new Ra
+            Ra = Ra_nm1 + delta_param                                                    ! Compute new Ra
 
             E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
             E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
@@ -345,16 +357,20 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
             Ra_nm3 = Ra_nm2                                                           ! Save Ra from previous to previous iteration
             Ra_nm2 = Ra_nm1                                                           ! Save Ra from previous iteration
             Ra_nm1 = Ra                                                               ! Save Ra from current iteration
-            if (adapt_Ra) then
-                delta_Ra = dble(N_opt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_Ra
+            if (adapt_param) then
+                delta_param = dble(Nopt + 1) / dble(newt_steps + 1) * (Ra_nm1 - Ra_nm2) ! Compute delta_param
             end if
-            Ra = Ra_nm1 + delta_Ra                                                    ! Compute new Ra
+            Ra = Ra_nm1 + delta_param                                                    ! Compute new Ra
 
             ! Check that we are not going over the limit
-            if ((Ra > Ra_max) .and. (Ra_max_flag .eqv. .false.)) then
-                Ra = Ra_max
-                Ra_max_flag = .true.
+            if ((cont_type == "Ra_max") .and. (Ra > Ra_final) .and. (final_flag .eqv. .false.)) then
+                Ra = Ra_final
+                final_flag = .true.
+            else if ((cont_type == "Ra_min") .and. (Ra < Ra_final) .and. (final_flag .eqv. .false.)) then
+                Ra = Ra_final
+                final_flag = .true.
             end if
+
 
             E_nm3 = E_nm2 ; F_nm3 = F_nm2 ; T_nm3 = T_nm2 ; ! Save state from previous to previous iteration
             E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
@@ -408,8 +424,8 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
         ! Set S(idsmax)
         S(idsmax) = x
 
-        ! Compute delta_Ra
-        delta_Ra = Ra - Ra_nm1
+        ! Compute delta_param
+        delta_param = Ra - Ra_nm1
 
         ! Set max_flag
         max_flag = .true.
@@ -417,25 +433,19 @@ subroutine assign_new_value_Ra(count, newt_steps, delta_Ra, Ra_max, Ra_max_flag,
 
 end subroutine assign_new_value_Ra
 
-subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag, adapt_Ek)
+subroutine assign_new_value_Ek(count, newt_steps, cont_type, final_flag)
 
     implicit none
     
     integer, intent(in) :: count, newt_steps
 
-    double precision, intent(inout) :: delta_Ek ! This may not be necessary as input
+    character(len=6), intent(in) :: cont_type
 
-    double precision, intent(in) :: Ek_min ! This may not be necessary as input
-
-    logical, intent(inout) ::  Ek_min_flag
-    
-    logical, intent(in) :: adapt_Ek
+    logical, intent(inout) ::  final_flag
 
     double precision :: a, b, c, x, delta_x
 
-    integer :: N_opt, i
-
-    N_opt = 3
+    integer :: i
 
     if ((dsmax < gamma * dEk) .or. (count <= 3)) then
 
@@ -443,7 +453,7 @@ subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag,
     
         if (count == 1) then
             Ek_nm1 = Ek                                     ! Save Ra from first iteration
-            Ek = Ek_nm1 * 10 ** delta_Ek                    ! Compute new Ek
+            Ek = Ek_nm1 * 10 ** delta_param                    ! Compute new Ek
             E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from first iteration
             C_base_nm1 = C_base                             ! Save wavespeed from first iteration
         end if
@@ -451,10 +461,10 @@ subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag,
         if (count == 2) then
             Ek_nm2 = Ek_nm1                                                                ! Save Ek from previous iteration
             Ek_nm1 = Ek                                                                    ! Save Ek from current iteration
-            if (adapt_Ek) then
-                delta_Ek = dble(N_opt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_Ek
+            if (adapt_param) then
+                delta_param = dble(Nopt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_param
             end if
-            Ek = Ek_nm1 * 10 ** delta_Ek                                                   ! Compute new Ek
+            Ek = Ek_nm1 * 10 ** delta_param                                                   ! Compute new Ek
 
             E_nm2 = E_nm1 ; F_nm2 = F_nm1 ; T_nm2 = T_nm1 ; ! Save state from previous iteration
             E_nm1 = E_ptr ; F_nm1 = F_ptr ; T_nm1 = T_ptr ; ! Save state from current iteration
@@ -473,15 +483,18 @@ subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag,
             Ek_nm3 = Ek_nm2                                                                ! Save Ek from previous to previous iteration
             Ek_nm2 = Ek_nm1                                                                ! Save Ek from previous iteration
             Ek_nm1 = Ek                                                                    ! Save Ek from current iteration
-            if (adapt_Ek) then
-                delta_Ek = dble(N_opt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_Ek
+            if (adapt_param) then
+                delta_param = dble(Nopt + 1) / dble(newt_steps + 1) * log10(Ek_nm1 / Ek_nm2) ! Compute delta_param
             end if
-            Ek = Ek_nm1 * 10 ** delta_Ek                                                   ! Compute new Ek
+            Ek = Ek_nm1 * 10 ** delta_param                                                   ! Compute new Ek
 
             ! Check that we are not going over the limit
-            if ((Ek < Ek_min) .and. (Ek_min_flag .eqv. .false.)) then
-                Ek = Ek_min
-                Ek_min_flag = .true.
+            if ((cont_type == "Ek_max") .and. (Ek > Ek_final) .and. (final_flag .eqv. .false.)) then
+                Ek = Ek_final
+                final_flag = .true.
+            else if ((cont_type == "Ek_min") .and. (Ek < Ek_final) .and. (final_flag .eqv. .false.)) then
+                Ek = Ek_final
+                final_flag = .true.
             end if
 
             E_nm3 = E_nm2 ; F_nm3 = F_nm2 ; T_nm3 = T_nm2 ; ! Save state from previous to previous iteration
@@ -537,8 +550,8 @@ subroutine assign_new_value_Ek(count, newt_steps, delta_Ek, Ek_min, Ek_min_flag,
         ! Set S(idsmax)
         S(idsmax) = x
 
-        ! Compute delta_Ra
-        delta_Ek = log10(Ek / Ek_nm1)
+        ! Compute delta_param
+        delta_param = log10(Ek / Ek_nm1)
 
         ! Set max_flag
         max_flag = .true.
@@ -606,7 +619,7 @@ subroutine max_search()
 
 end subroutine max_search
 
-subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt_steps, gmres_its)
+subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt_steps, gmres_its, cont_type)
 
     implicit none
 
@@ -615,6 +628,8 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     double precision, intent(inout) :: C_base
 
     integer, optional, intent(out) :: newt_steps, gmres_its
+
+    character(len=6), intent(in), optional :: cont_type
 
     double precision, dimension(2 * shtns%nlm * (2 * KK2 + KK4)) :: EFT_RHS, EFT_best
 
@@ -721,10 +736,13 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     ! Saving restart files
     if ((solver == "continuation_convective_explicit") .or. &
         & (solver == "continuation_convective_implicit")) then
-        ! call writeRestart(Ra=Ra) ! For continuation in Ra
-        ! call writeDim(Ra=Ra) ! For continuation in Ra
-        call writeRestart(Ek=Ek) ! For continuation in Ek
-        call writeDim(Ek=Ek) ! For continuation in Ek
+        if ((cont_type == "Ra_max") .or. (cont_type == "Ra_min")) then
+            call writeRestart(Ra=Ra)
+            call writeDim(Ra=Ra)
+        else
+            call writeRestart(Ek=Ek)
+            call writeDim(Ek=Ek)
+        end if
     else
         call writeRestart()
         call writeDim()
@@ -733,8 +751,15 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     ! Compute velocity components and temperature for output
     call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
     call ToReal(T, T_real, KK2)
-    ! call Output_files(Ur, Up, T_real, Ra=Ra) ! For continuation in Ra
-    call Output_files(Ur, Up, T_real, Ek=Ek, ur_SH=ur_SH, ur_Cheb=ur_Cheb) ! For continuation in Ek
+    if (present(cont_type)) then
+        if ((cont_type == "Ra_max") .or. (cont_type == "Ra_min")) then
+            call Output_files(Ur, Up, T_real, Ra=Ra, ur_SH=ur_SH, ur_Cheb=ur_Cheb)
+        else
+            call Output_files(Ur, Up, T_real, Ek=Ek, ur_SH=ur_SH, ur_Cheb=ur_Cheb)
+        end if
+    else
+        call Output_files(Ur, Up, T_real)
+    end if
 
     call comp_KineticEnergy(Ur, Ut, Up) 
     print*, "Kinetic energy:", Ekin

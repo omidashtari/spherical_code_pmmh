@@ -260,6 +260,10 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek, ur_SH, ur_Cheb)
     suffix = "_" // trim(adjustl(nom))
   end if
 
+  if ((.not. present(Ra)) .and. (.not. present(Ek)) .and.(.not. present(step))) then
+    suffix = ""
+  end if
+
   open(unit=14, file=trim(directory)//"/Data_eq_plane"//trim(adjustl(suffix))//".dat", form="formatted")
   open(unit=15, file=trim(directory)//"/Data_mer_plane"//trim(adjustl(suffix))//".dat"  , form="formatted")
   open(unit=16, file=trim(directory)//"/Data_mid_gap"//trim(adjustl(suffix))//".dat" , form="formatted")
@@ -301,7 +305,7 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek, ur_SH, ur_Cheb)
   end do
 
   ! Check for underresolution in SH for continuation in Ekman
-  if (present(ur_SH) .and. (sqrt(Ekin_spec(MM) / maxval(Ekin_spec)) > 1e-6)) then
+  if (present(ur_SH) .and. (sqrt(Ekin_spec(MM) / maxval(Ekin_spec)) > gr_threshold)) then
     print*, "This is sqrt(Ekin_spec(MM) / maxval(Ekin_spec)) = ", sqrt(Ekin_spec(MM) / maxval(Ekin_spec))
     ur_SH = .true.
   end if
@@ -314,7 +318,7 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek, ur_SH, ur_Cheb)
   if (present(ur_Cheb)) then
     T1_mod = dot_product(real(T(1, :)), real(T(1, :))) + dot_product(aimag(T(1, :)), aimag(T(1, :)))
     TKK2_mod = dot_product(real(T(KK2, :)), real(T(KK2, :))) + dot_product(aimag(T(KK2, :)), aimag(T(KK2, :)))
-    if (sqrt(TKK2_mod / T1_mod) > 1e-6) then
+    if (sqrt(TKK2_mod / T1_mod) > gr_threshold) then
       print*, "This is sqrt(TKK2_mod / T1_mod) = ", sqrt(TKK2_mod / T1_mod)
       ur_Cheb = .true.
     end if

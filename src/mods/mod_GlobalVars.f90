@@ -15,8 +15,8 @@ module mod_Globalvars
   double precision :: t0 = 0.d0    ! initial time
   integer :: step_0 = 0            ! initial time step
   integer :: NTS = 0               ! Number of Time Steps
-  integer :: save_every = 100      ! Save output files every n TS
-  integer :: save_restart = 100    ! Save restart files every n TS
+  integer :: save_every = 0      ! Save output files every n TS
+  integer :: save_restart = 0    ! Save restart files every n TS
   integer :: save_Ur_mgep_t = 0    ! Save time series of Ur in mid gap, equatorial plane in the last n TS
   integer :: step = 0
 
@@ -24,7 +24,8 @@ module mod_Globalvars
   character(len=100) :: restart_filename, dim_filename
 
   !--- Truncation parameters
-  integer :: LL, MM, KK, mres
+  integer :: LL, MM, KK
+  integer :: mres = 0
   integer :: kN     ! Number of r points in physical space
   integer :: lN, mN ! Numer of theta and phi points in physical space
 
@@ -94,6 +95,8 @@ module mod_Globalvars
   double precision :: C_base, c_per
 
   ! Continuation method
+  double precision :: Ek_final = 0. ! Final value in Ekman continuation
+  double precision :: Ra_final = 0. ! Final value in Rayleigh continuation 
   double precision, dimension(:), allocatable, target :: E_nm1, F_nm1, T_nm1 ! Arrays to store the state in iteration n minus 1
   double precision, dimension(:), allocatable, target :: E_nm2, F_nm2, T_nm2 ! Arrays to store the state in iteration n minus 2
   double precision, dimension(:), allocatable, target :: E_nm3, F_nm3, T_nm3 ! Arrays to store the state in iteration n minus 3
@@ -102,7 +105,14 @@ module mod_Globalvars
   double precision :: Ek_nm1, Ek_nm2, Ek_nm3 ! To store Ra in iteration n minus 1, n minus 2 and n minus 3
   double precision :: C_base_nm1, C_base_nm2, C_base_nm3 ! To store C_base in iteration n minus 1, n minus 2 and n minus 3
   double precision :: dRa, dEk, dsmax ! To store differentials
-  double precision :: gamma ! For turning point detection
+  double precision :: delta_param = 0. ! To store delta_Ekman or delta_Rayleigh
+  double precision :: gamma = 0. ! For turning point detection
+  double precision :: gr_threshold = 1. ! Grid refinement threshold
+  logical :: adapt_param ! Flag to adapt or not the delta_param using Nopt
+  character(len=10) :: adapt_param_string ! To read adapt_param variable from console
+  logical :: grid_refine ! Flag to perform grid refinement in continuation
+  character(len=10) :: grid_refine_string ! To read grid_refine variable from console
+  integer :: Nopt = 0 ! Optimal Newton steps per continuation iteration
   logical :: max_flag ! Flag to compute location of max in E, F and T for turning point detection
   integer :: idsmax, loc_dE, loc_dF, loc_dT ! To store location of max of dE, dF or dT for turning point detection
   logical :: ur_SH, ur_Cheb ! Flags to check if we are underresolved in SH or Chebyshev when doing continuation in Ekman

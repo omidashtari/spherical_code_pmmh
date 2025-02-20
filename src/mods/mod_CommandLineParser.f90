@@ -14,7 +14,7 @@ subroutine parse_command_line_arguments()
     ! Declare local variables
     character(len=100) :: arg, param, param_lc, value
     character(len=1024) :: command_line_string
-    character(len=100), dimension(33) :: params_string_array
+    character(len=100), dimension(41) :: params_string_array
     integer :: i, lc, ic
 
     ! Set params_string_array
@@ -25,7 +25,9 @@ subroutine parse_command_line_arguments()
         "-ro", "-ra", "-ier", "-save_ur_mgep_t", "-init", &
         "-init_amp", "-sym", "-max_newt", "-max_gmres", "-restart_gmres", &
         "-newt_eps", "-newt_delta", "-tol_gmres", "-m_wave", &
-        "-time_step", "-restart_filename", "-dim_filename" &
+        "-time_step", "-restart_filename", "-dim_filename", &
+        "-ek_final", "-ra_final", "-delta_param", "-adapt_param", &
+        "-gamma", "-nopt", "-grid_refine", "-gr_threshold" &
     ]
 
     ! Set strings to default values
@@ -37,13 +39,7 @@ subroutine parse_command_line_arguments()
     init = 'no'
     restart_filename = "no"
     dim_filename = "no"
-    Ro = 0.
-
-    NTS = 0
-    save_every = 0
-    save_restart = 0
-    save_Ur_mgep_t = 0
-    mres = 0
+    adapt_param_string = "no"
 
     ! Parse command line arguments
     i = 1
@@ -173,6 +169,12 @@ subroutine parse_command_line_arguments()
             case ("-ra")
                 read(value, *) Ra
 
+            case ("-ek_final")
+                read(value, *) Ek_final
+
+            case ("-ra_final")
+                read(value, *) Ra_final
+
             case ("-ier")
                 read(value, *) IER
 
@@ -196,6 +198,34 @@ subroutine parse_command_line_arguments()
 
             case ("-m_wave")
                 read(value, *) M_wave
+
+            case ("-adapt_param")
+                read(value, *) adapt_param_string
+                ! Turn to lower case
+                do lc = 1, LEN_TRIM(adapt_param_string)
+                    ic = INDEX(cap, adapt_param_string(lc:lc))
+                    if (ic > 0) adapt_param_string(lc:lc) = low(ic:ic)
+                end do
+
+            case ("-delta_param")
+                read(value, *) delta_param
+
+            case ("-nopt")
+                read(value, *) Nopt
+
+            case ("-gamma")
+                read(value, *) gamma
+
+            case ("-grid_refine")
+                read(value, *) grid_refine_string
+                ! Turn to lower case
+                do lc = 1, LEN_TRIM(grid_refine_string)
+                    ic = INDEX(cap, grid_refine_string(lc:lc))
+                    if (ic > 0) grid_refine_string(lc:lc) = low(ic:ic)
+                end do
+
+            case ("-gr_threshold")
+                read(value, *) gr_threshold
 
           end select
           ! Increment i by 2 to skip both parameter key and value
@@ -443,54 +473,126 @@ subroutine check_arg_validity()
     else if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
         & .or. (solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) then
         if (max_newt <= 0) then
-            print *, "Simulation stopped - max_newt has an invalid value"
+            print*, "Simulation stopped - max_newt has an invalid value"
             stop
         else
             print*, "The number of maximum Newton iterations for the Newton solver is ", max_newt
         end if
 
         if (newt_eps <= 0) then
-            print *, "Simulation stopped - newt_eps has an invalid value"
+            print*, "Simulation stopped - newt_eps has an invalid value"
             stop
         else
             print*, "The Newton epsilon criteria for the Newton solver is ", newt_eps
         end if
 
         if (newt_delta <= 0) then
-            print *, "Simulation stopped - newt_delta has an invalid value"
+            print*, "Simulation stopped - newt_delta has an invalid value"
             stop
         else
             print*, "The Newton delta criteria for the Newton solver is ", newt_delta
         end if
 
         if (max_gmres <= 0) then
-            print *, "Simulation stopped - max_gmres has an invalid value"
+            print*, "Simulation stopped - max_gmres has an invalid value"
             stop
         else
             print*, "The number of maximum GMRESm iterations for the Newton solver is ", max_gmres
         end if
 
         if (restart_gmres <= 0) then
-            print *, "Simulation stopped - restart_gmres has an invalid value"
+            print*, "Simulation stopped - restart_gmres has an invalid value"
             stop
         else
             print*, "GMRESm will restart every ", restart_gmres, " iterations"
         end if
 
         if (tol_gmres <= 0) then
-            print *, "Simulation stopped - tol_gmres has an invalid value"
+            print*, "Simulation stopped - tol_gmres has an invalid value"
             stop
         else
             print*, "The GMRESm tolarance for the Newton solver is ", tol_gmres
         end if
 
         if (m_wave <= 0) then
-            print *, "Simulation stopped - M_wave has an invalid value"
+            print*, "Simulation stopped - M_wave has an invalid value"
             stop
         else
             print*, "The solution the Newton solver will look for has an m = ", M_wave, ' azimuthal symmetry'
         end if
 
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (Ek_final /= 0.) .and. (Ra_final /= 0.)) then
+        print*, "Continuation solver selected but final values for both Ekman and Rayleigh were given, choose one."
+        print*, "Stopping simulation..."
+        stop
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (Ek_final < 0.)) then
+        print*, "Simulation stopped - Ek_final has an invalid value"
+        stop
+    else 
+        print*, "Continuation in Ekman until Ek_final = ", Ek_final
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (Ra_final < 0.)) then
+        print*, "Simulation stopped - Ra_final has an invalid value"
+        stop
+    else 
+        print*, "Continuation in Rayleigh until Ra_final = ", Ra_final
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (adapt_param_string == "yes") .or. (adapt_param_string == "y")) then
+        print*, "Continuation will adapt the step of the parameter"
+        adapt_param = .true.
+    else
+        print*, "Continuation will not adapt the step of the parameter (default setting)"
+        adapt_param = .false.
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (Nopt <= 0.)) then
+        print*, "Simulation stopped - Nopt has an invalid value"
+        stop
+    else
+        print*, "Continuation using Nopt = ", Nopt
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (delta_param == 0.)) then
+        print*, "Simulation stopped - delta_param has an invalid value"
+        stop
+    else
+        print*, "Continuation using delta_param = ", delta_param
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (gamma <= 0.)) then
+        print*, "Simulation stopped - gamma has an invalid value"
+        stop
+    else
+        print*, "Continuation using gamma = ", gamma
+    end if
+
+    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
+        (grid_refine_string == "yes") .or. (grid_refine_string == "y")) then
+        print*, "Continuation will be performed with grid refinement"
+        grid_refine = .true.
+        if (gr_threshold <= 0.) then
+            print*, "Simulation stopped - gr_threshold has an invalid value"
+            stop
+        else
+            print*, "Grid refinement using gr_threshold = ", gr_threshold
+        end if
+        if (gr_threshold > 1.0e-4) print*, "Carefull, grid refinement threshold might be too high"
+    else
+        print*, "Continuation will be performed without grid refinement (default setting)"
+        grid_refine = .false.
     end if
 
     if ((dealiasing /= "yes") .or. (dealiasing /= "y")) then
