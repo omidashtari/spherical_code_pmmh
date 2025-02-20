@@ -195,12 +195,6 @@ subroutine continuation_convective_solver()
     ! Compute \tilde{Ra} = Ra_{Th} * EK^{4/3} = Ra_{rot} * Ek^{1/3} * Pr for continuation in Ek
     Ra_tilde = Ra * Ek ** (1. / 3.) * Pr
 
-    ! IDEAS ON HOW TO CODE ALL CONTINUATION METHODS IN ONE
-    ! We do a condition for the do while => do while (condition)
-    ! And that condition will depend on the user's choice for continuation parameter
-    ! Then we'll have different assign_new_value functions that will be called using a pointer
-    ! I think there should only be one adapt variable, not one for Ra and another one for Ek.
-
     ! Set condition according to cont_type
     if (cont_type == "Ra_max") then
         condition = Ra <= Ra_final
@@ -614,8 +608,6 @@ subroutine max_search()
     else
         dsmax = abs((S(idsmax) - S_nm1(idsmax)) / S(idsmax))
     end if
-
-    ! if (.not. max_flag) print*, "This is S(idsmax) = ", S(idsmax)
 
 end subroutine max_search
 
