@@ -223,7 +223,7 @@ end subroutine compute_time_step_convective_implicit_PC
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_time_step_convective_explicit_IEE()
+subroutine compute_time_step_convective_explicit_CN()
 
   implicit none
 
@@ -269,11 +269,11 @@ subroutine compute_time_step_convective_explicit_IEE()
   F = wF + wDF
   T = wT + wDT
 
-end subroutine compute_time_step_convective_explicit_IEE
+end subroutine compute_time_step_convective_explicit_CN
 
 !--------------------------------------------------------------------------------------
 
-subroutine compute_time_step_convective_implicit_IEE()
+subroutine compute_time_step_convective_implicit_CN()
 
   implicit none
 
@@ -337,7 +337,7 @@ subroutine compute_time_step_convective_implicit_IEE()
   call big2small(Ap, E, F)
   T = wT + wDT
 
-end subroutine compute_time_step_convective_implicit_IEE
+end subroutine compute_time_step_convective_implicit_CN
 
 ! --------------------------------------------------------------------------------------
 

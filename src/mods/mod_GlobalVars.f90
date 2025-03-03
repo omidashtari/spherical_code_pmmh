@@ -68,9 +68,10 @@ module mod_Globalvars
   ! Arrays containing real velocity components and temperature
   double precision, dimension(:, :, :), allocatable :: Ur, Ut, Up, T_real
 
-  ! Pointers to select RHS computation for IEE timestep
-  ! Explicit_RHS_ptr => comp_ExplicitRHS if user chooses IEE timestep for timestepping simulation
-  ! Implicit_RHS_ptr => comp_ImplicitRHS if user chooses IEE timestep for timestepping simulation
+  ! Pointers to select RHS computation for timestep: These will be used only if timestepping simulation with CN is selected
+  ! or if Newton or Continuation solvers are selected.
+  ! Explicit_RHS_ptr => comp_ExplicitRHS if user chooses CN timestep for timestepping simulation
+  ! Implicit_RHS_ptr => comp_ImplicitRHS if user chooses CN timestep for timestepping simulation
   ! Explicit_RHS_ptr => comp_RHS_with_rot and Implicit_RHS_ptr => comp_RHS_with_rot if user chooses Newton solver
   procedure(), pointer :: Explicit_RHS_ptr, Implicit_RHS_ptr
 

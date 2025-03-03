@@ -33,7 +33,7 @@ subroutine convective_newton_solver()
         print*, "Precomputing the XT and YT matrices..."
         call precompXTYT()
 
-        NonLinTimeStep_ptr => compute_time_step_convective_explicit_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN
         LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit
         Explicit_RHS_ptr => comp_RHS_with_rot
 
@@ -46,7 +46,7 @@ subroutine convective_newton_solver()
         print*, "Precomputing the XT and YT matrices..."
         call precompXTYT()
 
-        NonLinTimeStep_ptr => compute_time_step_convective_implicit_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_implicit_CN
         LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit
         Implicit_RHS_ptr => comp_RHS_with_rot
 
@@ -110,7 +110,7 @@ subroutine continuation_convective_solver()
         print*, "Precomputing the XT and YT matrices..."
         call precompXTYT()
 
-        NonLinTimeStep_ptr => compute_time_step_convective_explicit_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN
         LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit
         Explicit_RHS_ptr => comp_RHS_with_rot
 
@@ -123,7 +123,7 @@ subroutine continuation_convective_solver()
         print*, "Precomputing the XT and YT matrices..."
         call precompXTYT()
 
-        NonLinTimeStep_ptr => compute_time_step_convective_implicit_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_implicit_CN
         LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit
         Implicit_RHS_ptr => comp_RHS_with_rot
 

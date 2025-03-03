@@ -297,8 +297,8 @@ subroutine check_arg_validity()
 
     if (time_step == 'pc') then
         print*, 'Simulation is being executed with predictor corrector time step'
-    else if (time_step == 'iee') then
-        print*, 'Simulation is being executed with simple implicit-explicit Euler time step'
+    else if (time_step == 'cn') then
+        print*, 'Simulation is being executed with Crank-Nicolson time step'
     end if
 
     if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
