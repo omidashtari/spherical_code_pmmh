@@ -27,6 +27,8 @@ subroutine grid_refinement()
     if (ur_Cheb) then
         deallocate(xN, rN, xK, rK)
         deallocate(Chb, ChbR, ChbR2, ChbR3, ChbD1, ChbD1R, Chbderiv, Chbderiv2, Chbinv, Chb2, Chb4, Chb_mulR_deriv)
+        deallocate(Chb0XY, ChbD1XY, ChbD2XY, ChbD4XY, divR)
+        deallocate(BC_mat)
     end if
 
     deallocate(ell, SH_norm, phi, ll1, dphi, wts, costh_mul, sth_dth)
@@ -80,6 +82,7 @@ subroutine grid_refinement()
     if (ur_Cheb) then
         print*, "Precomputing the Chebyshev terms..."
         call PrecompTchebyshev()
+        call precompBuildXY() ! Compute building blocks for the matrices
     end if
     print*, "Precomputing the spherical harmonics grid..."
     call PrecompSH()

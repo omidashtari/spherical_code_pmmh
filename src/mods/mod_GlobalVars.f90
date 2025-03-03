@@ -74,6 +74,12 @@ module mod_Globalvars
   ! Explicit_RHS_ptr => comp_RHS_with_rot and Implicit_RHS_ptr => comp_RHS_with_rot if user chooses Newton solver
   procedure(), pointer :: Explicit_RHS_ptr, Implicit_RHS_ptr
 
+  !--- To compute the solve matrices
+  double precision, dimension(:, :), allocatable :: Chb0XY, ChbD1XY, ChbD2XY, ChbD4XY, divR
+
+  !--- To impose the boundary conditions in the solve matrices
+  double precision, dimension(:, :), allocatable :: BC_mat
+
   !--- Inverse matrix X⁻¹ and X⁻¹*Y for e, f and Theta:
 
   double precision, dimension(:, :, :), allocatable :: Xe_inv, Xe_invYe

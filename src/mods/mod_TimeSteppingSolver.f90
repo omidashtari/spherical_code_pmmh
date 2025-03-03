@@ -28,6 +28,7 @@ subroutine convective_solver()
     if (solver == "convective_explicit") then
 
         ! We begin by precomputing the matrices for the resolution of the linear system
+        call precompBuildXY() ! Compute building blocks for the matrices
         print*, "Precomputing the Xe and Ye matrices..."
         call precompXeYe()
         print*, "Precomputing the Xf and Yf matrices..."
@@ -46,6 +47,7 @@ subroutine convective_solver()
     else if (solver == "convective_implicit") then
 
         ! We begin by precomputing the matrices for the resolution of the linear system
+        call precompBuildXY() ! Compute building blocks for the matrices
         print*, "Precomputing the Xef and Yef matrices..."
         call PrecompimplicitXY()
         print*, "Precomputing the XT and YT matrices..."
