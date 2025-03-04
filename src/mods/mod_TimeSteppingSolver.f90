@@ -29,40 +29,79 @@ subroutine convective_solver()
 
         ! We begin by precomputing the matrices for the resolution of the linear system
         call precompBuildXY() ! Compute building blocks for the matrices
-        print*, "Precomputing the Xe and Ye matrices..."
-        call precompXeYe()
-        print*, "Precomputing the Xf and Yf matrices..."
-        call precompXfYf()
-        print*, "Precomputing the XT and YT matrices..."
-        call precompXTYT()
-
+        
         ! Check for time stepping scheme
-        if (time_step == "pc") then
-            TimeStep_ptr => compute_time_step_convective_explicit_PC
-        else if ((time_step == "cn") .or. (time_step == "iee")) then
-            TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
-            Explicit_RHS_ptr => comp_ExplicitRHS
-        end if
+        select case (time_step)
+
+            case ("pc")
+
+                print*, "Precomputing the Xe and Ye matrices..."
+                call precompXeYe()
+                print*, "Precomputing the Xf and Yf matrices..."
+                call precompXfYf()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT()
+                TimeStep_ptr => compute_time_step_convective_explicit_PC
+
+            case ("cn")
+
+                print*, "Precomputing the Xe and Ye matrices..."
+                call precompXeYe()
+                print*, "Precomputing the Xf and Yf matrices..."
+                call precompXfYf()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT()
+                TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
+                Explicit_RHS_ptr => comp_ExplicitRHS
+
+            case ("iee")
+
+                print*, "Precomputing the Xe and Ye matrices..."
+                call precompXeYe_BDF()
+                print*, "Precomputing the Xf and Yf matrices..."
+                call precompXfYf_BDF()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT_BDF()
+                TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
+                Explicit_RHS_ptr => comp_ExplicitRHS
+
+        end select
 
     else if (solver == "convective_implicit") then
 
         ! We begin by precomputing the matrices for the resolution of the linear system
         call precompBuildXY() ! Compute building blocks for the matrices
-        print*, "Precomputing the Xef and Yef matrices..."
-        call PrecompimplicitXY()
-        print*, "Precomputing the XT and YT matrices..."
-        call precompXTYT()
-
+        
         ! Check for time stepping scheme
-        if (time_step == "pc") then
-            TimeStep_ptr => compute_time_step_convective_implicit_PC
-        else if (time_step == "cn") then
-            TimeStep_ptr => compute_time_step_convective_implicit_CN
-            Implicit_RHS_ptr => comp_ImplicitRHS
-        else if (time_step == "iee") then
-            TimeStep_ptr => compute_time_step_convective_implicit_IEE
-            Implicit_RHS_ptr => comp_ImplicitRHS
-        end if
+        select case (time_step)
+
+            case ("pc")
+
+                print*, "Precomputing the Xef and Yef matrices..."
+                call PrecompimplicitXY()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT()
+                TimeStep_ptr => compute_time_step_convective_implicit_PC
+
+            case ("cn")
+
+                print*, "Precomputing the Xef and Yef matrices..."
+                call PrecompimplicitXY()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT()
+                TimeStep_ptr => compute_time_step_convective_implicit_CN
+                Implicit_RHS_ptr => comp_ImplicitRHS
+
+            case ("iee")
+
+                print*, "Precomputing the Xef and Yef matrices..."
+                call PrecompimplicitXY_BDF()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT_BDF()
+                TimeStep_ptr => compute_time_step_convective_implicit_IEE
+                Implicit_RHS_ptr => comp_ImplicitRHS
+
+        end select
 
     end if
 

@@ -90,16 +90,46 @@ subroutine grid_refinement()
 
     ! Now we re-compute the matrices
     if (solver == "continuation_convective_explicit") then
-        print*, "Precomputing the Xe and Ye matrices..."
-        call precompXeYe()
-        print*, "Precomputing the Xf and Yf matrices..."
-        call precompXfYf()
+
+        if (time_step == "cn") then
+
+            print*, "Precomputing the Xe and Ye matrices..."
+            call precompXeYe()
+            print*, "Precomputing the Xf and Yf matrices..."
+            call precompXfYf()
+            print*, "Precomputing the XT and YT matrices..."
+            call precompXTYT()
+
+        else if (time_step == "iee") then
+
+            print*, "Precomputing the Xe and Ye matrices..."
+            call precompXeYe_BDF()
+            print*, "Precomputing the Xf and Yf matrices..."
+            call precompXfYf_BDF()
+            print*, "Precomputing the XT and YT matrices..."
+            call precompXTYT_BDF()
+
+        end if
+
     else if (solver == "continuation_convective_implicit") then
-        print*, "Precomputing the Xef and Yef matrices..."
-        call PrecompimplicitXY()
+
+        if (time_step == "cn") then
+
+            print*, "Precomputing the Xef and Yef matrices..."
+            call PrecompimplicitXY()
+            print*, "Precomputing the XT and YT matrices..."
+            call precompXTYT()
+
+        else if (time_step == "iee") then
+
+            print*, "Precomputing the Xef and Yef matrices..."
+            call PrecompimplicitXY_BDF()
+            print*, "Precomputing the XT and YT matrices..."
+            call precompXTYT_BDF()
+
+        end if
+
     end if
-    print*, "Precomputing the XT and YT matrices..."
-    call precompXTYT()
 
     ! Now we restart from previous continuation step
     print*, "Reading restart files from previous continuation step using new grid"

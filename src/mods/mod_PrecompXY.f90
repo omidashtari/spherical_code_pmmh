@@ -51,29 +51,12 @@ function create_Xe(l, param) result(Xe)
 
   Xe = 0.
 
-  ! if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
-  !   & .or. (solver == "continuation_convective_implicit")) then
-  !   param = Ek
-  ! end if
-
   Xe(:KK, :) = dble(l * (l + 1)) * divR(:, :KK2) * (param * Chb0XY(:, :KK2) - IER * delta_t * Ek * &
                & (ChbD2XY(:, :KK2) - dble(l * (l + 1)) * divR(:, :KK2) ** 2 * Chb0XY(:, :KK2)))
 
   !Boundary conditions
   Xe(KK + 1, :) = BC_mat(:KK2, 1)
-  Xe(KK + 2, :) = BC_mat(:KK2, 2)
-
-  ! do k = 1, KK2
-  !   Chb0 = ChbPoly    (k - 1, xK)
-  !   Chb2 = ChbPolDeriv(k - 1, xK, 2) * dxdr ** 2
-
-  !   Xe(:KK, k) = dble(l * (l + 1)) / rK * (param * Chb0 - IER * delta_t * Ek * &
-  !              & (Chb2 - dble(l * (l + 1)) / (rK ** 2) * Chb0))
-
-  !   !Boundary conditions
-  !   Xe(KK + 1, k) = (-1.) ** (k - 1)
-  !   Xe(KK + 2, k) = 1.
-  ! end do  
+  Xe(KK + 2, :) = BC_mat(:KK2, 2) 
   
 end function create_Xe
 
@@ -91,9 +74,6 @@ function create_XTh(l) result(XTh)
 
   XTh(:KK, :) = Chb0XY(:, :KK2) - IER * delta_t * (ChbD2XY(:, :KK2) + 2.d0 * divR(:, :KK2) * ChbD1XY(:, :KK2) &
               & - l * (l + 1.d0) * divR(:, :KK2) ** 2 * Chb0XY(:, :KK2)) / Pr
-
-  ! XTh(:KK, k) = Chb0v - IER * delta_t * (ChbD2v + 2.d0 / rK * ChbD1v &
-  !             & - l * (l + 1.d0) / rK ** 2 * Chb0v) / Pr
 
   ! Boundary conditions
   XTh(KK + 1, :) = BC_mat(:KK2, 1)
@@ -116,11 +96,6 @@ function create_Xf(l, param) result(Xf)
   Xf = 0.
   fac = dble(l * (l + 1)) * divR ** 2
 
-  ! if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
-  !   & .or. (solver == "continuation_convective_implicit")) then
-  !   param = Ek
-  ! end if
-
   Xf(:KK, :) = - dble(l * (l + 1)) * (param * (ChbD2XY - fac * Chb0XY) - IER * delta_t * Ek * (ChbD4XY - 2. * fac * ChbD2XY &
                & + 4. * fac * divR * ChbD1XY + fac ** 2 * Chb0XY - 6. * fac * divR ** 2 * Chb0XY))
 
@@ -129,22 +104,6 @@ function create_Xf(l, param) result(Xf)
   Xf(KK + 2, :) = BC_mat(:, 2)
   Xf(KK + 3, :) = BC_mat(:, 3)
   Xf(KK + 4, :) = BC_mat(:, 4)
-
-  ! do k = 1, KK4
-  !   Chb0 = ChbPoly    (k - 1, xK)
-  !   Chb1 = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !   Chb2 = ChbPolDeriv(k - 1, xK, 2) * dxdr ** 2
-  !   Chb4 = ChbPolDeriv(k - 1, xK, 4) * dxdr ** 4
-
-  !   Xf(:KK, k) = - dble(l * (l + 1)) * (param * (Chb2 - fac * Chb0) - IER * delta_t * Ek * (Chb4 - 2. * fac * Chb2 &
-  !              & + 4. * fac / rK * Chb1 + fac ** 2 * Chb0 - 6. * fac / rK ** 2 * Chb0))
-
-  !   !Boundary conditions
-  !   Xf(KK + 1, k) = (-1.) ** (k - 1)
-  !   Xf(KK + 2, k) = 1.
-  !   Xf(KK + 3, k) = (-1.) ** k * (k - 1.) ** 2
-  !   Xf(KK + 4, k) = 1. * (k - 1.) ** 2
-  ! end do  
 
 end function create_Xf
 
@@ -163,16 +122,6 @@ function create_Be(m, l, COEF) result(Be)
 
   Be(:KK, :) = - delta_t * COEF * 2 * dble(m) * divR(:, :KK2) * Chb0XY(:, :KK2)
 
-  ! do k = 1, KK2
-  !   Chb0 = ChbPoly(k - 1, xK)
-
-  !   Be(:KK, k) = - delta_t * COEF * 2 * dble(m) / rK * Chb0
-
-  !   !Boundary conditions
-  !   Be(KK + 1, k) =  0.
-  !   Be(KK + 2, k) =  0.
-  ! end do
-
 end function create_Be
 
 ! ----------------------------------------------------------------------------------------
@@ -188,20 +137,7 @@ function create_Bf(m, l, COEF) result(Bf)
 
   Bf = 0.
 
-  Bf(:KK, :) =  delta_t * COEF * 2. * dble(m) * (ChbD2XY - dble(l * (l + 1)) * divR ** 2 * Chb0XY)
-  
-  ! do k = 1, KK4
-  !   Chb0 = ChbPoly    (k - 1, xK)
-  !   Chb2 = ChbPolDeriv(k - 1, xK, 2) * dxdr ** 2
-
-  !   Bf(:KK, k) =  delta_t * COEF * 2. * dble(m) * (Chb2 - dble(l * (l + 1)) / (rK ** 2) * Chb0)
-    
-  !   !Boundary conditions
-  !   Bf(KK + 1, k) =  0.d0
-  !   Bf(KK + 2, k) =  0.d0
-  !   Bf(KK + 3, k) =  0.d0
-  !   Bf(KK + 4, k) =  0.d0
-  ! end do    
+  Bf(:KK, :) =  delta_t * COEF * 2. * dble(m) * (ChbD2XY - dble(l * (l + 1)) * divR ** 2 * Chb0XY)   
 
 end function create_Bf
 
@@ -225,25 +161,6 @@ function create_Xue(m, l, COEF) result(Xue)
                 & sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
 
   end if
-
-  ! if ((l>=m) .and. (l + 1 > 1)) then
-  !   do k = 1, KK2
-  !     Chb0  = ChbPoly (k - 1, xK)
-  !     Chb1  = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !     Chb0R = Chb0 / rK
-
-  !     Xue(:KK, k) = - delta_t * 2. * COEF * dble(l * (l + abs(m) + 1) * (l + 2)) / dble(2 * l + 3) * &
-  !                 & (dble(l + 1) * Chb0R + Chb1) * sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
-      
-  !     !Boundary conditions
-  !     Xue(KK + 1, k) = 0.
-  !     Xue(KK + 2, k) = 0.
-  !     Xue(KK + 3, k) = 0.
-  !     Xue(KK + 4, k) = 0.
-  !   end do
-  ! else
-  !   Xue = 0.
-  ! end if
   
 end function create_Xue
 
@@ -266,23 +183,6 @@ function create_Xuf(m, l, COEF) result(Xuf)
                 & (dble(l + 1) * Chb0XY * divR + ChbD1XY) * sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
 
   end if
-
-  ! if ((l>=m) .and. (l + 1 > 1)) then
-  !   do k = 1, KK4
-  !     Chb0  = ChbPoly    (k - 1, xK)
-  !     Chb1  = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !     Chb0R = Chb0 / rK
-
-  !     Xuf(:KK, k) = - delta_t * 2. * COEF / rK * dble(l * (l + abs(m) + 1) * (l + 2)) / dble(2 * l + 3) * &
-  !                 & (dble(l + 1) * Chb0R + Chb1) * sqrt(dble(2*l+3)/dble(2*l+1)*dble(l+1-m)/dble(l+1+m))
-
-  !     !Boundary conditions
-  !     Xuf(KK + 1, k) = 0.
-  !     Xuf(KK + 2, k) = 0.
-  !   end do    
-  ! else
-  !   Xuf = 0.
-  ! end if
    
 end function create_Xuf
 
@@ -306,25 +206,6 @@ function create_Xle(m, l, COEF) result(Xle)
                 & sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
 
   end if
-
-  ! if (l - 1 < LL) then
-  !   do k = 1, KK2
-  !     Chb0  = ChbPoly (k - 1, xK)
-  !     Chb1  = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !     Chb0R = Chb0 / rK
-
-  !     Xle(:KK, k) = delta_t * 2. * COEF * dble((l + 1) * (l - 1) * (l - abs(m))) / dble(2 * l - 1) * &
-  !                 & (dble(l) * Chb0R - Chb1) * sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
-
-  !     !Boundary conditions
-  !     Xle(KK + 1, k) = 0.
-  !     Xle(KK + 2, k) = 0.
-  !     Xle(KK + 3, k) = 0.
-  !     Xle(KK + 4, k) = 0.
-  !   end do
-  ! else
-  !   Xle = 0.
-  ! end if
    
 end function create_Xle
 
@@ -347,23 +228,6 @@ function create_Xlf(m, l, COEF) result(Xlf)
                   & (dble(l) * Chb0XY * divR - ChbD1XY) * sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
 
   end if
-
-  ! if (l - 1 < LL) then
-  !   do k = 1, KK4
-  !     Chb0  = ChbPoly    (k - 1, xK)
-  !     Chb1  = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !     Chb0R = Chb0 / rK
-
-  !     Xlf(:KK, k) = delta_t * 2. * COEF / rK * dble((l + 1) * (l - 1) * (l - abs(m))) / dble(2 * l - 1) * &
-  !                 & (dble(l) * Chb0R - Chb1) * sqrt(dble(2*l-1)/dble(2*l+1)*dble(l+m)/dble(l-m))
-
-  !     !Boundary conditions
-  !     Xlf(KK + 1, k) = 0.
-  !     Xlf(KK + 2, k) = 0.
-  !   end do
-  ! else
-  !   Xlf = 0.
-  ! end if
  
 end function create_Xlf
 
@@ -380,25 +244,8 @@ function create_Ye(l, param) result(Ye)
 
   Ye = 0.
 
-  ! if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
-  !   & .or. (solver == "continuation_convective_implicit")) then
-  !   param = Ek
-  ! end if
-
   Ye(:KK, :) = dble(l * (l + 1)) * divR(:, :KK2) * (param * Chb0XY(:, :KK2) + (1- IER) * delta_t * Ek * ( &
               & ChbD2XY(:, :KK2) - dble(l * (l + 1)) * divR(:, :KK2) ** 2 * Chb0XY(:, :KK2)))
-
-  ! do k = 1, KK2
-  !   Chb0 = ChbPoly    (k - 1, xK)
-  !   Chb2 = ChbPolDeriv(k - 1, xK, 2) * dxdr ** 2
-
-  !   Ye(:KK, k) = dble(l * (l + 1)) / rK * (param * Chb0 + (1- IER) * delta_t * Ek * ( &
-  !              & Chb2 - dble(l * (l + 1)) / (rK ** 2) * Chb0))
-
-  !   !Boundary conditions
-  !   Ye(KK + 1, k) = 0.
-  !   Ye(KK + 2, k) = 0.
-  ! end do
 
 end function create_Ye
 
@@ -433,9 +280,6 @@ function create_YTh(l) result(YTh)
 
   YTh(:KK, :) = Chb0XY(:, :KK2) + (1.d0 - IER) * delta_t * (ChbD2XY(:, :KK2) + 2.d0 * divR(:, :KK2) * ChbD1XY(:, :KK2) &
               & - l * (l + 1.d0) * divR(:, :KK2) ** 2 * Chb0XY(:, :KK2)) / Pr
-  
-  ! YTh(:KK, k) = Chb0v + (1.d0 - IER) * delta_t * (ChbD2v + 2.d0 / rK * ChbD1v         &
-  !             & - l * (l + 1.d0) / rK ** 2 * Chb0v) / Pr
 
 end function create_YTh
 
@@ -471,31 +315,9 @@ function create_Yf(l, param) result(Yf)
 
   fac = dble(l * (l + 1)) * divR ** 2
 
-  ! if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
-  !   & .or. (solver == "continuation_convective_implicit")) then
-  !   param = Ek
-  ! end if
-
   Yf(:KK, :) = - dble(l * (l + 1)) * (param * (ChbD2XY - fac * Chb0XY) + & 
             & (1 - IER) * delta_t * Ek * (ChbD4XY - 2. * fac * ChbD2XY + &
             & 4. * fac * divR * ChbD1XY + fac ** 2 * Chb0XY - 6. * fac * divR ** 2 * Chb0XY))
-
-  ! do k = 1, KK4
-  !   Chb0 = ChbPoly    (k - 1, xK)
-  !   Chb1 = ChbPolDeriv(k - 1, xK, 1) * dxdr
-  !   Chb2 = ChbPolDeriv(k - 1, xK, 2) * dxdr ** 2
-  !   Chb4 = ChbPolDeriv(k - 1, xK, 4) * dxdr ** 4
-
-  !   Yf(:KK, k) = - dble(l * (l + 1)) * (param * (Chb2 - fac * Chb0) + & 
-  !              & (1 - IER) * delta_t * Ek * (Chb4 - 2. * fac * Chb2 + &
-  !              & 4. * fac / rK * Chb1 + fac ** 2 * Chb0 - 6. * fac / rK ** 2 * Chb0))
-
-  !   !Boundary conditions
-  !   Yf(KK + 1, k) = 0.
-  !   Yf(KK + 2, k) = 0.
-  !   Yf(KK + 3, k) = 0.
-  !   Yf(KK + 4, k) = 0.
-  ! end do
    
 end function create_Yf
 
@@ -747,14 +569,14 @@ function CYF(l, m, param)
 
   CYF = 0.
 
-  ! CYF(1 : KK2, 1 : KK4) = - create_Xuf(m, l - 1, (1 - IER))
-  ! CYF(KK2 + 1 : 2 * KK2, KK4 + 1 : 2 * KK4) = - create_Xuf(m, l - 1, (1 - IER))
+  CYF(1 : KK2, 1 : KK4) = - create_Xuf(m, l - 1, (1 - IER))
+  CYF(KK2 + 1 : 2 * KK2, KK4 + 1 : 2 * KK4) = - create_Xuf(m, l - 1, (1 - IER))
   CYF(2 * KK2 + 1 : 2 * KK2 + KK4, 1 : KK4) = create_Yf(l, param)
-  ! CYF(2 * KK2 + 1 : 2 * KK2 + KK4, KK4 + 1 : 2 * KK4) = create_Bf(m, l, (1 - IER))
-  ! CYF(2 * KK2 + KK4 + 1 : step, 1 : KK4) = - create_Bf(m, l, (1 - IER))
+  CYF(2 * KK2 + 1 : 2 * KK2 + KK4, KK4 + 1 : 2 * KK4) = create_Bf(m, l, (1 - IER))
+  CYF(2 * KK2 + KK4 + 1 : step, 1 : KK4) = - create_Bf(m, l, (1 - IER))
   CYF(2 * KK2 + KK4 + 1 : step, KK4 + 1 : 2 * KK4) = create_Yf(l, param)
-  ! CYF(1 + step : step + KK2, 1 : KK4) = - create_Xlf(m, l + 1, (1 - IER))
-  ! CYF(step + KK2 + 1 : step + 2 * KK2, KK4 + 1 : 2 * KK4) = - create_Xlf(m, l + 1, (1 - IER))
+  CYF(1 + step : step + KK2, 1 : KK4) = - create_Xlf(m, l + 1, (1 - IER))
+  CYF(step + KK2 + 1 : step + 2 * KK2, KK4 + 1 : 2 * KK4) = - create_Xlf(m, l + 1, (1 - IER))
 
 end function CYF
 
@@ -801,14 +623,14 @@ function CYE(l, m, param)
 
   CYE = 0.
 
-  ! CYE(1 : KK4, 1 : KK2) = - create_Xue(m, l - 1, (1 - IER))
-  ! CYE(KK4 + 1 : 2 * KK4, KK2 + 1 : 2 * KK2) = - create_Xue(m, l - 1, (1 - IER))
+  CYE(1 : KK4, 1 : KK2) = - create_Xue(m, l - 1, (1 - IER))
+  CYE(KK4 + 1 : 2 * KK4, KK2 + 1 : 2 * KK2) = - create_Xue(m, l - 1, (1 - IER))
   CYE(2 * KK4 + 1 : 2 * KK4 + KK2, 1 : KK2) = create_Ye(l, param)
-  ! CYE(2 * KK4 + 1 : 2 * KK4 + KK2, KK2 + 1 : 2 * KK2) = create_Be(m, l, (1 - IER))
-  ! CYE(2 * KK4 + KK2 + 1 : step , 1 : KK2) = - create_Be(m, l, (1 - IER))
+  CYE(2 * KK4 + 1 : 2 * KK4 + KK2, KK2 + 1 : 2 * KK2) = create_Be(m, l, (1 - IER))
+  CYE(2 * KK4 + KK2 + 1 : step , 1 : KK2) = - create_Be(m, l, (1 - IER))
   CYE(2 * KK4 + KK2 + 1 : step, KK2 + 1 : 2 * KK2) = create_Ye(l, param)
-  ! CYE(1 + step : step + KK4, 1 : KK2) = - create_Xle(m, l + 1, (1 - IER))
-  ! CYE(step + KK4 + 1 : step + 2 * KK4, KK2 + 1 : 2 * KK2) = - create_Xle(m, l + 1, (1 - IER))
+  CYE(1 + step : step + KK4, 1 : KK2) = - create_Xle(m, l + 1, (1 - IER))
+  CYE(step + KK4 + 1 : step + 2 * KK4, KK2 + 1 : 2 * KK2) = - create_Xle(m, l + 1, (1 - IER))
 
 end function CYE
 
