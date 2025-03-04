@@ -88,7 +88,8 @@ module mod_Globalvars
   double precision, dimension(:, :, :), allocatable :: XT_inv, XT_invYT
 
   !--- Matrices for implicit Coriolis
-  double precision, dimension(:, :, :), allocatable :: Xef, Yef
+  double precision, dimension(:, :, :), allocatable :: Xef, Yef ! Coupled Yef is only used if timestep is CN or PC
+  double precision, dimension(:, :, :), allocatable :: Ye_mat, Yf_mat ! These are de-coupled and are only used if timestep is BDF
   integer, dimension(:, :), allocatable :: PIVOT
   double precision, dimension(:, :), allocatable :: A, Ap, A1, DA, DA1
 

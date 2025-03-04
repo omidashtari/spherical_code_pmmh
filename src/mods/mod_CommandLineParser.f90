@@ -289,16 +289,19 @@ subroutine check_arg_validity()
         & (time_step == 'no')) then
         print*, 'No time stepping scheme selected, switching to predictor-corrector'
         time_step = 'pc'
-    else if (((solver == 'newton_convective_explicit') .or. &
-        & (solver == 'newton_convective_implicit') .or. (solver == 'continuation_convective_explicit') & 
-        & .or.  (solver == 'continuation_convective_implicit')) .and. (time_step /= 'no')) then
-        print*, 'Newton or continuation solver selected, time_step variable is of no use'
+    else if (((solver == 'newton_convective_explicit') .or. (solver == 'newton_convective_implicit') .or. & 
+        (solver == 'continuation_convective_explicit') .or. (solver == 'continuation_convective_implicit')) .and. &
+        & (time_step == 'no')) then
+        print*, 'No time stepping scheme selected, switching to Implicit-Explicit Euler'
+        time_step = 'iee'
     end if
 
     if (time_step == 'pc') then
         print*, 'Simulation is being executed with predictor corrector time step'
     else if (time_step == 'cn') then
         print*, 'Simulation is being executed with Crank-Nicolson time step'
+    else if (time_step == 'iee') then
+        print*, 'Simulation is being executed with Implicit-Explicit Euler time step'
     end if
 
     if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
@@ -655,11 +658,15 @@ subroutine check_arg_validity()
         print*, "The Rayleigh number is ", Ra
     end if
 
-    if (IER <= 0) then
-        print *, "Simulation stopped - IER has an invalid value"
-        stop
+    if (time_step == "iee") then
+        IER = 1.
     else
-        print*, "The implicit to explicit ratio is ", IER
+        if (IER <= 0) then
+            print *, "Simulation stopped - IER has an invalid value"
+            stop
+        else
+            print*, "The implicit to explicit ratio is ", IER
+        end if
     end if
 
 end subroutine check_arg_validity

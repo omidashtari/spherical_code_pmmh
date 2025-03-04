@@ -223,7 +223,7 @@ end subroutine compute_time_step_convective_implicit_PC
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_time_step_convective_explicit_CN()
+subroutine compute_time_step_convective_explicit_CN_IEE()
 
   implicit none
 
@@ -269,7 +269,7 @@ subroutine compute_time_step_convective_explicit_CN()
   F = wF + wDF
   T = wT + wDT
 
-end subroutine compute_time_step_convective_explicit_CN
+end subroutine compute_time_step_convective_explicit_CN_IEE
 
 !--------------------------------------------------------------------------------------
 
@@ -341,7 +341,73 @@ end subroutine compute_time_step_convective_implicit_CN
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_lin_time_step_convective_explicit(E_per, F_per, T_per)
+subroutine compute_time_step_convective_implicit_IEE()
+
+  implicit none
+
+  integer :: lm, k, m, n_even, n_odd, top, m_idx
+
+  !--- Compute Explicit terms
+  call Implicit_RHS_ptr(DE, DF, DT)
+
+  DEr = 0.
+  DFr = 0.
+
+  ! Now we go to real in Chebyshev for DE and DF
+  do lm=2, shtns%nlm ! We start from lm = 2 because lm = 1 is of no interest
+    do k = 1, KK2
+      DEr(k, lm)%re = (Chb2(k, :KK2) .dot. real(DE(:KK2, lm))) + (Ye_mat(k, :, ell(lm)) .dot. real(E(:, lm)))
+      DEr(k, lm)%im = (Chb2(k, :KK2) .dot. aimag(DE(:KK2, lm))) + (Ye_mat(k, :, ell(lm)) .dot. aimag(E(:, lm)))
+    end do
+  end do
+
+  do lm=2, shtns%nlm
+    do k = 1, KK4
+      DFr(k, lm)%re = (Chb4(k, :KK4) .dot. real(DF(:KK4, lm))) + (Yf_mat(k, :, ell(lm)) .dot. real(F(:, lm)))
+      DFr(k, lm)%im = (Chb4(k, :KK4) .dot. aimag(DF(:KK4, lm))) + (Yf_mat(k, :, ell(lm)) .dot. aimag(F(:, lm)))
+    end do
+  end do
+
+  ! Create arrays that respect the symmetry classes
+  call small2big(DEr, DFr, DA)
+
+  !--- Solution of the linear system
+
+  !--- For E and F
+  m_idx = 0
+  Ap = 0.
+
+  do m = 0, MM*mres, mres
+    DA1 = 0.
+    A1 = 0.
+    n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
+    n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
+    top = 2 * (KK2 + KK4) * (n_even + n_odd)
+
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA(:top, m_idx), PIVOT(:top, m_idx))
+    Ap(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
+  end do
+
+  !--- For T
+  do lm = 1, shtns%nlm 
+    do k = 1, KK2
+      wT(k, lm)%re = XT_invYT(:, k, ell(lm)) .dot. real(T(:, lm))
+      wDT(k, lm)%re = XT_inv(:, k, ell(lm)) .dot. real(DT(:, lm))
+      wT(k, lm)%im = XT_invYT(:, k, ell(lm)) .dot. aimag(T(:, lm))
+      wDT(k, lm)%im = XT_inv(:, k, ell(lm)) .dot. aimag(DT(:, lm))
+    end do
+  end do
+
+  !--- New values of E, F and T
+  call big2small(Ap, E, F)
+  T = wT + wDT
+
+end subroutine compute_time_step_convective_implicit_IEE
+
+! --------------------------------------------------------------------------------------
+
+subroutine compute_lin_time_step_convective_explicit_CN_IEE(E_per, F_per, T_per)
 
   implicit none
 
@@ -391,11 +457,11 @@ subroutine compute_lin_time_step_convective_explicit(E_per, F_per, T_per)
   F_per = wF + wDF
   T_per = wT + wDT
 
-end subroutine compute_lin_time_step_convective_explicit
+end subroutine compute_lin_time_step_convective_explicit_CN_IEE
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_lin_time_step_convective_implicit(E_per, F_per, T_per)
+subroutine compute_lin_time_step_convective_implicit_CN(E_per, F_per, T_per)
 
   implicit none
 
@@ -463,6 +529,76 @@ subroutine compute_lin_time_step_convective_implicit(E_per, F_per, T_per)
   call big2small(Ap, E_per, F_per)
   T_per = wT + wDT
 
-end subroutine compute_lin_time_step_convective_implicit
+end subroutine compute_lin_time_step_convective_implicit_CN
+
+! --------------------------------------------------------------------------------------
+
+subroutine compute_lin_time_step_convective_implicit_IEE(E_per, F_per, T_per)
+
+  implicit none
+
+  double complex, dimension(KK2, shtns%nlm), intent(inout) :: E_per
+  double complex, dimension(KK4, shtns%nlm), intent(inout) :: F_per
+  double complex, dimension(KK2, shtns%nlm), intent(inout) :: T_per
+
+  integer :: lm, k, m, n_even, n_odd, top, m_idx
+
+  !--- Compute Explicit terms
+  call comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, DT)
+
+  DEr = 0.
+  DFr = 0.
+
+  ! Now we go to real in Chebyshev for DE and DF
+  do lm=2, shtns%nlm ! We start from lm = 2 because lm = 1 is of no interest
+    do k = 1, KK2
+      DEr(k, lm)%re = (Chb2(k, :KK2) .dot. real(DE(:KK2, lm))) + (Ye_mat(k, :, ell(lm)) .dot. real(E_per(:, lm)))
+      DEr(k, lm)%im = (Chb2(k, :KK2) .dot. aimag(DE(:KK2, lm))) + (Ye_mat(k, :, ell(lm)) .dot. aimag(E_per(:, lm)))
+    end do
+  end do
+
+  do lm=2, shtns%nlm
+    do k = 1, KK4
+      DFr(k, lm)%re = (Chb4(k, :KK4) .dot. real(DF(:KK4, lm))) + (Yf_mat(k, :, ell(lm)) .dot. real(F_per(:, lm)))
+      DFr(k, lm)%im = (Chb4(k, :KK4) .dot. aimag(DF(:KK4, lm))) + (Yf_mat(k, :, ell(lm)) .dot. aimag(F_per(:, lm)))
+    end do
+  end do
+
+  ! Create arrays that respect the symmetry classes
+  call small2big(DEr, DFr, DA)
+
+  !--- Solution of the linear system
+
+  !--- For E and F
+  m_idx = 0
+  Ap = 0.
+
+  do m = 0, MM*mres, mres
+    DA1 = 0.
+    A1 = 0.
+    n_even = ((LL + mod(LL, 2)) - max(m, 1)) / 2 + mod(LL + 1, 2)
+    n_odd = ((LL + mod(LL, 2)) + 1 - m) / 2
+    top = 2 * (KK2 + KK4) * (n_even + n_odd)
+
+    A1 = Banded_LU_solve(top, 2 * (KK2 + KK4) - 1, Xef(:, :top, m_idx), 6 * (KK2 + KK4) - 2, DA(:top, m_idx), PIVOT(:top, m_idx))
+    Ap(:top, m_idx) = A1(:top, 1)
+    m_idx = m_idx + 1
+  end do
+
+  !--- For T
+  do lm = 1, shtns%nlm 
+    do k = 1, KK2
+      wT(k, lm)%re = XT_invYT(:, k, ell(lm)) .dot. real(T_per(:, lm))
+      wDT(k, lm)%re = XT_inv(:, k, ell(lm)) .dot. real(DT(:, lm))
+      wT(k, lm)%im = XT_invYT(:, k, ell(lm)) .dot. aimag(T_per(:, lm))
+      wDT(k, lm)%im = XT_inv(:, k, ell(lm)) .dot. aimag(DT(:, lm))
+    end do
+  end do
+
+  !--- New values of E, F and T
+  call big2small(Ap, E_per, F_per)
+  T_per = wT + wDT
+
+end subroutine compute_lin_time_step_convective_implicit_IEE
 
 end module mod_TimeStep

@@ -172,8 +172,12 @@ subroutine PrecompSH()
     if ((solver == "convective_implicit") .or. (solver == "newton_convective_implicit") & 
         & .or. (solver == "continuation_convective_implicit")) then
         allocate(Xef(6 * (KK2 + KK4) - 2, 2 * LL * (KK2 + KK4), 0 : MM))
-        allocate(Yef(4 * (KK2 + KK4) - 1, 2 * LL * (KK2 + KK4), 0 : MM))
         allocate(PIVOT(2 * LL * (KK2 + KK4), 0 : MM))
+        if (time_step == "cn") then
+            allocate(Yef(4 * (KK2 + KK4) - 1, 2 * LL * (KK2 + KK4), 0 : MM))
+        else if (time_step == "iee") then
+            allocate(Ye_mat(KK2, KK2, LL + 1), Yf_mat(KK4, KK4, LL + 1))
+        end if
         !--- Inverse matrix X⁻¹ and X⁻¹*Y for the temperature
         allocate(XT_inv(KK2, KK2, 0:LL + 1), XT_invYT(KK2, KK2, 0:LL + 1))
     end if

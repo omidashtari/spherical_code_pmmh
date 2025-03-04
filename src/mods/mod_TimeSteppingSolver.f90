@@ -39,8 +39,8 @@ subroutine convective_solver()
         ! Check for time stepping scheme
         if (time_step == "pc") then
             TimeStep_ptr => compute_time_step_convective_explicit_PC
-        else if (time_step == "CN") then
-            TimeStep_ptr => compute_time_step_convective_explicit_CN
+        else if ((time_step == "cn") .or. (time_step == "iee")) then
+            TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
             Explicit_RHS_ptr => comp_ExplicitRHS
         end if
 
@@ -56,8 +56,11 @@ subroutine convective_solver()
         ! Check for time stepping scheme
         if (time_step == "pc") then
             TimeStep_ptr => compute_time_step_convective_implicit_PC
-        else if (time_step == "CN") then
+        else if (time_step == "cn") then
             TimeStep_ptr => compute_time_step_convective_implicit_CN
+            Implicit_RHS_ptr => comp_ImplicitRHS
+        else if (time_step == "iee") then
+            TimeStep_ptr => compute_time_step_convective_implicit_IEE
             Implicit_RHS_ptr => comp_ImplicitRHS
         end if
 
