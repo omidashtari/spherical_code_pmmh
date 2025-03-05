@@ -301,7 +301,12 @@ subroutine check_arg_validity()
     else if (time_step == 'cn') then
         print*, 'Simulation is being executed with Crank-Nicolson time step'
     else if (time_step == 'iee') then
-        print*, 'Simulation is being executed with Implicit-Explicit Euler time step'
+        print*, 'Simulation is being executed with Implicit-Explicit Euler (BDF1) time step'
+    else if (time_step == 'bdf2') then
+        print*, 'Simulation is being executed with BDF2 time step'
+    else
+        print*, "Simulation stopped - time_step has an invalid value"
+        stop
     end if
 
     if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
@@ -322,7 +327,7 @@ subroutine check_arg_validity()
     else if (((restart == "no") .or. (restart == 'n')) .and. (init == "no")) then
         print*, "Neither initial condition nor restart from file have been selected"
         print*, "Switching to default initial condition"
-        init = "Christensen"
+        init = "christensen"
     end if
 
     if ((restart == "yes") .or. (restart == "y")) then
