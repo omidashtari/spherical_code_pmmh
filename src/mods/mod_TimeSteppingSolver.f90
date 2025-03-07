@@ -65,6 +65,16 @@ subroutine convective_solver()
                 TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
                 Explicit_RHS_ptr => comp_ExplicitRHS
 
+            case ("bdf2")
+
+                print*, "Precomputing the Xe and Ye matrices..."
+                call precompXeYe_BDF()
+                print*, "Precomputing the Xf and Yf matrices..."
+                call precompXfYf_BDF()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT_BDF()
+                TimeStep_ptr => compute_time_step_convective_explicit_BDF2
+
         end select
 
     else if (solver == "convective_implicit") then
@@ -94,12 +104,20 @@ subroutine convective_solver()
 
             case ("iee")
 
-                print*, "Precomputing the Xef and Yef matrices..."
+                print*, "Precomputing the Xef, Ye and Yf matrices..."
                 call PrecompimplicitXY_BDF()
                 print*, "Precomputing the XT and YT matrices..."
                 call precompXTYT_BDF()
                 TimeStep_ptr => compute_time_step_convective_implicit_IEE
                 Implicit_RHS_ptr => comp_ImplicitRHS
+
+            case ("bdf2")
+
+                print*, "Precomputing the Xef, Ye and Yf matrices..."
+                call PrecompimplicitXY_BDF()
+                print*, "Precomputing the XT and YT matrices..."
+                call precompXTYT_BDF()
+                TimeStep_ptr => compute_time_step_convective_implicit_BDF2
 
         end select
 
@@ -110,15 +128,15 @@ subroutine convective_solver()
     print*
 
     if ((restart == 'y') .or. (restart == 'yes')) then
-    print*, "Reading restart files"
-    call readDim()
-    call readRestart()
-    print*, "Starting from t = ", t0
-    print*, "Starting from iteration = ", step_0
+        print*, "Reading restart files"
+        call readDim()
+        call readRestart()
+        print*, "Starting from t = ", t0
+        print*, "Starting from iteration = ", step_0
     else
-    print*, "Starting simulation from initial condition"
-    call init_EF()
-    call init_TEMP()
+        print*, "Starting simulation from initial condition"
+        call init_EF()
+        call init_TEMP()
     end if
 
     time = t0
@@ -154,48 +172,61 @@ subroutine convective_solver()
     print*, "################## Starting the simulation #####################"
     print*
 
-    do step = step_0 + 1,NTS
-
-    print*, "############## Starting time step n°", step
-    print*
-
-    time = time + delta_t
-
-    print*, "Time = ", time
-    print*
-
-    ! Now we compute the explicit timestep
-    call TimeStep_ptr()
-
-    ! Save restart files
-    if ((mod(step, save_restart) == 0) .or. step == NTS) then
-        call writeRestart(step=step)
-        call writeDim(step=step)
+    ! Initialise states if using BDF2 so that the first timestep works as an IEE with dt = 2/3*delta_t
+    if (time_step == "bdf2") then
+        ! Save the states
+        E_tm1 = E ; F_tm1 = F ; T_tm1 = T ;
+        ! Now we compute and save the RHS
+        if (solver == "convective_explicit") then
+            call comp_ExplicitRHS(DE, DF, DT)
+        else
+            call comp_ImplicitRHS(DE, DF, DT)
+        end if
+        DE_tm1 = DE ; DF_tm1 = DF ; DT_tm1 = DT ;
     end if
 
-    ! Compute, print and save kinetic energy
-    call comp_KineticEnergy(Ur, Ut, Up)
-    ! Check if Ekin is NaN
-    if (ieee_is_nan(Ekin)) then
-        print*, "The Kinetic Energy has turned into a NaN"
-        print*, "Stopping simulation..."
-        stop
-    end if
-    print*, "Kinetic energy:", Ekin
-    write(51,"(E24.16,3x,E24.16)") time, Ekin
+    do step = step_0 + 1, NTS
 
-    ! Save time series of Ur in mid gap, equatorial plane
-    if ((save_Ur_mgep_t > 0) .and. (step >= (NTS-save_Ur_mgep_t))) then
-        write(52,"(E24.16,3x,E24.16)") time, Ur(kN / 2, lN / 2, 1)
-    end if
+        print*, "############## Starting time step n°", step
+        print*
 
-    if (mod(step, save_every)==0) then
-        call Output_files(Ur, Up, T_real, step=step)
-    end if
+        time = time + delta_t
 
-    print*
-    print*, "############## End of time step n°  ",step
-    print*
+        print*, "Time = ", time
+        print*
+
+        ! Now we compute the explicit timestep
+        call TimeStep_ptr()
+
+        ! Save restart files
+        if ((mod(step, save_restart) == 0) .or. step == NTS) then
+            call writeRestart(step=step)
+            call writeDim(step=step)
+        end if
+
+        ! Compute, print and save kinetic energy
+        call comp_KineticEnergy(Ur, Ut, Up)
+        ! Check if Ekin is NaN
+        if (ieee_is_nan(Ekin)) then
+            print*, "The Kinetic Energy has turned into a NaN"
+            print*, "Stopping simulation..."
+            stop
+        end if
+        print*, "Kinetic energy:", Ekin
+        write(51,"(E24.16,3x,E24.16)") time, Ekin
+
+        ! Save time series of Ur in mid gap, equatorial plane
+        if ((save_Ur_mgep_t > 0) .and. (step >= (NTS-save_Ur_mgep_t))) then
+            write(52,"(E24.16,3x,E24.16)") time, Ur(kN / 2, lN / 2, 1)
+        end if
+
+        if (mod(step, save_every)==0) then
+            call Output_files(Ur, Up, T_real, step=step)
+        end if
+
+        print*
+        print*, "############## End of time step n°  ",step
+        print*
 
     end do
 

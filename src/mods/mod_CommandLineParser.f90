@@ -287,12 +287,18 @@ subroutine check_arg_validity()
 
     if (((solver == 'convective_explicit') .or. (solver == 'convective_implicit')) .and. &
         & (time_step == 'no')) then
-        print*, 'No time stepping scheme selected, switching to predictor-corrector'
+        print*, 'No timestepping scheme selected, switching to predictor-corrector'
         time_step = 'pc'
     else if (((solver == 'newton_convective_explicit') .or. (solver == 'newton_convective_implicit') .or. & 
         (solver == 'continuation_convective_explicit') .or. (solver == 'continuation_convective_implicit')) .and. &
         & (time_step == 'no')) then
-        print*, 'No time stepping scheme selected, switching to Implicit-Explicit Euler'
+        print*, 'No timestepping scheme selected, switching to Implicit-Explicit Euler'
+        time_step = 'iee'
+    else if (((solver == 'newton_convective_explicit') .or. (solver == 'newton_convective_implicit') .or. & 
+        (solver == 'continuation_convective_explicit') .or. (solver == 'continuation_convective_implicit')) .and. &
+        & ((time_step == 'pc') .or. (time_step == 'bdf2'))) then
+        print*, 'Predictor corrector or BDF2 timestep selected but Newton cannot work with them. ' // &
+                & 'Switching to Implicit-Explicit Euler'
         time_step = 'iee'
     end if
 
@@ -665,6 +671,8 @@ subroutine check_arg_validity()
 
     if (time_step == "iee") then
         IER = 1.
+    else if (time_step == "bdf2") then
+        IER = 2. / 3.
     else
         if (IER <= 0) then
             print *, "Simulation stopped - IER has an invalid value"

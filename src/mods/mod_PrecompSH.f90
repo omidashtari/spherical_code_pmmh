@@ -109,6 +109,14 @@ subroutine PrecompSH()
         allocate(DFpr(KK4, shtns%nlm))
     end if
 
+    ! Allocate state and RHS in t-1 if using BDF2
+    if (time_step == 'bdf2') then 
+        allocate(E_tm1(KK2, shtns%nlm), F_tm1(KK4, shtns%nlm), T_tm1(KK2, shtns%nlm))
+        allocate(E_tm2(KK2, shtns%nlm), F_tm2(KK4, shtns%nlm), T_tm2(KK2, shtns%nlm))
+        allocate(DE_tm1(KK2, shtns%nlm), DF_tm1(KK4, shtns%nlm), DT_tm1(KK2, shtns%nlm))
+        allocate(DE_tm2(KK2, shtns%nlm), DF_tm2(KK4, shtns%nlm), DT_tm2(KK2, shtns%nlm))
+    end if
+
     ! For the Newton solver
     if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
         & .or. (solver == "continuation_convective_explicit") .or. & 
@@ -175,7 +183,7 @@ subroutine PrecompSH()
         allocate(PIVOT(2 * LL * (KK2 + KK4), 0 : MM))
         if (time_step == "cn") then
             allocate(Yef(4 * (KK2 + KK4) - 1, 2 * LL * (KK2 + KK4), 0 : MM))
-        else if (time_step == "iee") then
+        else if ((time_step == "iee") .or. (time_step == "bdf2")) then
             allocate(Ye_mat(KK2, KK2, LL + 1), Yf_mat(KK4, KK4, LL + 1))
         end if
         !--- Inverse matrix X⁻¹ and X⁻¹*Y for the temperature

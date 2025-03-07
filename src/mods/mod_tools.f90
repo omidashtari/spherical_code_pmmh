@@ -122,7 +122,7 @@ subroutine grid_refinement()
 
         else if (time_step == "iee") then
 
-            print*, "Precomputing the Xef and Yef matrices..."
+            print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT_BDF()

@@ -60,7 +60,7 @@ contains
     allocate(Chb2(KK2, KK2), Chb4(KK4, KK4))
 
     ! First of all we compute the volume
-    Vol = 4./3. * pi * (Rout**3 - Rin**3)
+    Vol = 4. / 3. * pi * (Rout**3 - Rin**3)
 
     !--- Collocation points for Chebyshev polynomials
     ! The roots of the T_n Chebyshev polynomial are defined as:

@@ -54,12 +54,18 @@ module mod_Globalvars
 
   integer, dimension(:), allocatable :: ell    ! Auxiliary array for the solution of the linear system
   
-  double complex, dimension(:, :), allocatable, target :: E, F, T         ! Spectral arrays for e, f and theta - real part for cosine and imaginary for sine
+  double complex, dimension(:, :), allocatable, target :: E, F, T ! Spectral arrays for e, f and theta - real part for cosine and imaginary for sine
 
-  double complex, dimension(:, :), allocatable :: DE, DF, DT              ! Spectral arrays for the RHS - corrector step
-  double complex, dimension(:, :), allocatable :: DEp, DFp, DTp           ! Spectral arrays for the RHS - predictor step
+  double complex, dimension(:, :), allocatable :: DE, DF, DT              ! Spectral arrays for the RHS
+  double complex, dimension(:, :), allocatable :: DEp, DFp, DTp           ! Spectral arrays for the RHS - predictor step in case of PC
   double complex, dimension(:, :), allocatable :: DEr, DFr                ! Arrays for the RHS in intermidiate space (real in r spectral in theta an dphi) - corrector step
   double complex, dimension(:, :), allocatable :: DEpr, DFpr              ! Arrays for the RHS in intermidiate space (real in r spectral in theta an dphi) - predictor step
+
+  ! For BDF2 timestepping scheme
+  double complex, dimension(:, :), allocatable :: E_tm1, F_tm1, T_tm1    ! Spectral arrays for e, f and theta at time t-1
+  double complex, dimension(:, :), allocatable :: E_tm2, F_tm2, T_tm2    ! Spectral arrays for e, f and theta at time t-2
+  double complex, dimension(:, :), allocatable :: DE_tm1, DF_tm1, DT_tm1 ! Spectral arrays for the RHS at time t-1
+  double complex, dimension(:, :), allocatable :: DE_tm2, DF_tm2, DT_tm2 ! Spectral arrays for the RHS at time t-2
 
   !--- Arrays to contain the solution of the linear systems
   double complex, dimension(:, :), allocatable :: wE, wF, wT

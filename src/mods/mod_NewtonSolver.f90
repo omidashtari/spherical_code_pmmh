@@ -69,7 +69,7 @@ subroutine convective_newton_solver()
 
         else if (time_step == "iee") then
 
-            print*, "Precomputing the Xef and Yef matrices..."
+            print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT_BDF()
@@ -178,7 +178,7 @@ subroutine continuation_convective_solver()
 
         else if (time_step == "iee") then
 
-            print*, "Precomputing the Xef and Yef matrices..."
+            print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT_BDF()
@@ -647,7 +647,7 @@ subroutine assign_new_value_Ek(count, newt_steps, cont_type, final_flag)
 
         else if (time_step == "iee") then
 
-            print*, "Precomputing the Xef and Yef matrices..."
+            print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
 
         end if
