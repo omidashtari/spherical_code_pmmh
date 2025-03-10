@@ -62,10 +62,13 @@ module mod_Globalvars
   double complex, dimension(:, :), allocatable :: DEpr, DFpr              ! Arrays for the RHS in intermidiate space (real in r spectral in theta an dphi) - predictor step
 
   ! For BDF2 timestepping scheme
-  double complex, dimension(:, :), allocatable :: E_tm1, F_tm1, T_tm1    ! Spectral arrays for e, f and theta at time t-1
-  double complex, dimension(:, :), allocatable :: E_tm2, F_tm2, T_tm2    ! Spectral arrays for e, f and theta at time t-2
-  double complex, dimension(:, :), allocatable :: DE_tm1, DF_tm1, DT_tm1 ! Spectral arrays for the RHS at time t-1
-  double complex, dimension(:, :), allocatable :: DE_tm2, DF_tm2, DT_tm2 ! Spectral arrays for the RHS at time t-2
+  double complex, dimension(:, :), allocatable :: E_tm1, F_tm1, T_tm1          ! Spectral arrays for e, f and theta at time t-1
+  double complex, dimension(:, :), allocatable :: E_tm2, F_tm2, T_tm2          ! Spectral arrays for e, f and theta at time t-2
+  double complex, dimension(:, :), allocatable :: DE_tm1, DF_tm1, DT_tm1       ! Spectral arrays for the RHS at time t-1
+  double complex, dimension(:, :), allocatable :: DE_tm2, DF_tm2, DT_tm2       ! Spectral arrays for the RHS at time t-2
+  double complex, dimension(:, :), allocatable :: E_tm1_p, F_tm1_p, T_tm1_p    ! Spectral arrays to restart e, f and theta at time t-1
+  double complex, dimension(:, :), allocatable :: DE_tm1_p, DF_tm1_p, DT_tm1_p ! Spectral arrays to restart the RHS at time t-1
+  logical :: read_tm1 = .false. ! Flag to check if we have read files from time t-1
 
   !--- Arrays to contain the solution of the linear systems
   double complex, dimension(:, :), allocatable :: wE, wF, wT

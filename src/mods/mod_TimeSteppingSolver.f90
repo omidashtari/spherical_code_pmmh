@@ -172,8 +172,10 @@ subroutine convective_solver()
     print*, "################## Starting the simulation #####################"
     print*
 
-    ! Initialise states if using BDF2 so that the first timestep works as an IEE with dt = 2/3*delta_t
-    if (time_step == "bdf2") then
+    ! If we are using BDF2 but we were not able to read data on t-1 from restart file
+    if ((read_tm1 .eqv. .false.) .and. (time_step == "bdf2")) then
+        print*, "WE ARE INSIDE THE IF IN TIMESTEPPING SOLVER"
+        ! Initialise states so that the first timestep works as an IEE with dt = 2/3*delta_t
         ! Save the states
         E_tm1 = E ; F_tm1 = F ; T_tm1 = T ;
         ! Now we compute and save the RHS

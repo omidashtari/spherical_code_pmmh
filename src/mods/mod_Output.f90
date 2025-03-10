@@ -163,6 +163,14 @@ subroutine writeRestart(step, Ra, Ek)
     write(11) time
     write(11) step
   end if
+  if (time_step == "bdf2") then
+    write(11) DE_tm1
+    write(11) DF_tm1
+    write(11) DT_tm1
+    write(11) E_tm1
+    write(11) F_tm1
+    write(11) T_tm1
+  end if
   close(11)
 
 end subroutine writeRestart
