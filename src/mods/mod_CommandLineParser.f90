@@ -537,76 +537,72 @@ subroutine check_arg_validity()
 
     end if
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (Ek_final /= 0.) .and. (Ra_final /= 0.)) then
-        print*, "Continuation solver selected but final values for both Ekman and Rayleigh were given, choose one."
-        print*, "Stopping simulation..."
-        stop
-    end if
+    if ((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) then
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (Ek_final < 0.)) then
-        print*, "Simulation stopped - Ek_final has an invalid value"
-        stop
-    else 
-        print*, "Continuation in Ekman until Ek_final = ", Ek_final
-    end if
+        if ((Ek_final /= 0.) .and. (Ra_final /= 0.)) then
+            print*, "Continuation solver selected but final values for both Ekman and Rayleigh were given, choose one."
+            print*, "Stopping simulation..."
+            stop
+        end if
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (Ra_final < 0.)) then
-        print*, "Simulation stopped - Ra_final has an invalid value"
-        stop
-    else 
-        print*, "Continuation in Rayleigh until Ra_final = ", Ra_final
-    end if
+        if (Ek_final < 0.) then
+            print*, "Simulation stopped - Ek_final has an invalid value"
+            stop
+        else if (Ek_final > 0.) then
+            print*, "Continuation in Ekman until Ek_final = ", Ek_final
+        end if
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (adapt_param_string == "yes") .or. (adapt_param_string == "y")) then
-        print*, "Continuation will adapt the step of the parameter"
-        adapt_param = .true.
-    else
-        print*, "Continuation will not adapt the step of the parameter (default setting)"
-        adapt_param = .false.
-    end if
+        if (Ra_final < 0.) then
+            print*, "Simulation stopped - Ra_final has an invalid value"
+            stop
+        else if (Ra_final > 0.) then
+            print*, "Continuation in Rayleigh until Ra_final = ", Ra_final
+        end if
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (Nopt <= 0.)) then
-        print*, "Simulation stopped - Nopt has an invalid value"
-        stop
-    else
-        print*, "Continuation using Nopt = ", Nopt
-    end if
+        if ((adapt_param_string == "yes") .or. (adapt_param_string == "y")) then
+            print*, "Continuation will adapt the step of the parameter"
+            adapt_param = .true.
+        else
+            print*, "Continuation will not adapt the step of the parameter (default setting)"
+            adapt_param = .false.
+        end if
 
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (delta_param == 0.)) then
-        print*, "Simulation stopped - delta_param has an invalid value"
-        stop
-    else
-        print*, "Continuation using delta_param = ", delta_param
-    end if
-
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (gamma <= 0.)) then
-        print*, "Simulation stopped - gamma has an invalid value"
-        stop
-    else
-        print*, "Continuation using gamma = ", gamma
-    end if
-
-    if (((solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) .and. &
-        (grid_refine_string == "yes") .or. (grid_refine_string == "y")) then
-        print*, "Continuation will be performed with grid refinement"
-        grid_refine = .true.
-        if (gr_threshold <= 0.) then
-            print*, "Simulation stopped - gr_threshold has an invalid value"
+        if (Nopt <= 0.) then
+            print*, "Simulation stopped - Nopt has an invalid value"
             stop
         else
-            print*, "Grid refinement using gr_threshold = ", gr_threshold
+            print*, "Continuation using Nopt = ", Nopt
         end if
-        if (gr_threshold > 1.0e-4) print*, "Carefull, grid refinement threshold might be too high"
-    else
-        print*, "Continuation will be performed without grid refinement (default setting)"
-        grid_refine = .false.
+
+        if (delta_param == 0.) then
+            print*, "Simulation stopped - delta_param has an invalid value"
+            stop
+        else
+            print*, "Continuation using delta_param = ", delta_param
+        end if
+
+        if (gamma <= 0.) then
+            print*, "Simulation stopped - gamma has an invalid value"
+            stop
+        else
+            print*, "Continuation using gamma = ", gamma
+        end if
+
+        if ((grid_refine_string == "yes") .or. (grid_refine_string == "y")) then
+            print*, "Continuation will be performed with grid refinement"
+            grid_refine = .true.
+            if (gr_threshold <= 0.) then
+                print*, "Simulation stopped - gr_threshold has an invalid value"
+                stop
+            else
+                print*, "Grid refinement using gr_threshold = ", gr_threshold
+            end if
+            if (gr_threshold > 1.0e-4) print*, "Carefull, grid refinement threshold might be too high"
+        else
+            print*, "Continuation will be performed without grid refinement (default setting)"
+            grid_refine = .false.
+        end if
+
     end if
 
     if ((dealiasing /= "yes") .or. (dealiasing /= "y")) then
