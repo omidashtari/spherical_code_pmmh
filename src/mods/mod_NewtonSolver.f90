@@ -36,7 +36,7 @@ subroutine convective_newton_solver()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT()
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xe and Ye matrices..."
             call precompXeYe_BDF()
@@ -48,8 +48,8 @@ subroutine convective_newton_solver()
         end if
 
         ! Pointers for subroutines
-        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
-        LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit_CN_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN_FBE
+        LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit_CN_FBE
         Explicit_RHS_ptr => comp_RHS_with_rot
 
     else if (solver == "newton_convective_implicit") then
@@ -67,15 +67,15 @@ subroutine convective_newton_solver()
             NonLinTimeStep_ptr => compute_time_step_convective_implicit_CN
             LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_CN
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT_BDF()
             ! Pointers for subroutines
-            NonLinTimeStep_ptr => compute_time_step_convective_implicit_IEE
-            LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_IEE
+            NonLinTimeStep_ptr => compute_time_step_convective_implicit_FBE
+            LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_FBE
 
         end if
 
@@ -145,7 +145,7 @@ subroutine continuation_convective_solver()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT()
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xe and Ye matrices..."
             call precompXeYe_BDF()
@@ -157,8 +157,8 @@ subroutine continuation_convective_solver()
         end if
 
         ! Pointers for subroutines
-        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
-        LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit_CN_IEE
+        NonLinTimeStep_ptr => compute_time_step_convective_explicit_CN_FBE
+        LinNonLinTimeStep_ptr => compute_lin_time_step_convective_explicit_CN_FBE
         Explicit_RHS_ptr => comp_RHS_with_rot
 
     else if (solver == "continuation_convective_implicit") then
@@ -176,15 +176,15 @@ subroutine continuation_convective_solver()
             NonLinTimeStep_ptr => compute_time_step_convective_implicit_CN
             LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_CN
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()
             print*, "Precomputing the XT and YT matrices..."
             call precompXTYT_BDF()
             ! Pointers for subroutines
-            NonLinTimeStep_ptr => compute_time_step_convective_implicit_IEE
-            LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_IEE
+            NonLinTimeStep_ptr => compute_time_step_convective_implicit_FBE
+            LinNonLinTimeStep_ptr => compute_lin_time_step_convective_implicit_FBE
 
         end if
 
@@ -629,7 +629,7 @@ subroutine assign_new_value_Ek(count, newt_steps, cont_type, final_flag)
             print*, "Precomputing the Xf and Yf matrices..."
             call precompXfYf()
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xe and Ye matrices..."
             call precompXeYe_BDF()
@@ -645,7 +645,7 @@ subroutine assign_new_value_Ek(count, newt_steps, cont_type, final_flag)
             print*, "Precomputing the Xef and Yef matrices..."
             call PrecompimplicitXY()
 
-        else if (time_step == "iee") then
+        else if (time_step == "fbe") then
 
             print*, "Precomputing the Xef, Ye and Yf matrices..."
             call PrecompimplicitXY_BDF()

@@ -183,7 +183,7 @@ subroutine PrecompSH()
         allocate(PIVOT(2 * LL * (KK2 + KK4), 0 : MM))
         if (time_step == "cn") then
             allocate(Yef(4 * (KK2 + KK4) - 1, 2 * LL * (KK2 + KK4), 0 : MM))
-        else if ((time_step == "iee") .or. (time_step == "bdf2")) then
+        else if ((time_step == "fbe") .or. (time_step == "bdf2")) then
             allocate(Ye_mat(KK2, KK2, LL + 1), Yf_mat(KK4, KK4, LL + 1))
         end if
         !--- Inverse matrix X⁻¹ and X⁻¹*Y for the temperature

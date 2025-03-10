@@ -223,7 +223,7 @@ end subroutine compute_time_step_convective_implicit_PC
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_time_step_convective_explicit_CN_IEE()
+subroutine compute_time_step_convective_explicit_CN_FBE()
 
   implicit none
 
@@ -269,7 +269,7 @@ subroutine compute_time_step_convective_explicit_CN_IEE()
   F = wF + wDF
   T = wT + wDT
 
-end subroutine compute_time_step_convective_explicit_CN_IEE
+end subroutine compute_time_step_convective_explicit_CN_FBE
 
 !--------------------------------------------------------------------------------------
 
@@ -408,7 +408,7 @@ end subroutine compute_time_step_convective_implicit_CN
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_time_step_convective_implicit_IEE()
+subroutine compute_time_step_convective_implicit_FBE()
 
   implicit none
 
@@ -470,7 +470,7 @@ subroutine compute_time_step_convective_implicit_IEE()
   call big2small(Ap, E, F)
   T = wT + wDT
 
-end subroutine compute_time_step_convective_implicit_IEE
+end subroutine compute_time_step_convective_implicit_FBE
 
 ! --------------------------------------------------------------------------------------
 
@@ -557,7 +557,7 @@ end subroutine compute_time_step_convective_implicit_BDF2
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_lin_time_step_convective_explicit_CN_IEE(E_per, F_per, T_per)
+subroutine compute_lin_time_step_convective_explicit_CN_FBE(E_per, F_per, T_per)
 
   implicit none
 
@@ -607,7 +607,7 @@ subroutine compute_lin_time_step_convective_explicit_CN_IEE(E_per, F_per, T_per)
   F_per = wF + wDF
   T_per = wT + wDT
 
-end subroutine compute_lin_time_step_convective_explicit_CN_IEE
+end subroutine compute_lin_time_step_convective_explicit_CN_FBE
 
 ! --------------------------------------------------------------------------------------
 
@@ -683,7 +683,7 @@ end subroutine compute_lin_time_step_convective_implicit_CN
 
 ! --------------------------------------------------------------------------------------
 
-subroutine compute_lin_time_step_convective_implicit_IEE(E_per, F_per, T_per)
+subroutine compute_lin_time_step_convective_implicit_FBE(E_per, F_per, T_per)
 
   implicit none
 
@@ -749,6 +749,6 @@ subroutine compute_lin_time_step_convective_implicit_IEE(E_per, F_per, T_per)
   call big2small(Ap, E_per, F_per)
   T_per = wT + wDT
 
-end subroutine compute_lin_time_step_convective_implicit_IEE
+end subroutine compute_lin_time_step_convective_implicit_FBE
 
 end module mod_TimeStep

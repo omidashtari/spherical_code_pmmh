@@ -51,10 +51,10 @@ subroutine convective_solver()
                 call precompXfYf()
                 print*, "Precomputing the XT and YT matrices..."
                 call precompXTYT()
-                TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
+                TimeStep_ptr => compute_time_step_convective_explicit_CN_FBE
                 Explicit_RHS_ptr => comp_ExplicitRHS
 
-            case ("iee")
+            case ("fbe")
 
                 print*, "Precomputing the Xe and Ye matrices..."
                 call precompXeYe_BDF()
@@ -62,7 +62,7 @@ subroutine convective_solver()
                 call precompXfYf_BDF()
                 print*, "Precomputing the XT and YT matrices..."
                 call precompXTYT_BDF()
-                TimeStep_ptr => compute_time_step_convective_explicit_CN_IEE
+                TimeStep_ptr => compute_time_step_convective_explicit_CN_FBE
                 Explicit_RHS_ptr => comp_ExplicitRHS
 
             case ("bdf2")
@@ -102,13 +102,13 @@ subroutine convective_solver()
                 TimeStep_ptr => compute_time_step_convective_implicit_CN
                 Implicit_RHS_ptr => comp_ImplicitRHS
 
-            case ("iee")
+            case ("fbe")
 
                 print*, "Precomputing the Xef, Ye and Yf matrices..."
                 call PrecompimplicitXY_BDF()
                 print*, "Precomputing the XT and YT matrices..."
                 call precompXTYT_BDF()
-                TimeStep_ptr => compute_time_step_convective_implicit_IEE
+                TimeStep_ptr => compute_time_step_convective_implicit_FBE
                 Implicit_RHS_ptr => comp_ImplicitRHS
 
             case ("bdf2")
@@ -174,8 +174,7 @@ subroutine convective_solver()
 
     ! If we are using BDF2 but we were not able to read data on t-1 from restart file
     if ((read_tm1 .eqv. .false.) .and. (time_step == "bdf2")) then
-        print*, "WE ARE INSIDE THE IF IN TIMESTEPPING SOLVER"
-        ! Initialise states so that the first timestep works as an IEE with dt = 2/3*delta_t
+        ! Initialise states so that the first timestep works as an FBE with dt = 2/3*delta_t
         ! Save the states
         E_tm1 = E ; F_tm1 = F ; T_tm1 = T ;
         ! Now we compute and save the RHS

@@ -292,22 +292,22 @@ subroutine check_arg_validity()
     else if (((solver == 'newton_convective_explicit') .or. (solver == 'newton_convective_implicit') .or. & 
         (solver == 'continuation_convective_explicit') .or. (solver == 'continuation_convective_implicit')) .and. &
         & (time_step == 'no')) then
-        print*, 'No timestepping scheme selected, switching to Implicit-Explicit Euler'
-        time_step = 'iee'
+        print*, 'No timestepping scheme selected, switching to Forward-Backward Euler'
+        time_step = 'fbe'
     else if (((solver == 'newton_convective_explicit') .or. (solver == 'newton_convective_implicit') .or. & 
         (solver == 'continuation_convective_explicit') .or. (solver == 'continuation_convective_implicit')) .and. &
         & ((time_step == 'pc') .or. (time_step == 'bdf2'))) then
         print*, 'Predictor corrector or BDF2 timestep selected but Newton cannot work with them. ' // &
-                & 'Switching to Implicit-Explicit Euler'
-        time_step = 'iee'
+                & 'Switching to Forward-Backward Euler'
+        time_step = 'fbe'
     end if
 
     if (time_step == 'pc') then
         print*, 'Simulation is being executed with predictor corrector time step'
     else if (time_step == 'cn') then
         print*, 'Simulation is being executed with Crank-Nicolson time step'
-    else if (time_step == 'iee') then
-        print*, 'Simulation is being executed with Implicit-Explicit Euler (BDF1) time step'
+    else if (time_step == 'fbe') then
+        print*, 'Simulation is being executed with Forward-Backward Euler (BDF1) time step'
     else if (time_step == 'bdf2') then
         print*, 'Simulation is being executed with BDF2 time step'
     else
@@ -669,7 +669,7 @@ subroutine check_arg_validity()
         print*, "The Rayleigh number is ", Ra
     end if
 
-    if (time_step == "iee") then
+    if (time_step == "fbe") then
         IER = 1.
     else if (time_step == "bdf2") then
         IER = 2. / 3.

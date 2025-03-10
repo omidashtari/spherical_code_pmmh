@@ -70,7 +70,7 @@ subroutine readRestart()
   read(11, IOSTAT=ios) F_tm1_p
   read(11, IOSTAT=ios) T_tm1_p
 
-  if (ios /= 0) then ! There are no files for the second to last timestep
+  if ((time_step /= "bdf2") .or. ((ios /= 0) .and. time_step == "bdf2")) then
   
     ! Initialise fields
     E = (0., 0.) ; F = (0., 0.) ; T = (0., 0.) ;
@@ -109,7 +109,7 @@ subroutine readRestart()
 
     end if
   
-  else ! There are files for the second to last timestep
+  else ! We are restarting a BDF2 with files for the second to last timestep
 
     ! Initialise fields
     E = (0., 0.) ; F = (0., 0.) ; T = (0., 0.) ;
