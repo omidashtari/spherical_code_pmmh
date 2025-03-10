@@ -14,15 +14,15 @@ subroutine parse_command_line_arguments()
     ! Declare local variables
     character(len=100) :: arg, param, param_lc, value
     character(len=1024) :: command_line_string
-    character(len=100), dimension(41) :: params_string_array
+    character(len=100), dimension(39) :: params_string_array
     integer :: i, lc, ic
 
     ! Set params_string_array
     params_string_array = [character(len=100) :: &
-        "-delta_t", "-nts", "-save_every", "-save_restart", &
+        "-delta_t", "-nts", "-save_every", &
         "-solver", "-restart", "-dealiasing", "-directory", &
         "-kk", "-ll", "-mm", "-mres", "-rin", "-rout", "-pr", "-ek", &
-        "-ro", "-ra", "-ier", "-save_ur_mgep_t", "-init", &
+        "-ro", "-ra", "-ier", "-init", &
         "-init_amp", "-sym", "-max_newt", "-max_gmres", "-restart_gmres", &
         "-newt_eps", "-newt_delta", "-tol_gmres", "-m_wave", &
         "-time_step", "-restart_filename", "-dim_filename", &
@@ -77,12 +77,6 @@ subroutine parse_command_line_arguments()
 
             case ("-save_every")
                 read(value, *) save_every
-                
-            case ("-save_restart")
-                read(value, *) save_restart
-
-            case ("-save_ur_mgep_t")
-                read(value, *) save_Ur_mgep_t
             
             case ("-solver")
                 read(value, *) solver
@@ -424,30 +418,6 @@ subroutine check_arg_validity()
         print*, "Flow files will be saved every ", save_every, " iterations"
     end if
 
-    if (((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
-        & .or. (solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) &
-        & .and. (save_restart /= 0)) then
-        print*, "Newton solver selected, save_restart is of no use"
-    else if (((solver == "convective_explicit") .or. (solver == "convective_implicit")) &
-        & .and. (save_restart <= 0)) then
-        print *, "Simulation stopped - save_restart has an invalid value"
-        stop
-    else if ((solver == "convective_explicit") .or. (solver == "convective_implicit")) then
-        print*, "Restart files will be saved every ", save_restart, " iterations"
-    end if
-
-    if (((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") &
-        & .or. (solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) &
-        & .and. (save_Ur_mgep_t /= 0)) then
-        print*, "Newton solver selected, save_Ur_mgep_t is of no use"
-    else if (((solver == "convective_explicit") .or. (solver == "convective_implicit")) &
-        & .and. (save_Ur_mgep_t < 0)) then
-        print *, "Simulation stopped - save_Ur_mgep_t has an invalid value"
-        stop
-    else if ((solver == "convective_explicit") .or. (solver == "convective_implicit")) then
-        print*, "Time series of Ur in equatorial plane-mid gap will be saved in the last ", save_Ur_mgep_t, " iterations"
-    end if
-
     if (KK <= 0) then
         print *, "Simulation stopped - KK has an invalid value"
         stop
@@ -562,16 +532,15 @@ subroutine check_arg_validity()
         if ((adapt_param_string == "yes") .or. (adapt_param_string == "y")) then
             print*, "Continuation will adapt the step of the parameter"
             adapt_param = .true.
+            if (Nopt <= 0.) then
+                print*, "Simulation stopped - Nopt has an invalid value"
+                stop
+            else
+                print*, "Continuation using Nopt = ", Nopt
+            end if
         else
             print*, "Continuation will not adapt the step of the parameter (default setting)"
             adapt_param = .false.
-        end if
-
-        if (Nopt <= 0.) then
-            print*, "Simulation stopped - Nopt has an invalid value"
-            stop
-        else
-            print*, "Continuation using Nopt = ", Nopt
         end if
 
         if (delta_param == 0.) then

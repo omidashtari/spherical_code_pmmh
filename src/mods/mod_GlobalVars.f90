@@ -16,8 +16,6 @@ module mod_Globalvars
   integer :: step_0 = 0            ! initial time step
   integer :: NTS = 0               ! Number of Time Steps
   integer :: save_every = 0      ! Save output files every n TS
-  integer :: save_restart = 0    ! Save restart files every n TS
-  integer :: save_Ur_mgep_t = 0    ! Save time series of Ur in mid gap, equatorial plane in the last n TS
   integer :: step = 0
 
   character(len=100) :: solver, time_step, restart, directory, dealiasing, init

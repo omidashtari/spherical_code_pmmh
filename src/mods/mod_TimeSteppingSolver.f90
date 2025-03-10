@@ -199,12 +199,6 @@ subroutine convective_solver()
         ! Now we compute the explicit timestep
         call TimeStep_ptr()
 
-        ! Save restart files
-        if ((mod(step, save_restart) == 0) .or. step == NTS) then
-            call writeRestart(step=step)
-            call writeDim(step=step)
-        end if
-
         ! Compute, print and save kinetic energy
         call comp_KineticEnergy(Ur, Ut, Up)
         ! Check if Ekin is NaN
@@ -217,12 +211,13 @@ subroutine convective_solver()
         write(51,"(E24.16,3x,E24.16)") time, Ekin
 
         ! Save time series of Ur in mid gap, equatorial plane
-        if ((save_Ur_mgep_t > 0) .and. (step >= (NTS-save_Ur_mgep_t))) then
-            write(52,"(E24.16,3x,E24.16)") time, Ur(kN / 2, lN / 2, 1)
-        end if
+        write(52,"(E24.16,3x,E24.16)") time, Ur(kN / 2, lN / 2, 1)
 
+        ! Save restart files and output files
         if (mod(step, save_every)==0) then
             call Output_files(Ur, Up, T_real, step=step)
+            call writeRestart(step=step)
+            call writeDim(step=step)
         end if
 
         print*
