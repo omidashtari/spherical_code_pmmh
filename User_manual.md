@@ -41,7 +41,7 @@ The objective of this part is to outline the different options that we can use w
 
 * Newton Solver:
 
-    All the options stated for the time stepping simulations are valid except for: NTS, save_every, init, init_amp and sym. The restart option must be set to *yes* and filenames should be specified unless they go by the default names indicated above.
+    All the options stated for the time stepping simulations are valid except for: NTS, save_every, init, init_amp and sym and restart. The restart filenames should be specified unless they go by the default names indicated above.
 
     * delta_t (float): time step for the simulation. Should be set delta_t $\approx 10^2$.
     * solver (string): for these simulations it should be either *newton_convective_explicit* or *newton_convective_implicit* for explicit or implicit treatment of the Coriolis term.
@@ -56,7 +56,7 @@ The objective of this part is to outline the different options that we can use w
 
     An example of a command line would be:
 
-    ./build/spherical_code_pmmh -delta_t 200. -KK 30 -LL 40 -MM 10 -mres 4 -Pr 1. -Ek 1.0e-3 -Ra 145. -IER 0.8 -directory 'my_directory' -restart yes -restart_filename Restart_Ra_140.b -dim_filename Dim_Ra_140.b -dealiasing yes -max_newt 15 -max_gmres 1000 -restart_gmres 1000 -newt_eps 1.0e-7 -newt_delta 1.0e-16 -tol_gmres 1.0e-10 -M_wave 4 -time_step fbe -solver newton_convective_implicit
+    ./build/spherical_code_pmmh -delta_t 200. -KK 30 -LL 40 -MM 10 -mres 4 -Pr 1. -Ek 1.0e-3 -Ra 145. -IER 0.8 -directory 'my_directory' -restart_filename Restart_Ra_140.b -dim_filename Dim_Ra_140.b -dealiasing yes -max_newt 15 -max_gmres 1000 -restart_gmres 1000 -newt_eps 1.0e-7 -newt_delta 1.0e-16 -tol_gmres 1.0e-10 -M_wave 4 -time_step fbe -solver newton_convective_implicit
 
 * Continuation Solver
 
@@ -75,7 +75,7 @@ The objective of this part is to outline the different options that we can use w
     
     An example of a command line would be:
 
-    ./build/spherical_code_pmmh -delta_t 200. -KK 30 -LL 40 -MM 10 -mres 4 -Pr 1. -Ek 1.0e-2 -Ra 65 -Ek_final 1.0e-3 -directory 'my_directory' -restart yes -restart_filename Restart_20000.b -dim_filename Dim_20000.b -dealiasing yes -max_newt 15 -max_gmres 1000 -restart_gmres 1000 -newt_eps 1.0e-7 -newt_delta 1.0e-16 -tol_gmres 1.0e-10 -M_wave 4 -adapt_param y -Nopt 5 -gamma 100. -delta_param 1. -time_step fbe -solver continuation_convective_implicit
+    ./build/spherical_code_pmmh -delta_t 200. -KK 30 -LL 40 -MM 10 -mres 4 -Pr 1. -Ek 1.0e-2 -Ra 65 -Ek_final 1.0e-3 -directory 'my_directory' -restart_filename Restart_20000.b -dim_filename Dim_20000.b -dealiasing yes -max_newt 15 -max_gmres 1000 -restart_gmres 1000 -newt_eps 1.0e-7 -newt_delta 1.0e-16 -tol_gmres 1.0e-10 -M_wave 4 -adapt_param y -Nopt 5 -gamma 100. -delta_param 1. -time_step fbe -solver continuation_convective_implicit
 
 # Outputs and visualisation
 

@@ -317,53 +317,68 @@ subroutine check_arg_validity()
 
     if ((solver == "newton_convective_explicit") .or. (solver == "newton_convective_implicit") & 
         & .or. (solver == "continuation_convective_explicit") .or. (solver == "continuation_convective_implicit")) then
-        if ((restart == "no") .or. (restart == 'n')) then
-            print*, "Newton or continuation solver should start from restart file"
-            stop
-        else if ((init /= "no") .or. (init_amp /= 0.)) then
+        if ((init /= "no") .or. (init_amp /= 0.)) then
             print*, "Newton solver should not have initial condition"
             stop
         end if
+
+        if (restart_filename /= "no") then
+            print*, "Restaring fields from ", restart_filename
+        else
+            print*, "No filename given for field restart."
+            print*, "Restarting fields from Restart.b file"
+            restart_filename = "Restart.b"
+        end if
+
+        if (dim_filename /= "no") then
+            print*, "Restaring dimensions from ", dim_filename
+        else
+            print*, "No filename given for dimensions restart."
+            print*, "Restarting dimension from Dim.b file"
+            dim_filename = "Dim.b"
+        end if
     end if
 
-    if (((restart == "yes") .or. (restart == 'y')) .and. (init /= "no")) then
-        print*, "Initial condition option and restart from file have both been selected, choose just one"
-        print*, "Stopping simulation..."
-        stop
-    else if (((restart == "no") .or. (restart == 'n')) .and. (init == "no")) then
-        print*, "Neither initial condition nor restart from file have been selected"
-        print*, "Switching to default initial condition"
-        init = "christensen"
-    end if
+    if ((solver == "convective_explicit") .or. (solver == "convective_implicit")) then
+        if (((restart == "yes") .or. (restart == 'y')) .and. (init /= "no")) then
+            print*, "Initial condition option and restart from file have both been selected, choose just one"
+            print*, "Stopping simulation..."
+            stop
+        else if (((restart == "no") .or. (restart == 'n')) .and. (init == "no")) then
+            print*, "Neither initial condition nor restart from file have been selected"
+            print*, "Switching to default initial condition"
+            init = "christensen"
+        end if
 
-    if ((restart == "yes") .or. (restart == "y")) then
-        print*, "Beginning simulation from restart file"
-    else if ((restart == "no") .or. (restart == "n")) then
-        print*, "Beginning simulation from initial condition"
-    else
-        print*, "Simulation stopped - restart has an invalid value"
-        stop
-    end if
+        if ((restart == "yes") .or. (restart == "y")) then
+            print*, "Beginning simulation from restart file"
+        else if ((restart == "no") .or. (restart == "n")) then
+            print*, "Beginning simulation from initial condition"
+        else
+            print*, "Simulation stopped - restart has an invalid value"
+            stop
+        end if
 
-    if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename /= "no")) then
-        print*, "Restaring fields from ", restart_filename
-    else if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename == "no")) then
-        print*, "Restart option activated but no filename given for field restart."
-        print*, "Restarting fields from Restart.b file"
-        restart_filename = "Restart.b"
-    end if
+        if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename /= "no")) then
+            print*, "Restaring fields from ", restart_filename
+        else if (((restart == "yes") .or. (restart == "y")) .and. (restart_filename == "no")) then
+            print*, "Restart option activated but no filename given for field restart."
+            print*, "Restarting fields from Restart.b file"
+            restart_filename = "Restart.b"
+        end if
 
-    if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename /= "no")) then
-        print*, "Restaring dimensions from ", dim_filename
-    else if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename == "no")) then
-        print*, "Restart option activated but no filename given for dimensions restart."
-        print*, "Restarting dimension from Dim.b file"
-        dim_filename = "Dim.b"
-    end if
+        if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename /= "no")) then
+            print*, "Restaring dimensions from ", dim_filename
+        else if (((restart == "yes") .or. (restart == "y")) .and. (dim_filename == "no")) then
+            print*, "Restart option activated but no filename given for dimensions restart."
+            print*, "Restarting dimension from Dim.b file"
+            dim_filename = "Dim.b"
+        end if
 
-    if (((restart == "no") .or. (restart == "n")) .and. &
-        & ((restart_filename /= "no") .or. (dim_filename /= "no"))) then
-        print*, "Restart option not activated, restart_filename or dim_filename will not be used"
+        if (((restart == "no") .or. (restart == "n")) .and. &
+            & ((restart_filename /= "no") .or. (dim_filename /= "no"))) then
+            print*, "Restart option not activated, restart_filename or dim_filename will not be used"
+        end if
     end if
 
     if (init == "christensen") then
