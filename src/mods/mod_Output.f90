@@ -1,3 +1,14 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains subroutines that compute kinetic energy and output files.
+! Subroutines:
+! - comp_KineticEnergy: compute kinetic energy density from the velocity components.
+! - comp_spectral_KE: compute the Fourier spectrum of the kinetic energy density.
+! - writeRestart: output file with fields.
+! - writeDim: output file with resolution.
+! - Output_files: output field files for visualisation.
+! - output_coordinates: output r, theta and phi coordinates.
+
+
 module mod_Output
   !$ USE OMP_LIB
   use mod_Globalvars

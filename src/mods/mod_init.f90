@@ -1,3 +1,9 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the subroutines to initialise fields for timestepping simulations. 
+! Subroutines:
+! - init_TEMP: initialise temperature field according to the selected initial condition.
+! - init_EF: intialise E and F with 0.
+
 module mod_init
 !$ use OMP_LIB
   use mod_Globalvars
@@ -27,7 +33,7 @@ subroutine init_TEMP()
 
   select case (init)
 
-    case("Christensen")
+    case("christensen")
       ! Initial temperature corresponds to the article "A numerical dynamo benchmark" by Christensen et al. - 
       ! 2001, Physics of the Earth and planetary interiors
       do k = 1, kN

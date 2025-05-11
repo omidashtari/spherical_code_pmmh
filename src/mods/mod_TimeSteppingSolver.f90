@@ -1,3 +1,6 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It contains the convective timestepping solver.
+
 module mod_TimeSteppingSolver
 
     use mod_Globalvars

@@ -1,0 +1,301 @@
+The system is: Linux - 5.15.153.1-microsoft-standard-WSL2 - x86_64
+Compiling the Fortran compiler identification source file "CMakeFortranCompilerId.F" succeeded.
+Compiler: /home/juan/intel/oneapi/compiler/2025.1/bin/ifx 
+Build flags: 
+Id flags: -v 
+
+The output was:
+0
+ifx version 2025.1.0
+/home/juan/intel/oneapi/compiler/2025.1/bin/fpp    -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -fixed -4Ycpp -4Ncvf -f_com=yes -MX CMakeFortranCompilerId.F /tmp/ifx2142873369lctA4d/ifxHC1qxN.i
+#include "..." search starts here:
+#include <...> search starts here:
+ .
+ /home/juan/intel/oneapi/umf/0.10/include
+ /home/juan/intel/oneapi/mpi/2021.15/include
+ /home/juan/intel/oneapi/mkl/2025.1/include
+ /home/juan/intel/oneapi/dev-utilities/2025.1/include
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include
+ /home/juan/intel/oneapi/compiler/2025.1/include
+ /usr/local/include
+ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include
+ /usr/include
+ /usr/include/x86_64-linux-gnu
+End of search list.
+/home/juan/intel/oneapi/compiler/2025.1/bin/compiler/xfortcom    -triple x86_64-unknown-linux-gnu -emit-obj "-verify nomodule" -main-file-name CMakeFortranCompilerId.F -mllvm --relocation-model=static "-options-string -v " -menable-unsafe-fp-math -freciprocal-math -mframe-pointer=none -omp_simd -target-cpu x86-64 -target-linker-version 2.38 -O2 -vectorize-loops -vectorize-slp -fveclib=SVML -mllvm -loopopt=1 -floopopt-pipeline=light -mllvm -disable-hir-generate-mkl-call -mllvm -paropt=11 -fintel-libirc-allowed -o /tmp/ifx2142873369lctA4d/ifxpi70Sy.o -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -faltmathlib=SVML "-fp_model fast" -omp_simd -O2 "-reentrancy threaded" "-unroll 2" -simd -offload_host -nooffload_do_concurrent /tmp/ifx2142873369lctA4d/ifxHC1qxN.i
+#include "..." search starts here:
+#include <...> search starts here:
+ .
+ /home/juan/intel/oneapi/umf/0.10/include
+ /home/juan/intel/oneapi/mpi/2021.15/include
+ /home/juan/intel/oneapi/mkl/2025.1/include
+ /home/juan/intel/oneapi/dev-utilities/2025.1/include
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include
+ /home/juan/intel/oneapi/compiler/2025.1/include
+ /usr/local/include
+ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include
+ /usr/include
+ /usr/include/x86_64-linux-gnu
+End of search list.
+ld    /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o --eh-frame-hdr --build-id -dynamic-linker /lib64/ld-linux-x86-64.so.2 -m elf_x86_64 -o a.out /home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o -L/home/juan/intel/oneapi/tcm/1.3/lib -L/home/juan/intel/oneapi/umf/0.10/lib -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8 -L/home/juan/intel/oneapi/mpi/2021.15/lib -L/home/juan/intel/oneapi/mkl/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/tcm/1.3/lib/../lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/../lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64 -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/ -L/lib/x86_64-linux-gnu/ -L/lib/../lib64 -L/lib/../lib/ -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/../lib64 -L/usr/lib/../lib/ -L/home/juan/intel/oneapi/tcm/1.3/lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../ -L/lib64 -L/lib/ -L/usr/lib64 -L/usr/lib /tmp/ifx2142873369lctA4d/ifxpi70Sy.o -Bdynamic -Bstatic -lifport -lifcoremt -Bdynamic -limf -Bstatic -lsvml -Bdynamic -lm -Bstatic -lipgo -lirc -Bdynamic -lpthread -Bstatic -lsvml -Bdynamic -lc -lgcc -lgcc_s -Bstatic -lirc_s -Bdynamic -ldl -lc /usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o
+
+
+Compilation of the Fortran compiler identification source "CMakeFortranCompilerId.F" produced "a.out"
+
+The Fortran compiler identification is IntelLLVM, found in "/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/3.22.1/CompilerIdFortran/a.out"
+
+Detecting Fortran compiler ABI info compiled with the following output:
+Change Dir: /mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_117bf/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_117bf.dir/build.make CMakeFiles/cmTC_117bf.dir/build
+gmake[1]: Entering directory '/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/CMakeTmp'
+Building Fortran object CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o
+/home/juan/intel/oneapi/compiler/2025.1/bin/ifx   -v -c /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o
+ifx version 2025.1.0
+/home/juan/intel/oneapi/compiler/2025.1/bin/fpp    -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -4Ycpp -4Ncvf -f_com=yes -MX /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 /tmp/ifx2087462420pVYq2D/ifxy3RkGW.i90
+#include "..." search starts here:
+#include <...> search starts here:
+ .
+ /home/juan/intel/oneapi/umf/0.10/include
+ /home/juan/intel/oneapi/mpi/2021.15/include
+ /home/juan/intel/oneapi/mkl/2025.1/include
+ /home/juan/intel/oneapi/dev-utilities/2025.1/include
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include
+ /home/juan/intel/oneapi/compiler/2025.1/include
+ /usr/local/include
+ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include
+ /usr/include
+ /usr/include/x86_64-linux-gnu
+End of search list.
+/home/juan/intel/oneapi/compiler/2025.1/bin/compiler/xfortcom    -triple x86_64-unknown-linux-gnu -emit-obj "-verify nomodule" -main-file-name /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 -mllvm --relocation-model=static "-options-string -v -c -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o " -menable-unsafe-fp-math -freciprocal-math -mframe-pointer=none -omp_simd -target-cpu x86-64 -target-linker-version 2.38 -O2 -vectorize-loops -vectorize-slp -fveclib=SVML -mllvm -loopopt=1 -floopopt-pipeline=light -mllvm -disable-hir-generate-mkl-call -mllvm -paropt=11 -fintel-libirc-allowed -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -I/usr/share/cmake-3.22/Modules -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -faltmathlib=SVML "-fp_model fast" -omp_simd -O2 "-reentrancy threaded" "-unroll 2" -simd -offload_host -nooffload_do_concurrent /tmp/ifx2087462420pVYq2D/ifxy3RkGW.i90
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/share/cmake-3.22/Modules
+ .
+ /home/juan/intel/oneapi/umf/0.10/include
+ /home/juan/intel/oneapi/mpi/2021.15/include
+ /home/juan/intel/oneapi/mkl/2025.1/include
+ /home/juan/intel/oneapi/dev-utilities/2025.1/include
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64
+ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include
+ /home/juan/intel/oneapi/compiler/2025.1/include
+ /usr/local/include
+ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include
+ /usr/include
+ /usr/include/x86_64-linux-gnu
+End of search list.
+Linking Fortran executable cmTC_117bf
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_117bf.dir/link.txt --verbose=1
+/home/juan/intel/oneapi/compiler/2025.1/bin/ifx  -v CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -o cmTC_117bf 
+ifx version 2025.1.0
+ld    /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o --eh-frame-hdr --build-id -dynamic-linker /lib64/ld-linux-x86-64.so.2 -m elf_x86_64 -o cmTC_117bf /home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o -L/home/juan/intel/oneapi/tcm/1.3/lib -L/home/juan/intel/oneapi/umf/0.10/lib -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8 -L/home/juan/intel/oneapi/mpi/2021.15/lib -L/home/juan/intel/oneapi/mkl/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/tcm/1.3/lib/../lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/../lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64 -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/ -L/lib/x86_64-linux-gnu/ -L/lib/../lib64 -L/lib/../lib/ -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/../lib64 -L/usr/lib/../lib/ -L/home/juan/intel/oneapi/tcm/1.3/lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../ -L/lib64 -L/lib/ -L/usr/lib64 -L/usr/lib CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -Bdynamic -Bstatic -lifport -lifcoremt -Bdynamic -limf -Bstatic -lsvml -Bdynamic -lm -Bstatic -lipgo -lirc -Bdynamic -lpthread -Bstatic -lsvml -Bdynamic -lc -lgcc -lgcc_s -Bstatic -lirc_s -Bdynamic -ldl -lc /usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o
+gmake[1]: Leaving directory '/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/CMakeTmp'
+
+
+
+Parsed Fortran implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [.]
+    add: [/home/juan/intel/oneapi/umf/0.10/include]
+    add: [/home/juan/intel/oneapi/mpi/2021.15/include]
+    add: [/home/juan/intel/oneapi/mkl/2025.1/include]
+    add: [/home/juan/intel/oneapi/dev-utilities/2025.1/include]
+    add: [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64]
+    add: [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include]
+    add: [/home/juan/intel/oneapi/compiler/2025.1/include]
+    add: [/usr/local/include]
+    add: [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include]
+    add: [/usr/include]
+    add: [/usr/include/x86_64-linux-gnu]
+  end of search list found
+  skipping relative include dir [.]
+  collapse include dir [/home/juan/intel/oneapi/umf/0.10/include] ==> [/home/juan/intel/oneapi/umf/0.10/include]
+  collapse include dir [/home/juan/intel/oneapi/mpi/2021.15/include] ==> [/home/juan/intel/oneapi/mpi/2021.15/include]
+  collapse include dir [/home/juan/intel/oneapi/mkl/2025.1/include] ==> [/home/juan/intel/oneapi/mkl/2025.1/include]
+  collapse include dir [/home/juan/intel/oneapi/dev-utilities/2025.1/include] ==> [/home/juan/intel/oneapi/dev-utilities/2025.1/include]
+  collapse include dir [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64] ==> [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64]
+  collapse include dir [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include] ==> [/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include]
+  collapse include dir [/home/juan/intel/oneapi/compiler/2025.1/include] ==> [/home/juan/intel/oneapi/compiler/2025.1/include]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+  implicit include dirs: [/home/juan/intel/oneapi/umf/0.10/include;/home/juan/intel/oneapi/mpi/2021.15/include;/home/juan/intel/oneapi/mkl/2025.1/include;/home/juan/intel/oneapi/dev-utilities/2025.1/include;/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64;/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include;/home/juan/intel/oneapi/compiler/2025.1/include;/usr/local/include;/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include;/usr/include;/usr/include/x86_64-linux-gnu]
+
+
+Parsed Fortran implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_117bf/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_117bf.dir/build.make CMakeFiles/cmTC_117bf.dir/build]
+  ignore line: [gmake[1]: Entering directory '/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/CMakeTmp']
+  ignore line: [Building Fortran object CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o]
+  ignore line: [/home/juan/intel/oneapi/compiler/2025.1/bin/ifx   -v -c /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o]
+  ignore line: [ifx version 2025.1.0]
+  ignore line: [/home/juan/intel/oneapi/compiler/2025.1/bin/fpp    -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -4Ycpp -4Ncvf -f_com=yes -MX /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 /tmp/ifx2087462420pVYq2D/ifxy3RkGW.i90]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ .]
+  ignore line: [ /home/juan/intel/oneapi/umf/0.10/include]
+  ignore line: [ /home/juan/intel/oneapi/mpi/2021.15/include]
+  ignore line: [ /home/juan/intel/oneapi/mkl/2025.1/include]
+  ignore line: [ /home/juan/intel/oneapi/dev-utilities/2025.1/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include]
+  ignore line: [ /usr/include]
+  ignore line: [ /usr/include/x86_64-linux-gnu]
+  ignore line: [End of search list.]
+  ignore line: [/home/juan/intel/oneapi/compiler/2025.1/bin/compiler/xfortcom    -triple x86_64-unknown-linux-gnu -emit-obj "-verify nomodule" -main-file-name /usr/share/cmake-3.22/Modules/CMakeFortranCompilerABI.F90 -mllvm --relocation-model=static "-options-string -v -c -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o " -menable-unsafe-fp-math -freciprocal-math -mframe-pointer=none -omp_simd -target-cpu x86-64 -target-linker-version 2.38 -O2 -vectorize-loops -vectorize-slp -fveclib=SVML -mllvm -loopopt=1 -floopopt-pipeline=light -mllvm -disable-hir-generate-mkl-call -mllvm -paropt=11 -fintel-libirc-allowed -o CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -D__INTEL_LLVM_COMPILER=20250100 -D__INTEL_LLVM_COMPILER_UPDATE=0 -D__unix__ -D__unix -D__linux__ -D__linux -D__gnu_linux__ -Dunix -Dlinux -D__ELF__ -D__x86_64 -D__x86_64__ -D__amd64 -D__amd64__ -D__INTEL_COMPILER_BUILD_DATE=20250317 -D__MMX__ -D__SSE__ -D__SSE_MATH__ -D__SSE2__ -D__SSE2_MATH__ -D__pentium4 -D__pentium4__ -D__tune_pentium4__ -D__INTEL_COMPILER=20250100 -D__INTEL_COMPILER_UPDATE=0 -I/usr/share/cmake-3.22/Modules -I. -I/home/juan/intel/oneapi/umf/0.10/include -I/home/juan/intel/oneapi/tbb/2022.1/env/../include -I/home/juan/intel/oneapi/mpi/2021.15/include -I/home/juan/intel/oneapi/mkl/2025.1/include -I/home/juan/intel/oneapi/dev-utilities/2025.1/include -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64 -I/home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include -I/home/juan/intel/oneapi/compiler/2025.1/include -I/usr/local/include -I/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include -I/usr/include -I/usr/include/x86_64-linux-gnu -faltmathlib=SVML "-fp_model fast" -omp_simd -O2 "-reentrancy threaded" "-unroll 2" -simd -offload_host -nooffload_do_concurrent /tmp/ifx2087462420pVYq2D/ifxy3RkGW.i90]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/share/cmake-3.22/Modules]
+  ignore line: [ .]
+  ignore line: [ /home/juan/intel/oneapi/umf/0.10/include]
+  ignore line: [ /home/juan/intel/oneapi/mpi/2021.15/include]
+  ignore line: [ /home/juan/intel/oneapi/mkl/2025.1/include]
+  ignore line: [ /home/juan/intel/oneapi/dev-utilities/2025.1/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include/intel64]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/opt/compiler/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/include]
+  ignore line: [ /usr/include]
+  ignore line: [ /usr/include/x86_64-linux-gnu]
+  ignore line: [End of search list.]
+  ignore line: [Linking Fortran executable cmTC_117bf]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_117bf.dir/link.txt --verbose=1]
+  ignore line: [/home/juan/intel/oneapi/compiler/2025.1/bin/ifx  -v CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -o cmTC_117bf ]
+  ignore line: [ifx version 2025.1.0]
+  link line: [ld    /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o --eh-frame-hdr --build-id -dynamic-linker /lib64/ld-linux-x86-64.so.2 -m elf_x86_64 -o cmTC_117bf /home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o -L/home/juan/intel/oneapi/tcm/1.3/lib -L/home/juan/intel/oneapi/umf/0.10/lib -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8 -L/home/juan/intel/oneapi/mpi/2021.15/lib -L/home/juan/intel/oneapi/mkl/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu -L/home/juan/intel/oneapi/compiler/2025.1/lib -L/home/juan/intel/oneapi/tcm/1.3/lib/../lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/../lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64 -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/ -L/lib/x86_64-linux-gnu/ -L/lib/../lib64 -L/lib/../lib/ -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/../lib64 -L/usr/lib/../lib/ -L/home/juan/intel/oneapi/tcm/1.3/lib/ -L/home/juan/intel/oneapi/umf/0.10/lib/ -L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/ -L/home/juan/intel/oneapi/mpi/2021.15/lib/ -L/home/juan/intel/oneapi/mkl/2025.1/lib/ -L/home/juan/intel/oneapi/compiler/2025.1/lib/ -L/usr/lib/gcc/x86_64-linux-gnu/11/../../../ -L/lib64 -L/lib/ -L/usr/lib64 -L/usr/lib CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o -Bdynamic -Bstatic -lifport -lifcoremt -Bdynamic -limf -Bstatic -lsvml -Bdynamic -lm -Bstatic -lipgo -lirc -Bdynamic -lpthread -Bstatic -lsvml -Bdynamic -lc -lgcc -lgcc_s -Bstatic -lirc_s -Bdynamic -ldl -lc /usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o]
+    arg [ld] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o]
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_117bf] ==> ignore
+    arg [/home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o] ==> obj [/home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o]
+    arg [-L/home/juan/intel/oneapi/tcm/1.3/lib] ==> dir [/home/juan/intel/oneapi/tcm/1.3/lib]
+    arg [-L/home/juan/intel/oneapi/umf/0.10/lib] ==> dir [/home/juan/intel/oneapi/umf/0.10/lib]
+    arg [-L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8] ==> dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8]
+    arg [-L/home/juan/intel/oneapi/mpi/2021.15/lib] ==> dir [/home/juan/intel/oneapi/mpi/2021.15/lib]
+    arg [-L/home/juan/intel/oneapi/mkl/2025.1/lib] ==> dir [/home/juan/intel/oneapi/mkl/2025.1/lib]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib]
+    arg [-L/home/juan/intel/oneapi/tcm/1.3/lib/../lib/] ==> dir [/home/juan/intel/oneapi/tcm/1.3/lib/../lib/]
+    arg [-L/home/juan/intel/oneapi/umf/0.10/lib/../lib/] ==> dir [/home/juan/intel/oneapi/umf/0.10/lib/../lib/]
+    arg [-L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/] ==> dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/]
+    arg [-L/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/] ==> dir [/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/]
+    arg [-L/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/] ==> dir [/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/11/] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/11/]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/]
+    arg [-L/lib/x86_64-linux-gnu/] ==> dir [/lib/x86_64-linux-gnu/]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/lib/../lib/] ==> dir [/lib/../lib/]
+    arg [-L/usr/lib/x86_64-linux-gnu/] ==> dir [/usr/lib/x86_64-linux-gnu/]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/lib/../lib/] ==> dir [/usr/lib/../lib/]
+    arg [-L/home/juan/intel/oneapi/tcm/1.3/lib/] ==> dir [/home/juan/intel/oneapi/tcm/1.3/lib/]
+    arg [-L/home/juan/intel/oneapi/umf/0.10/lib/] ==> dir [/home/juan/intel/oneapi/umf/0.10/lib/]
+    arg [-L/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/] ==> dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/]
+    arg [-L/home/juan/intel/oneapi/mpi/2021.15/lib/] ==> dir [/home/juan/intel/oneapi/mpi/2021.15/lib/]
+    arg [-L/home/juan/intel/oneapi/mkl/2025.1/lib/] ==> dir [/home/juan/intel/oneapi/mkl/2025.1/lib/]
+    arg [-L/home/juan/intel/oneapi/compiler/2025.1/lib/] ==> dir [/home/juan/intel/oneapi/compiler/2025.1/lib/]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/11/../../../] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../]
+    arg [-L/lib64] ==> dir [/lib64]
+    arg [-L/lib/] ==> dir [/lib/]
+    arg [-L/usr/lib64] ==> dir [/usr/lib64]
+    arg [-L/usr/lib] ==> dir [/usr/lib]
+    arg [CMakeFiles/cmTC_117bf.dir/CMakeFortranCompilerABI.F90.o] ==> ignore
+    arg [-Bdynamic] ==> search dynamic
+    arg [-Bstatic] ==> search static
+    arg [-lifport] ==> lib [ifport]
+    arg [-lifcoremt] ==> lib [ifcoremt]
+    arg [-Bdynamic] ==> search dynamic
+    arg [-limf] ==> lib [imf]
+    arg [-Bstatic] ==> search static
+    arg [-lsvml] ==> lib [svml]
+    arg [-Bdynamic] ==> search dynamic
+    arg [-lm] ==> lib [m]
+    arg [-Bstatic] ==> search static
+    arg [-lipgo] ==> lib [ipgo]
+    arg [-lirc] ==> lib [irc]
+    arg [-Bdynamic] ==> search dynamic
+    arg [-lpthread] ==> lib [pthread]
+    arg [-Bstatic] ==> search static
+    arg [-lsvml] ==> lib [svml]
+    arg [-Bdynamic] ==> search dynamic
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-Bstatic] ==> search static
+    arg [-lirc_s] ==> lib [irc_s]
+    arg [-Bdynamic] ==> search dynamic
+    arg [-ldl] ==> lib [dl]
+    arg [-lc] ==> lib [c]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o]
+  collapse obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+  collapse obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+  collapse obj [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+  collapse library dir [/home/juan/intel/oneapi/tcm/1.3/lib] ==> [/home/juan/intel/oneapi/tcm/1.3/lib]
+  collapse library dir [/home/juan/intel/oneapi/umf/0.10/lib] ==> [/home/juan/intel/oneapi/umf/0.10/lib]
+  collapse library dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8] ==> [/home/juan/intel/oneapi/tbb/2022.1/lib/intel64/gcc4.8]
+  collapse library dir [/home/juan/intel/oneapi/mpi/2021.15/lib] ==> [/home/juan/intel/oneapi/mpi/2021.15/lib]
+  collapse library dir [/home/juan/intel/oneapi/mkl/2025.1/lib] ==> [/home/juan/intel/oneapi/mkl/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/tcm/1.3/lib/../lib/] ==> [/home/juan/intel/oneapi/tcm/1.3/lib]
+  collapse library dir [/home/juan/intel/oneapi/umf/0.10/lib/../lib/] ==> [/home/juan/intel/oneapi/umf/0.10/lib]
+  collapse library dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/../lib/] ==> [/home/juan/intel/oneapi/tbb/2022.1/lib/intel64/lib]
+  collapse library dir [/home/juan/intel/oneapi/mpi/2021.15/lib/../lib/] ==> [/home/juan/intel/oneapi/mpi/2021.15/lib]
+  collapse library dir [/home/juan/intel/oneapi/mkl/2025.1/lib/../lib/] ==> [/home/juan/intel/oneapi/mkl/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib/../lib/] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/11/] ==> [/usr/lib/gcc/x86_64-linux-gnu/11]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../../lib/] ==> [/usr/lib]
+  collapse library dir [/lib/x86_64-linux-gnu/] ==> [/lib/x86_64-linux-gnu]
+  collapse library dir [/lib/../lib64] ==> [/lib64]
+  collapse library dir [/lib/../lib/] ==> [/lib]
+  collapse library dir [/usr/lib/x86_64-linux-gnu/] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/lib/../lib/] ==> [/usr/lib]
+  collapse library dir [/home/juan/intel/oneapi/tcm/1.3/lib/] ==> [/home/juan/intel/oneapi/tcm/1.3/lib]
+  collapse library dir [/home/juan/intel/oneapi/umf/0.10/lib/] ==> [/home/juan/intel/oneapi/umf/0.10/lib]
+  collapse library dir [/home/juan/intel/oneapi/tbb/2022.1/env/../lib/intel64/gcc4.8/] ==> [/home/juan/intel/oneapi/tbb/2022.1/lib/intel64/gcc4.8]
+  collapse library dir [/home/juan/intel/oneapi/mpi/2021.15/lib/] ==> [/home/juan/intel/oneapi/mpi/2021.15/lib]
+  collapse library dir [/home/juan/intel/oneapi/mkl/2025.1/lib/] ==> [/home/juan/intel/oneapi/mkl/2025.1/lib]
+  collapse library dir [/home/juan/intel/oneapi/compiler/2025.1/lib/] ==> [/home/juan/intel/oneapi/compiler/2025.1/lib]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/11/../../../] ==> [/usr/lib]
+  collapse library dir [/lib64] ==> [/lib64]
+  collapse library dir [/lib/] ==> [/lib]
+  collapse library dir [/usr/lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/lib] ==> [/usr/lib]
+  implicit libs: [ifport;ifcoremt;imf;svml;m;ipgo;irc;pthread;svml;c;gcc;gcc_s;irc_s;dl;c]
+  implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/11/crtbeginS.o;/home/juan/intel/oneapi/compiler/2025.1/lib/for_main.o;/usr/lib/gcc/x86_64-linux-gnu/11/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+  implicit dirs: [/home/juan/intel/oneapi/tcm/1.3/lib;/home/juan/intel/oneapi/umf/0.10/lib;/home/juan/intel/oneapi/tbb/2022.1/lib/intel64/gcc4.8;/home/juan/intel/oneapi/mpi/2021.15/lib;/home/juan/intel/oneapi/mkl/2025.1/lib;/home/juan/intel/oneapi/compiler/2025.1/lib;/home/juan/intel/oneapi/compiler/2025.1/lib/clang/20/lib/x86_64-unknown-linux-gnu;/home/juan/intel/oneapi/tbb/2022.1/lib/intel64/lib;/usr/lib/gcc/x86_64-linux-gnu/11;/usr/lib/x86_64-linux-gnu;/usr/lib64;/usr/lib;/lib/x86_64-linux-gnu;/lib64;/lib]
+  implicit fwks: []
+
+

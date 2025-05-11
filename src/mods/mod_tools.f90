@@ -1,3 +1,6 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It contains the grid refinement subroutine for continuation.
+
 module mod_tools
 
     use iso_c_binding

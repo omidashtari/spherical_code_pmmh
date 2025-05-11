@@ -1,3 +1,8 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It contains the iterative solvers used in Newton's method. Subroutines:
+! - gmresm: GMRESm solver.
+! - hookstep: performs hookstep.
+
 module mod_IterativeSolvers
 
   use mod_Globalvars
@@ -12,6 +17,7 @@ subroutine gmresm(time_stepping_sub, m, n, itmax, tol, b, ubest, gmres_iters)
 
   !----------------------------------------------------------------------
   ! This solver was taken from https://openpipeflow.org/images/d/df/GMRESm.f90
+  ! All credits to Willis, A. 
   ! See Willis, A. (2017) SoftwareX 6, 124-127.
   ! https://doi.org/10.1016/j.softx.2017.05.003
   !----------------------------------------------------------------------
@@ -173,6 +179,12 @@ end subroutine gmresm
 ! replace y with a vector that generates a hookstep
 !-----------------------------------------------------------------
 subroutine hookstep(j, h, m, beta, del, y, info)
+  !----------------------------------------------------------------------
+  ! This solver was taken from https://openpipeflow.org/images/d/df/GMRESm.f90
+  ! All credits to Willis, A. 
+  ! See Willis, A. (2017) SoftwareX 6, 124-127.
+  ! https://doi.org/10.1016/j.softx.2017.05.003
+  !----------------------------------------------------------------------
 
   ! Generate the hookstep as per Viswanath (2008).
 

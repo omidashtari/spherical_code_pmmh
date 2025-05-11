@@ -1,3 +1,13 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It contains the subroutines look for rotating waves via the Newton's method 
+! and perform continuation. Subroutines:
+! - convective_newton_solver: initialise solver and call Newton.
+! - continuation_convective_solver: loop over control parameter for path following.
+! - assign_new_value_Ra: assign new Rayleigh value for continuation.
+! - assign_new_value_Ek: assing new Ekman number for continuation.
+! - max_search: look for maximum value in fields for continuation.
+! - newton_solver: Newton's method.
+
 module mod_NewtonSolver
 
     use iso_c_binding

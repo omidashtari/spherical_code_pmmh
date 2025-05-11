@@ -1,3 +1,16 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the subroutines that perform the timestep. Subroutines:
+! - compute_time_step_convective_explicit_PC: PC timestep using explicit Coriolis.
+! - compute_time_step_convective_implicit_PC: PC timestep using implicit Coriolis.
+! - compute_time_step_convective_explicit_CN_FBE: CN or FBE timestep using explicit Coriolis.
+! - compute_time_step_convective_explicit_BDF2: BDF2 timestep using explicit Coriolis.
+! - compute_time_step_convective_implicit_CN: CN timestep using implicit Coriolis.
+! - compute_time_step_convective_implicit_FBE: FBE timestep using implicit Coriolis.
+! - compute_time_step_convective_implicit_BDF2: BDF2 timestep using implicit Coriolis.
+! - compute_lin_time_step_convective_explicit_CN_FBE: CN or FBD linearized timestep using explicit Coriolis.
+! - compute_lin_time_step_convective_implicit_CN: CN linearized timestep using implicit Coriolis.
+! - compute_lin_time_step_convective_implicit_FBE: FBD linearized timestep using explicit Coriolis.
+
 module mod_TimeStep
   !$ USE OMP_LIB
   use mod_Globalvars

@@ -1,3 +1,10 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the declaration of global variables and some subroutines:
+! - fact: compute the factorial of a number.
+! - LinfNormArray: compute the L_ifty norm of a 3D array.
+! - LinfNormMat: compute the L_ifty norm of a 2D array.
+! - LinfNormVec: compute the L_ifty norm of a 1D array.
+
 !------------------------------- All variables --------------------------------!
 
 module mod_Globalvars

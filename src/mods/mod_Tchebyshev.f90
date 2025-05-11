@@ -1,3 +1,11 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It computes the Chebyshev matrices. Subroutines
+! - PrecompTchebyshev: compute Chebyshev matrices.
+! - ChbPolDeriv: compute the m-th derivative of the k-th Chebyshev polynomial at x.
+! - DiffChbArray: compute the derivative.
+! - ChbPoly: compute the k-th Chebyshev Polynomial at points contained in x.
+! - ChbPolyTab: compute the k-th Chebyshev Polynomial at points contained in x.
+
 module mod_Tchebyshev
 
   use mod_Globalvars

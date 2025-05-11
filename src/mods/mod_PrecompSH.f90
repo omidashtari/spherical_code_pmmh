@@ -1,3 +1,8 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It allows for computation of the SH grid using SHTns and allocates fields
+! and auxiliary arrays.
+! - PrecompSH
+
 module mod_PrecompSH
 
     use iso_c_binding
@@ -181,7 +186,7 @@ subroutine PrecompSH()
         & .or. (solver == "continuation_convective_implicit")) then
         allocate(Xef(6 * (KK2 + KK4) - 2, 2 * LL * (KK2 + KK4), 0 : MM))
         allocate(PIVOT(2 * LL * (KK2 + KK4), 0 : MM))
-        if (time_step == "cn") then
+        if ((time_step == "pc") .or. (time_step == "cn")) then
             allocate(Yef(4 * (KK2 + KK4) - 1, 2 * LL * (KK2 + KK4), 0 : MM))
         else if ((time_step == "fbe") .or. (time_step == "bdf2")) then
             allocate(Ye_mat(KK2, KK2, LL + 1), Yf_mat(KK4, KK4, LL + 1))

@@ -1,3 +1,9 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It allows for the reading of parameters from console, check their validity
+! and output them on a file. Subroutines:
+! - parse_command_line_arguments: read command line arguments.
+! - check_arg_validity: check argument validity for the different solvers.
+
 module mod_CommandLineParser
 
     use mod_Globalvars

@@ -1,0 +1,3 @@
+/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/spherical_code_pmmh.dir
+/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/juanc/Nextcloud/PhD/Spectral code/Spectral_code_git/build/CMakeFiles/rebuild_cache.dir

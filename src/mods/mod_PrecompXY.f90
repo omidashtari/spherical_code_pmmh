@@ -1,3 +1,20 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the subroutines and functions that compute the matrices for the solvers.
+! Subroutines:
+! - precompBuildXY: precomputes building blocks to compute the matrices.
+! - precompXeYe: computes matrices Xe and Ye for solvers using explicit Coriolis (PC or CN).
+! - precompXeYe_BDF: computes matrices Xe and Ye for solvers using explicit Coriolis (BDF2 or FBE).
+! - precompXfYf: computes matrices Xf and Yf for solvers using explicit Coriolis (PC or CN).
+! - precompXfYf_BDF: computes matrices Xf and Yf for solvers using explicit Coriolis (BDF2 or FBE).
+! - precompXTYT: computes matrices XT and YT (PC or CN).
+! - precompXeYe_BDF: computes matrices XT and YT (BDF2 or FBE).
+! - PrecompimplicitXY: compute matrices Xef and Yef for solvers using implicit Coriolis (PC or CN).
+! - PrecompimplicitXY_BDF: compute matrices Xef and Yef for solvers using implicit Coriolis (BDF2 or FBE).
+! Functions that compute blocks for the different solvers (create_Xe, create_XTh, create_Xf, create_Be, 
+! create_Bf, create_Xue, create_Xuf, create_Xle, create_Xlf, create_Ye, create_Ye_BDF, create_YTh,
+! create_YTh_BDF, create_Yf, create_Yf_BDF).
+! Functions to compute columns to create Xef and Yef for solvers using implicit Coriolis (CXE, CYE, CXF, CYF).
+
 module mod_precompXY
  !$ USE OMP_LIB
   use mod_Globalvars

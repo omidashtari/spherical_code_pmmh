@@ -1,0 +1,18 @@
+# The fortran modules provided by this target.
+provides
+ mod_actnewtonsolver.mod
+ mod_commandlineparser.mod
+ mod_explicitterms.mod
+ mod_globalvars.mod
+ mod_init.mod
+ mod_iterativesolvers.mod
+ mod_matrices.mod
+ mod_newtonsolver.mod
+ mod_output.mod
+ mod_precompsh.mod
+ mod_precompxy.mod
+ mod_read.mod
+ mod_tchebyshev.mod
+ mod_timestep.mod
+ mod_timesteppingsolver.mod
+ mod_tools.mod

@@ -1,3 +1,21 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the subroutines to compute the RHS and transform into physical 
+! space and back. Subroutines:
+! - comp_ExplicitRHS: compute RHS for timestep using explicit Coriolis.
+! - comp_ImplicitRHS: compute RHS for timestep using implicit Coriolis.
+! - comp_RHS_with_rot: compute RHS taking into account rotation from drifting 
+! frequency for Newton solver.
+! - comp_LinNonLin: compute linearized non-linear term.
+! - comp_cdphi: compute d/dphi and multiply by frequency c.
+! - ToReal: go to real space.
+! - BackToSpectral: go to spectral space.
+! - comp_U: compute velocity components in real space.
+! - comp_curlU: compute components of the curl of U in real space.
+! - comp_gradT: compute U \dot grad(T) in real space.
+! - rCurlF: compute the r component of the curl of F.
+! - rCurlCurlF: compute the r component of the curl of the curl of F.
+
+
 module mod_ExplicitTerms
 
   use mod_Globalvars
@@ -471,28 +489,28 @@ end subroutine comp_LinNonLin
 
 !----------------------------------------------------------------------------
 
-subroutine comp_Rotation(alpha, U, KK)
+! subroutine comp_Rotation(alpha, U, KK)
 
-  implicit none
+!   implicit none
 
-  double precision, intent(in) :: alpha ! Angle
+!   double precision, intent(in) :: alpha ! Angle
 
-  integer, intent(in) :: KK  ! Number of Chebyshev modes
+!   integer, intent(in) :: KK  ! Number of Chebyshev modes
 
-  double complex, dimension(KK, shtns%nlm), intent(inout) :: U ! E, E_per, F, F_per, T or Tt
+!   double complex, dimension(KK, shtns%nlm), intent(inout) :: U ! E, E_per, F, F_per, T or Tt
 
-  double complex, dimension(shtns%nlm) :: Slm, Slm_rot ! Intermediate array for SH rotation
+!   double complex, dimension(shtns%nlm) :: Slm, Slm_rot ! Intermediate array for SH rotation
 
-  integer :: k
+!   integer :: k
 
-  ! Perform rotation by angle alpha
-  do k = 1, KK
-    Slm = U(k, :)
-    call SH_Zrotate(shtns_c, Slm, alpha, Slm_rot)
-    U(k, :) = Slm_rot
-  end do
+!   ! Perform rotation by angle alpha
+!   do k = 1, KK
+!     Slm = U(k, :)
+!     call SH_Zrotate(shtns_c, Slm, alpha, Slm_rot)
+!     U(k, :) = Slm_rot
+!   end do
 
-end subroutine comp_Rotation
+! end subroutine comp_Rotation
 
 !----------------------------------------------------------------------------
 

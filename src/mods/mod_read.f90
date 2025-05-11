@@ -1,3 +1,9 @@
+! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
+! It contains the subroutines to read dimensions (resolution) and fields from
+! restart files. Subroutines:
+! - readDim: read resolution from Dim.b file (default name).
+! - readRestart: read fields from Restart.b file (default name).
+
 module mod_read
 
   use mod_Globalvars
@@ -95,7 +101,7 @@ subroutine readRestart()
       do lmp = 1, nlmp
         l = shtns_lm2l(shtns_c_p, lmp)
         m = shtns_lm2m(shtns_c_p, lmp)
-        if ((mod(m, mres) == 0) .and. (m <= MM*mres)) then
+        if ((mod(m, mres) == 0) .and. (m <= MM * mres) .and. (l <= LL + 1)) then
           lm = shtns_lmidx(shtns_c, l, m)
           E(1:min(KK, KKp) + 2, lm) = E_p(1:min(KK, KKp) + 2, lmp)
           F(1:min(KK, KKp) + 4, lm) = F_p(1:min(KK, KKp) + 4, lmp)
@@ -147,7 +153,7 @@ subroutine readRestart()
       do lmp = 1, nlmp
         l = shtns_lm2l(shtns_c_p, lmp)
         m = shtns_lm2m(shtns_c_p, lmp)
-        if ((mod(m, mres) == 0) .and. (m <= MM*mres)) then
+        if ((mod(m, mres) == 0) .and. (m <= MM*mres) .and. (l <= LL + 1)) then
           lm = shtns_lmidx(shtns_c, l, m)
 
           ! Allocate state

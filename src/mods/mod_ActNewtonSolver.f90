@@ -1,3 +1,9 @@
+! This module was written by J. C. Gonzalez Sembla.
+! It contains the logic behind the Newton solver. Subroutines:
+! - act_on_RHS: compute RHS - difference between two widely spaced timesteps.
+! - subA: compute LHD - difference between two widely spaced linearized timesteps.
+! - update_EFT: update fields for Newton solver.
+
 module mod_ActNewtonSolver
 
     use iso_c_binding
