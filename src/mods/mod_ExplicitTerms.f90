@@ -1,3 +1,22 @@
+! spherical_code_pmmh: solve the Boussinesq equations in a rotating spherical shell
+! Copyright (C) 2025 Alan Riquier, Camille Rambert, Juan Cruz Gonzalez Sembla and Laurette Tuckerman
+
+! Contact: juan-cruz.gonzalez-sembla@espci.fr, laurette.tuckerman@espci.fr
+
+! This program is free software; you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation; either version 2 of the License, or
+! (at your option) any later version.
+
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+
+! You should have received a copy of the GNU General Public License along
+! with this program; if not, write to the Free Software Foundation, Inc.,
+! 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 ! This module was written by A. Riquier, C. Rambert and J. C. Gonzalez Sembla.
 ! It contains the subroutines to compute the RHS and transform into physical 
 ! space and back. Subroutines:
