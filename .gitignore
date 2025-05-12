@@ -1,0 +1,6 @@
+# Ignore the build directory and its contents
+build/
+
+# Ignore README.md compilation files
+*.yaml
+*.pdf

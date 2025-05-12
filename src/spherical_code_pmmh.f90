@@ -35,10 +35,10 @@ program spherical_code_pmmh
   print*, "#   - Newton solver using CN or FBE with explicit or           #"
   print*, "#   implicit Coriolis.                                         #"
   print*, "#   - Continuation solver using CN or FBE with explicit or     #"
-  print*, "#   implicit Coriolis. Path following performed in Rayleigh or #"
+  print*, "#   implicit Coriolis. Path following performed in Rayleigh    #"
   print*, "#   or Ekman (keeping Ra * Ek ** (1. / 3.) * Pr constant).     #"
   print*, "#                                                              #"
-  print*, "# This code uses SHTns for fast SH transforms                  #"
+  print*, "# This code uses SHTns for fast SH transforms.                 #"
   print*, "#                                                              #"
   print*, "################################################################"
   print*
