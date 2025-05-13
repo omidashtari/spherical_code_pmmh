@@ -77,10 +77,14 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
   DF = 0.
   DT = 0.
 
-  call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
-  call comp_curlU(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
+  ! call comp_U_old(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
+  ! call comp_curlU_old(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
+  ! call ToReal(T, T_real, KK2)
+  ! call comp_gradT_old(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
+
+  call comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
+  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
   call ToReal(T, T_real, KK2)
-  call comp_gradT(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
 
   !--- Forcing terms for U
 
@@ -172,10 +176,14 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
   DF = 0.
   DT = 0.
 
-  call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
-  call comp_curlU(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
+  ! call comp_U_old(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
+  ! call comp_curlU_old(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
+  ! call ToReal(T, T_real, KK2)
+  ! call comp_gradT_old(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
+
+  call comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
+  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
   call ToReal(T, T_real, KK2)
-  call comp_gradT(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
   
   do k = 1, kN
     do l = 1, lN
@@ -262,10 +270,10 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   DF = 0.
   DT = 0.
 
-  call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
-  call comp_curlU(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
+  call comp_U_old(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
+  call comp_curlU_old(E, F, cUr, cUt, cUp) ! theta and phi components are multiplied by sin(theta)
   call ToReal(T, T_real, KK2)
-  call comp_gradT(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
+  call comp_gradT_old(T, gTr, gTt, gTp) ! theta and phi components are multiplied by sin(theta)
 
   !--- Differentiating by phi and multiplying by C_base
   call comp_cdphi(C_base, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
@@ -273,7 +281,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   ! call comp_Rotation(- C_base, E_base_rot, KK2)
   ! call comp_Rotation(- C_base, F_base_rot, KK4)
   ! call comp_Rotation(- C_base, T_base_rot, KK2)
-  call comp_U(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot) ! theta and phi components are multiplied by sin(theta)
+  call comp_U_old(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot) ! theta and phi components are multiplied by sin(theta)
   call ToReal(T_base_rot, T_real_rot, KK2)
 
   !--- Forcing terms for U
@@ -396,14 +404,14 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   DF = 0.
   DT = 0.
 
-  call comp_U(E_base, F_base, Ur, Ut, Up)                  ! For U - theta and phi components are multiplied by sin(theta)
-  call comp_curlU(E_base, F_base, cUr, cUt, cUp)           ! For U - theta and phi components are multiplied by sin(theta)
-  call comp_U(E_per, F_per, Ur_per, Ut_per, Up_per)        ! For u - theta and phi components are multiplied by sin(theta)
-  call comp_curlU(E_per, F_per, cUr_per, cUt_per, cUp_per) ! For u - theta and phi components are multiplied by sin(theta)
+  call comp_U_old(E_base, F_base, Ur, Ut, Up)                  ! For U - theta and phi components are multiplied by sin(theta)
+  call comp_curlU_old(E_base, F_base, cUr, cUt, cUp)           ! For U - theta and phi components are multiplied by sin(theta)
+  call comp_U_old(E_per, F_per, Ur_per, Ut_per, Up_per)        ! For u - theta and phi components are multiplied by sin(theta)
+  call comp_curlU_old(E_per, F_per, cUr_per, cUt_per, cUp_per) ! For u - theta and phi components are multiplied by sin(theta)
   call ToReal(T_base, T_real, KK2)                         ! Turn T to real
-  call comp_gradT(T_base, gTr, gTt, gTp)                   ! For T - theta and phi components are multiplied by sin(theta)
+  call comp_gradT_old(T_base, gTr, gTt, gTp)                   ! For T - theta and phi components are multiplied by sin(theta)
   call ToReal(T_per, T_real_per, KK2)                      ! Turn t to real
-  call comp_gradT(T_per, gTr_per, gTt_per, gTp_per)        ! For t - theta and phi components are multiplied by sin(theta)
+  call comp_gradT_old(T_per, gTr_per, gTt_per, gTp_per)        ! For t - theta and phi components are multiplied by sin(theta)
 
   !--- Differentiating by phi and multiplying by C_base
   call comp_cdphi(c_per, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
@@ -416,8 +424,8 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   ! call comp_Rotation(- C_base, E_per_rot, KK2)
   ! call comp_Rotation(- C_base, F_per_rot, KK4)
   ! call comp_Rotation(- C_base, T_per_rot, KK2)
-  call comp_U(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
-  call comp_U(E_per_rot, F_per_rot, Ur_per_rot, Ut_per_rot, Up_per_rot)
+  call comp_U_old(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
+  call comp_U_old(E_per_rot, F_per_rot, Ur_per_rot, Ut_per_rot, Up_per_rot)
   call ToReal(T_base_rot, T_real_rot, KK2)
   call ToReal(T_per_rot, T_real_per_rot, KK2)
   !------
@@ -684,10 +692,8 @@ subroutine comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
                       aimag(E(:, lm)) .dot. ChbR2(:KK2, :kN)) * ll1(lm)
     Scu(lm, :) = cmplx(real(E(:, lm)) .dot. ChbD1R(:KK2, :kN), &
                       aimag(E(:, lm)) .dot. ChbD1R(:KK2, :kN))
-    Tcu(lm, :) = cmplx((real(F(:, lm)) .dot. ChbR3(:KK4, :kN)) * ll1(lm) - (real(F(:, lm)) .dot. ChbD2R(:KK4, :kN)), &
-                      (aimag(F(:, lm)) .dot. ChbR3(:KK4, :kN)) * ll1(lm) - (aimag(F(:, lm)) .dot. ChbD2R(:KK4, :kN)))
-    ! Tcu(lm, :) = cmplx(real(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)), &
-    !                   aimag(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)))
+    Tcu(lm, :) = cmplx(real(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)), &
+                      aimag(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)))
 
     ! For grad(T)
     Tr(lm, :) = cmplx(real(T(:, lm)) .dot. ChbD1(:KK2, :kN), &
@@ -701,15 +707,61 @@ end subroutine comp_radial_derivatives
 
 !----------------------------------------------------------------------------
 
-subroutine comp_U_new(Qu, Su, Tu, Ur, Ut, Up)
+subroutine comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+
+  !###########################################################################
+  !    Compute U, curl(U) and grat(T) from auxiliary fields Qu, Su and Tu
+  !                       Qcu, Scu, Tcu, Tr and St
+  !###########################################################################
 
   implicit none
 
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu ! Input real fields
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu    ! Input auxiliary fields
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input auxiliary fields
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St        ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up ! Output real fields
+  double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
+  double precision, dimension(kN, lN, mN),  intent(out) :: gTr, gTt, gTp ! Output real fields
 
-  double precision, dimension(lN, mN) :: Sh1, Sh2, Sh3 ! Intermediate arrays for SH transform
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ; Sh3 = 0. ;
+  Ur = 0. ; Ut = 0. ; Up = 0. ;
+  cUr = 0. ; cUt = 0. ; cUp = 0. ;
+  gTr = 0. ; gTt = 0. ; gTp = 0. ;
+
+  do k = 1, kN
+
+    call SHqst_to_spat(shtns_c, Qu(:, k), Su(:, k), Tu(:, k), Sh1, Sh2, Sh3)
+    Ur(k, :, :) = Sh1 ; Ut(k, :, :) = Sh2 ; Up(k, :, :) = Sh3 ;
+
+    call SHqst_to_spat(shtns_c, Qcu(:, k), Scu(:, k), Tcu(:, k), Sh1, Sh2, Sh3)
+    cUr(k, :, :) = Sh1 ; cUt(k, :, :) = Sh2 ; cUp(k, :, :) = Sh3 ;
+
+    call SH_to_spat(shtns_c, Tr(:, k), Sh1)
+    gTr(k, :, :) = Sh1
+
+    call SHsph_to_spat(shtns_c, St(:, k), Sh1, Sh2)
+    gTt(k, :, :) = Sh1 ; gTp(k, :, :) = Sh2 ;
+
+  end do
+
+end subroutine comp_U_cU_gT
+
+!----------------------------------------------------------------------------
+
+subroutine comp_U(Qu, Su, Tu, Ur, Ut, Up)
+
+  !###########################################################################
+  !      Compute velocity components from auxiliary fields Qu, Su and Tu
+  !###########################################################################
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu ! Input auxiliary fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up ! Output real fields
 
   integer :: k
 
@@ -723,11 +775,168 @@ subroutine comp_U_new(Qu, Su, Tu, Ur, Ut, Up)
 
   end do
 
-end subroutine comp_U_new
+end subroutine comp_U
 
 !----------------------------------------------------------------------------
 
-subroutine comp_U(E, F, Ur, Ut, Up)
+subroutine comp_curlU(Qcu, Scu, Tcu, cUr, cUt, cUp)
+
+  !###########################################################################
+  !     Compute components of curl(U) auxiliary fields Qcu, Scu and Tcu
+  !###########################################################################
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input auxiliary fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
+
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ; Sh3 = 0. ;
+  cUr = 0. ; cUt = 0. ; cUp = 0. ;
+
+  do k = 1, kN
+
+    call SHqst_to_spat(shtns_c, Qcu(:, k), Scu(:, k), Tcu(:, k), Sh1, Sh2, Sh3)
+    cUr(k, :, :) = Sh1 ; cUt(k, :, :) = Sh2 ; cUp(k, :, :) = Sh3 ;
+
+  end do
+
+end subroutine comp_curlU
+
+!----------------------------------------------------------------------------
+
+subroutine comp_gradT(Tr, St, gTr, gTt, gTp)
+
+  !###########################################################################
+  !         Compute components of grat(T) auxiliary fields Tr and St
+  !###########################################################################
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St ! Input auxiliary fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: gTr, gTt, gTp ! Output real fields
+
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ;
+  gTr = 0. ; gTt = 0. ; gTp = 0. ;
+
+  do k = 1, kN
+
+    call SH_to_spat(shtns_c, Tr(:, k), Sh1)
+    gTr(k, :, :) = Sh1
+
+    call SHsph_to_spat(shtns_c, St(:, k), Sh1, Sh2)
+    gTt(k, :, :) = Sh1 ; gTp(k, :, :) = Sh2 ;
+
+  end do
+
+end subroutine comp_gradT
+
+!----------------------------------------------------------------------------
+
+subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
+
+  !###########################################################################
+  !                       Compute e_r \cdot curl(F)
+  !###########################################################################
+
+  implicit none
+ 
+  double complex, dimension(KK, shtns%nlm), intent(in) :: Gt_spec, Gp_spec     ! Input spectral fields
+
+  double complex, dimension(KK, shtns%nlm), intent(out) :: rCF_spec            ! Output spectral field
+
+  double complex,   dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
+
+  integer :: k, lm, m
+
+  Slm = 0. ; Slm_mul = 0. ;
+  rCF_spec = 0.
+
+  ! #### 1. We compute the d/dphi contributions to rCF
+  do lm = 1, shtns%nlm
+    rCF_spec(:, lm)%re = aimag(Gt_spec(:, lm)) * dphi(lm) ! This is -d/dphi(G_t)
+    rCF_spec(:, lm)%im = - real(Gt_spec(:, lm)) * dphi(lm)
+  end do
+
+  ! #### 2. We compute the sin(theta).d/dtheta and multiplication by cos(theta) contributions to rCF
+  do k = 1, KK
+    Slm = Gp_spec(k, :)
+    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
+    rCF_spec(k, :) = rCF_spec(k, :) + Slm_mul
+    
+    Slm = Gp_spec(k, :)
+    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
+    rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
+  end do
+
+  ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
+  do m = 0, MM*mres, mres
+    lm = shtns_lmidx(shtns_c, LL+1, m)
+    rCF_spec(:, lm) = 0.
+  end do
+
+end subroutine rCurlF
+
+!----------------------------------------------------------------------------
+
+subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
+
+  !###########################################################################
+  !                       Compute e_r \cdot curl(F)
+  !###########################################################################
+
+  implicit none
+ 
+  double complex, dimension(KK, shtns%nlm), intent(in) :: Fr_spec, Gt_spec, Gp_spec ! Input spectral fields
+
+  double complex, dimension(KK, shtns%nlm), intent(out) :: rCCF_spec                ! Output spectral field
+
+  double complex, dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
+
+  double complex, dimension(KK, shtns%nlm) :: Gt_spec_th ! Intermediate array to contain (2 cos(theta) + sin(theta) * d/dtheta) Gt
+
+  integer :: k, lm, m
+
+  Slm = 0. ; Slm_mul = 0. ;
+  Gt_spec_th = 0.
+  rCCF_spec = 0.
+
+  ! #### 1. We compute the (2 cos(theta) + sin(theta) * d/dtheta) Gt
+  do k = 1, KK
+    Slm = Gt_spec(k, :)
+    
+    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
+    Gt_spec_th(k, :) = Slm_mul
+
+    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
+    Gt_spec_th(k, :) = Gt_spec_th(k, :) + 2. * Slm_mul
+  end do
+
+  ! #### 2. We compute the d/dphi and d/dr and laplacian
+  do lm = 1, shtns%nlm
+    rCCF_spec(:, lm)%re = (Chb_mulR_deriv(:KK, :KK) .dot. real(Gt_spec_th(1:KK, lm))) + &
+                        & - (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gp_spec(1:KK, lm)) * dphi(lm)) + &
+                        & + (real(Fr_spec(:, lm)) * ll1(lm))
+    rCCF_spec(:, lm)%im = (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gt_spec_th(1:KK, lm))) + &
+                        & + (Chb_mulR_deriv(:KK, :KK) .dot. real(Gp_spec(1:KK, lm)) * dphi(lm)) + &
+                        & + (aimag(Fr_spec(:, lm)) * ll1(lm))
+  end do
+
+  ! The following loop fixes a numerical issue and allows for correct computation of rCCF up to the l mode LL (excluded)
+  do m = 0, MM*mres, mres
+    lm = shtns_lmidx(shtns_c, LL+1, m)
+    rCCF_spec(:, lm) = 0.
+  end do
+end subroutine rCurlCurlF
+
+!----------------------------------------------------------------------------
+
+subroutine comp_U_old(E, F, Ur, Ut, Up)
 
   !###########################################################################
   !         Compute velocity components from spectral fields e and f
@@ -803,37 +1012,11 @@ subroutine comp_U(E, F, Ur, Ut, Up)
     Up(k, :, :) = Sh
   end do
 
-end subroutine comp_U
+end subroutine comp_U_old
 
 !----------------------------------------------------------------------------
 
-subroutine comp_curlU_new(Qcu, Scu, Tcu, cUr, cUt, cUp)
-
-  implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input real fields
-
-  double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
-
-  double precision, dimension(lN, mN) :: Sh1, Sh2, Sh3 ! Intermediate arrays for SH transform
-
-  integer :: k
-
-  Sh1 = 0. ; Sh2 = 0. ; Sh3 = 0. ;
-  cUr = 0. ; cUt = 0. ; cUp = 0. ;
-
-  do k = 1, kN
-
-    call SHqst_to_spat(shtns_c, Qcu(:, k), Scu(:, k), Tcu(:, k), Sh1, Sh2, Sh3)
-    cUr(k, :, :) = Sh1 ; cUt(k, :, :) = Sh2 ; cUp(k, :, :) = Sh3 ;
-
-  end do
-
-end subroutine comp_curlU_new
-
-!----------------------------------------------------------------------------
-
-subroutine comp_curlU(E, F, cUr, cUt, cUp)
+subroutine comp_curlU_old(E, F, cUr, cUt, cUp)
 
   !###########################################################################
   !         Compute velocity components from spectral fields e and f
@@ -943,40 +1126,11 @@ subroutine comp_curlU(E, F, cUr, cUt, cUp)
     cUp(k, :, :) = Sh
   end do
 
-end subroutine comp_curlU
+end subroutine comp_curlU_old
 
 !----------------------------------------------------------------------------
 
-subroutine comp_gradT_new(Tr, St, gTr, gTt, gTp)
-
-  implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St ! Input real fields
-
-  double precision, dimension(kN, lN, mN),  intent(out) :: gTr, gTt, gTp ! Output real fields
-
-  double precision, dimension(lN, mN) :: Sh1, Sh2 ! Intermediate arrays for SH transform
-
-  integer :: k
-
-  Sh1 = 0. ; Sh2 = 0. ;
-  gTr = 0. ; gTt = 0. ; gTp = 0. ;
-
-  do k = 1, kN
-
-    call SH_to_spat(shtns_c, Tr(:, k), Sh1)
-    gTr(k, :, :) = Sh1
-
-    call SHsph_to_spat(shtns_c, St(:, k), Sh1, Sh2)
-    gTt(k, :, :) = Sh1 ; gTp(k, :, :) = Sh2 ;
-
-  end do
-
-end subroutine comp_gradT_new
-
-!----------------------------------------------------------------------------
-
-subroutine comp_gradT(T, gTr, gTt, gTp)
+subroutine comp_gradT_old(T, gTr, gTt, gTp)
 
   !###########################################################################
   !         Compute velocity components from spectral fields e and f
@@ -1046,102 +1200,8 @@ subroutine comp_gradT(T, gTr, gTt, gTp)
     gTp(k, :, :) = Sh
   end do
 
-end subroutine comp_gradT
+end subroutine comp_gradT_old
 
 !----------------------------------------------------------------------------
-
-subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
-
-  !###########################################################################
-  !                       Compute e_r \cdot curl(F)
-  !###########################################################################
-
-  implicit none
- 
-  double complex, dimension(KK, shtns%nlm), intent(in) :: Gt_spec, Gp_spec     ! Input spectral fields
-
-  double complex, dimension(KK, shtns%nlm), intent(out) :: rCF_spec            ! Output spectral field
-
-  double complex,   dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
-
-  integer :: k, lm, m
-
-  Slm = 0. ; Slm_mul = 0. ;
-  rCF_spec = 0.
-
-  ! #### 1. We compute the d/dphi contributions to rCF
-  do lm = 1, shtns%nlm
-    rCF_spec(:, lm)%re = aimag(Gt_spec(:, lm)) * dphi(lm) ! This is -d/dphi(G_t)
-    rCF_spec(:, lm)%im = - real(Gt_spec(:, lm)) * dphi(lm)
-  end do
-
-  ! #### 2. We compute the sin(theta).d/dtheta and multiplication by cos(theta) contributions to rCF
-  do k = 1, KK
-    Slm = Gp_spec(k, :)
-    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
-    rCF_spec(k, :) = rCF_spec(k, :) + Slm_mul
-    
-    Slm = Gp_spec(k, :)
-    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
-    rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
-  end do
-
-  ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
-  do m = 0, MM*mres, mres
-    lm = shtns_lmidx(shtns_c, LL+1, m)
-    rCF_spec(:, lm) = 0.
-  end do
-
-end subroutine rCurlF
-
-subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
-
-  !###########################################################################
-  !                       Compute e_r \cdot curl(F)
-  !###########################################################################
-
-  implicit none
- 
-  double complex, dimension(KK, shtns%nlm), intent(in) :: Fr_spec, Gt_spec, Gp_spec ! Input spectral fields
-
-  double complex, dimension(KK, shtns%nlm), intent(out) :: rCCF_spec                ! Output spectral field
-
-  double complex, dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
-
-  double complex, dimension(KK, shtns%nlm) :: Gt_spec_th ! Intermediate array to contain (2 cos(theta) + sin(theta) * d/dtheta) Gt
-
-  integer :: k, lm, m
-
-  Slm = 0. ; Slm_mul = 0. ;
-  Gt_spec_th = 0.
-  rCCF_spec = 0.
-
-  ! #### 1. We compute the (2 cos(theta) + sin(theta) * d/dtheta) Gt
-  do k = 1, KK
-    Slm = Gt_spec(k, :)
-    
-    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
-    Gt_spec_th(k, :) = Slm_mul
-
-    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
-    Gt_spec_th(k, :) = Gt_spec_th(k, :) + 2. * Slm_mul
-  end do
-
-  ! #### 2. We compute the d/dphi and d/dr and laplacian
-  do lm = 1, shtns%nlm
-    rCCF_spec(:, lm)%re = (Chb_mulR_deriv(:KK, :KK) .dot. real(Gt_spec_th(1:KK, lm))) + &
-                        & - (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gp_spec(1:KK, lm)) * dphi(lm)) + &
-                        & + (real(Fr_spec(:, lm)) * ll1(lm))
-    rCCF_spec(:, lm)%im = (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gt_spec_th(1:KK, lm))) + &
-                        & + (Chb_mulR_deriv(:KK, :KK) .dot. real(Gp_spec(1:KK, lm)) * dphi(lm)) + &
-                        & + (aimag(Fr_spec(:, lm)) * ll1(lm))
-  end do
-
-  ! The following loop fixes a numerical issue and allows for correct computation of rCCF up to the l mode LL (excluded)
-  do m = 0, MM*mres, mres
-    lm = shtns_lmidx(shtns_c, LL+1, m)
-    rCCF_spec(:, lm) = 0.
-  end do
-end subroutine rCurlCurlF
 
 end module mod_ExplicitTerms

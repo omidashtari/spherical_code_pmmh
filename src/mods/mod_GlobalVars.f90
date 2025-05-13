@@ -104,6 +104,9 @@ module mod_Globalvars
   !--- Auxiliary arrays to compute U, curl(U) and grad(T)
   double complex, dimension(:, :), allocatable :: Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St
 
+  !--- Intermediate arrays for SH transform
+  double precision, dimension(:, :), allocatable :: Sh1, Sh2, Sh3
+
   !--- Pointers to select RHS computation for timestep: These will be used only if timestepping simulation with CN is selected
   ! or if Newton or Continuation solvers are selected.
   ! Explicit_RHS_ptr => comp_ExplicitRHS if user chooses CN timestep for timestepping simulation

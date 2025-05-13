@@ -861,7 +861,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     end if
 
     ! Compute velocity components and temperature for output
-    call comp_U(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
+    call comp_U_old(E, F, Ur, Ut, Up) ! theta and phi components are multiplied by sin(theta)
     call ToReal(T, T_real, KK2)
     if (present(cont_type)) then
         if ((cont_type == "Ra_max") .or. (cont_type == "Ra_min")) then

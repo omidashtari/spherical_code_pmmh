@@ -120,6 +120,9 @@ subroutine PrecompSH()
     allocate(Qcu(shtns%nlm, kN), Scu(shtns%nlm, kN), Tcu(shtns%nlm, kN))
     allocate(Tr(shtns%nlm, kN), St(shtns%nlm, kN))
 
+    !--- Intermediate arrays for SH transform
+    allocate(Sh1(lN, mN), Sh2(lN, mN), Sh3(lN, mN))
+
     ! For the time-stepping
     ! For the RHS
     allocate(DE(KK2, shtns%nlm))
