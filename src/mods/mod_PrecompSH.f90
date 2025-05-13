@@ -115,6 +115,11 @@ subroutine PrecompSH()
     allocate(F(KK4, shtns%nlm))
     allocate(T(KK2, shtns%nlm))
 
+    !--- Auxiliary arrays to compute U, curl(U) and grad(T)
+    allocate(Qu(shtns%nlm, kN), Su(shtns%nlm, kN), Tu(shtns%nlm, kN))
+    allocate(Qcu(shtns%nlm, kN), Scu(shtns%nlm, kN), Tcu(shtns%nlm, kN))
+    allocate(Tr(shtns%nlm, kN), St(shtns%nlm, kN))
+
     ! For the time-stepping
     ! For the RHS
     allocate(DE(KK2, shtns%nlm))

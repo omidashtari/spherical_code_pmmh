@@ -85,7 +85,7 @@ module mod_Globalvars
   double complex, dimension(:, :), allocatable :: DEr, DFr                ! Arrays for the RHS in intermidiate space (real in r spectral in theta an dphi) - corrector step
   double complex, dimension(:, :), allocatable :: DEpr, DFpr              ! Arrays for the RHS in intermidiate space (real in r spectral in theta an dphi) - predictor step
 
-  ! For BDF2 timestepping scheme
+  !--- For BDF2 timestepping scheme
   double complex, dimension(:, :), allocatable :: E_tm1, F_tm1, T_tm1          ! Spectral arrays for e, f and theta at time t-1
   double complex, dimension(:, :), allocatable :: E_tm2, F_tm2, T_tm2          ! Spectral arrays for e, f and theta at time t-2
   double complex, dimension(:, :), allocatable :: DE_tm1, DF_tm1, DT_tm1       ! Spectral arrays for the RHS at time t-1
@@ -98,10 +98,13 @@ module mod_Globalvars
   double complex, dimension(:, :), allocatable :: wE, wF, wT
   double complex, dimension(:, :), allocatable :: wDE, wDF, wDT
 
-  ! Arrays containing real velocity components and temperature
+  !--- Arrays containing real velocity components and temperature
   double precision, dimension(:, :, :), allocatable :: Ur, Ut, Up, T_real
 
-  ! Pointers to select RHS computation for timestep: These will be used only if timestepping simulation with CN is selected
+  !--- Auxiliary arrays to compute U, curl(U) and grad(T)
+  double complex, dimension(:, :), allocatable :: Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St
+
+  !--- Pointers to select RHS computation for timestep: These will be used only if timestepping simulation with CN is selected
   ! or if Newton or Continuation solvers are selected.
   ! Explicit_RHS_ptr => comp_ExplicitRHS if user chooses CN timestep for timestepping simulation
   ! Implicit_RHS_ptr => comp_ImplicitRHS if user chooses CN timestep for timestepping simulation
@@ -135,7 +138,7 @@ module mod_Globalvars
   double precision :: newt_eps, newt_delta, tol_gmres
   double precision :: C_base, c_per
 
-  ! Continuation method
+  !--- Continuation method
   double precision :: Ek_final = 0. ! Final value in Ekman continuation
   double precision :: Ra_final = 0. ! Final value in Rayleigh continuation 
   double precision, dimension(:), allocatable, target :: E_nm1, F_nm1, T_nm1 ! Arrays to store the state in iteration n minus 1
@@ -177,6 +180,7 @@ contains
     do i = 2, n
       fact = fact * i
     end do
+
   end function fact
 
   !-----------------------------------------------------------------------------

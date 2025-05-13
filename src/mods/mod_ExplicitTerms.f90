@@ -403,7 +403,7 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   call ToReal(T_base, T_real, KK2)                         ! Turn T to real
   call comp_gradT(T_base, gTr, gTt, gTp)                   ! For T - theta and phi components are multiplied by sin(theta)
   call ToReal(T_per, T_real_per, KK2)                      ! Turn t to real
-  call comp_gradT(T_per, gTr_per, gTt_per, gTp_per)                 ! For t - theta and phi components are multiplied by sin(theta)
+  call comp_gradT(T_per, gTr_per, gTt_per, gTp_per)        ! For t - theta and phi components are multiplied by sin(theta)
 
   !--- Differentiating by phi and multiplying by C_base
   call comp_cdphi(c_per, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
@@ -654,6 +654,79 @@ end subroutine BackToSpectral
 
 !----------------------------------------------------------------------------
 
+subroutine comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
+
+  !###########################################################################
+  !         Compute Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St for future 
+  !                 computation of U, curl(U) and grad(T)
+  !###########################################################################
+
+  implicit none
+
+  double complex, dimension(KK2, shtns%nlm), intent(in) :: E, T ! Input e and T spectral fields
+  double complex, dimension(KK4, shtns%nlm), intent(in) :: F    ! Input f spectral field
+
+  double complex, dimension(shtns%nlm, kN), intent(out) :: Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St ! Resulting auxiliary arrays
+
+  integer :: lm
+
+  do lm = 1, shtns%nlm
+    ! For U
+    Qu(lm, :) = cmplx(real(F(:, lm)) .dot. ChbR2(:KK4, :kN), &
+                      aimag(F(:, lm)) .dot. ChbR2(:KK4, :kN)) * ll1(lm)
+    Su(lm, :) = cmplx(real(F(:, lm)) .dot. ChbD1R(:KK4, :kN), &
+                      aimag(F(:, lm)) .dot. ChbD1R(:KK4, :kN))
+    Tu(lm, :) = cmplx(real(E(:, lm)) .dot. ChbR(:KK2, :kN), &
+                      aimag(E(:, lm)) .dot. ChbR(:KK2, :kN))
+
+    ! For curl(U)
+    Qcu(lm, :) = cmplx(real(E(:, lm)) .dot. ChbR2(:KK2, :kN), &
+                      aimag(E(:, lm)) .dot. ChbR2(:KK2, :kN)) * ll1(lm)
+    Scu(lm, :) = cmplx(real(E(:, lm)) .dot. ChbD1R(:KK2, :kN), &
+                      aimag(E(:, lm)) .dot. ChbD1R(:KK2, :kN))
+    Tcu(lm, :) = cmplx((real(F(:, lm)) .dot. ChbR3(:KK4, :kN)) * ll1(lm) - (real(F(:, lm)) .dot. ChbD2R(:KK4, :kN)), &
+                      (aimag(F(:, lm)) .dot. ChbR3(:KK4, :kN)) * ll1(lm) - (aimag(F(:, lm)) .dot. ChbD2R(:KK4, :kN)))
+    ! Tcu(lm, :) = cmplx(real(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)), &
+    !                   aimag(F(:, lm)) .dot. (ChbR3(:KK4, :kN) * ll1(lm) - ChbD2R(:KK4, :kN)))
+
+    ! For grad(T)
+    Tr(lm, :) = cmplx(real(T(:, lm)) .dot. ChbD1(:KK2, :kN), &
+                      aimag(T(:, lm)) .dot. ChbD1(:KK2, :kN))
+    St(lm, :) = cmplx(real(T(:, lm)) .dot. ChbR(:KK2, :kN), &
+                      aimag(T(:, lm)) .dot. ChbR(:KK2, :kN))
+
+  end do  
+
+end subroutine comp_radial_derivatives
+
+!----------------------------------------------------------------------------
+
+subroutine comp_U_new(Qu, Su, Tu, Ur, Ut, Up)
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu ! Input real fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up ! Output real fields
+
+  double precision, dimension(lN, mN) :: Sh1, Sh2, Sh3 ! Intermediate arrays for SH transform
+
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ; Sh3 = 0. ;
+  Ur = 0. ; Ut = 0. ; Up = 0. ;
+
+  do k = 1, kN
+
+    call SHqst_to_spat(shtns_c, Qu(:, k), Su(:, k), Tu(:, k), Sh1, Sh2, Sh3)
+    Ur(k, :, :) = Sh1 ; Ut(k, :, :) = Sh2 ; Up(k, :, :) = Sh3 ;
+
+  end do
+
+end subroutine comp_U_new
+
+!----------------------------------------------------------------------------
+
 subroutine comp_U(E, F, Ur, Ut, Up)
 
   !###########################################################################
@@ -731,6 +804,32 @@ subroutine comp_U(E, F, Ur, Ut, Up)
   end do
 
 end subroutine comp_U
+
+!----------------------------------------------------------------------------
+
+subroutine comp_curlU_new(Qcu, Scu, Tcu, cUr, cUt, cUp)
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input real fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
+
+  double precision, dimension(lN, mN) :: Sh1, Sh2, Sh3 ! Intermediate arrays for SH transform
+
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ; Sh3 = 0. ;
+  cUr = 0. ; cUt = 0. ; cUp = 0. ;
+
+  do k = 1, kN
+
+    call SHqst_to_spat(shtns_c, Qcu(:, k), Scu(:, k), Tcu(:, k), Sh1, Sh2, Sh3)
+    cUr(k, :, :) = Sh1 ; cUt(k, :, :) = Sh2 ; cUp(k, :, :) = Sh3 ;
+
+  end do
+
+end subroutine comp_curlU_new
 
 !----------------------------------------------------------------------------
 
@@ -845,6 +944,35 @@ subroutine comp_curlU(E, F, cUr, cUt, cUp)
   end do
 
 end subroutine comp_curlU
+
+!----------------------------------------------------------------------------
+
+subroutine comp_gradT_new(Tr, St, gTr, gTt, gTp)
+
+  implicit none
+
+  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St ! Input real fields
+
+  double precision, dimension(kN, lN, mN),  intent(out) :: gTr, gTt, gTp ! Output real fields
+
+  double precision, dimension(lN, mN) :: Sh1, Sh2 ! Intermediate arrays for SH transform
+
+  integer :: k
+
+  Sh1 = 0. ; Sh2 = 0. ;
+  gTr = 0. ; gTt = 0. ; gTp = 0. ;
+
+  do k = 1, kN
+
+    call SH_to_spat(shtns_c, Tr(:, k), Sh1)
+    gTr(k, :, :) = Sh1
+
+    call SHsph_to_spat(shtns_c, St(:, k), Sh1, Sh2)
+    gTt(k, :, :) = Sh1 ; gTp(k, :, :) = Sh2 ;
+
+  end do
+
+end subroutine comp_gradT_new
 
 !----------------------------------------------------------------------------
 

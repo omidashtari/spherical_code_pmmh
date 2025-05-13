@@ -44,6 +44,7 @@ module mod_Tchebyshev
   double precision, dimension(:, :), allocatable :: ChbR3    !--- Chebyshev/R3
   double precision, dimension(:, :), allocatable :: ChbD1    !--- dChebyshev/dr
   double precision, dimension(:, :), allocatable :: ChbD1R   !--- dChebyshev/dr * 1/R
+  double precision, dimension(:, :), allocatable :: ChbD2R   !--- d2Chebyshev/dr2 * 1/R
 
   double precision, dimension(:, :), allocatable :: Chbderiv, Chbderiv2 ! To compute first derivatives in Chebyshev space
 
@@ -79,6 +80,7 @@ contains
     allocate(ChbR3(kN,kN))
     allocate(ChbD1(kN,kN))
     allocate(ChbD1R(kN,kN))
+    allocate(ChbD2R(kN,kN))
 
     allocate(Chbderiv(0:KK4, 0:KK4), Chbderiv2(0:KK4, 0:KK4))
 
@@ -110,6 +112,7 @@ contains
       ChbR3 (k, :) = ChbR2(k, :) / rN
       ChbD1 (k, :) = ChbPolDeriv(k - 1, xN, 1) * dxdr
       ChbD1R(k, :) = ChbPolDeriv(k - 1, xN, 1) / rN * dxdr
+      ChbD2R(k, :) = ChbPolDeriv(k - 1, xN, 2) / rN * dxdr ** 2
     end do
 
     ! Now for the derivatives in Chebyshev space
