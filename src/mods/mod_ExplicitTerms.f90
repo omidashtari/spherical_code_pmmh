@@ -97,15 +97,15 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
 
   do k = 1, kN
     do l = 1, lN
-      Fr(k, l, :) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) / (SinTh(l)**2) &
+      Fr(k, l, :) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) &
                   & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1)) &
-                  & + 2.d0 * Up(k,l,:)
+                  & + 2.d0 * Up(k,l,:) * SinTh(l)
       Gt(k, l, :) = (Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) &
-                  & + 2.d0 * CosTh(l) * Up(k,l,:)) / (SinTh(l)**2) ! Here we compute Gt = Ft / sin(theta)
+                  & + 2.d0 * CosTh(l) * Up(k,l,:)) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
       Gp(k, l, :) = (Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) &
-                  & - 2.d0 * (CosTh(l)*Ut(k,l,:) +  SinTh(l)**2*Ur(k,l,:))) / (SinTh(l)**2) ! Here we compute Gp = Fp / sin(theta)
+                  & - 2.d0 * (CosTh(l)*Ut(k,l,:) + SinTh(l)*Ur(k,l,:))) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
       UgradT(k, l, :) = - Ur(k,l,:) * gTr(k,l,:) &
-                      & - (Ut(k,l,:) * gTt(k,l,:) + Up(k,l,:) * gTp(k,l,:)) / (SinTh(l)**2)
+                      & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:)
     end do
   end do
 
@@ -187,12 +187,12 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
   
   do k = 1, kN
     do l = 1, lN
-      Fr(k,l,:) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) / (SinTh(l)**2) &
+      Fr(k,l,:) = Ek * (CUp(k,l,:)*Ut(k,l,:) - CUt(k,l,:)*Up(k,l,:)) &
                   & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1))
-      Gt(k,l,:) = Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) / (SinTh(l)**2) ! Here we compute Gt = Ft / sin(theta)
-      Gp(k,l,:) = Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) / (SinTh(l)**2) ! Here we compute Gp = Fp / sin(theta)
+      Gt(k,l,:) = Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
+      Gp(k,l,:) = Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
       UgradT(k,l,:) = - Ur(k,l,:) * gTr(k,l,:) &
-                    & - (Ut(k,l,:) * gTt(k,l,:) + Up(k,l,:) * gTp(k,l,:)) / (SinTh(l)**2)
+                    & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:)
     end do
   end do
 

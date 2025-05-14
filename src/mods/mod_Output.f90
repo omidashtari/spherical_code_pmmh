@@ -63,7 +63,7 @@ subroutine comp_KineticEnergy(Ur,Ut,Up)
   !--- Computing U²
   do k = 1, kN
     do l = 1, lN
-      U2(k, l, :) = Ur(k, l, :)**2 + (Ut(k, l, :)**2 + Up(k, l, :)**2) / SinTh(l)**2 ! We recall that the theta and phi components of U are multiplied by sin(theta)
+      U2(k, l, :) = Ur(k, l, :)**2 + Ut(k, l, :)**2 + Up(k, l, :)**2
     end do
   end do
 
@@ -136,8 +136,8 @@ subroutine comp_spectral_KE(Ekin_spec)
     do l = 1, lN
       do m = 0, MM
         U2 = real(Ur_m(k, l, m))**2 + aimag(Ur_m(k, l, m))**2 + &
-                  & (real(Ut_m(k, l, m))**2 + real(Up_m(k, l, m))**2) / SinTh(l)**2 + &
-                  & (aimag(Ut_m(k, l, m))**2 + aimag(Up_m(k, l, m))**2) / SinTh(l)**2 ! Modulus
+                  & real(Ut_m(k, l, m))**2 + real(Up_m(k, l, m))**2 + &
+                  & aimag(Ut_m(k, l, m))**2 + aimag(Up_m(k, l, m))**2 ! Modulus
         Ekin_spec(m) =  Ekin_spec(m) + U2 * wts(l) * rN(k) ** 2 / dxdr   &
                       &  * pi/kN * sqrt(1. - xN(k) ** 2) * pi / (2 * Vol) ! Integration in r and theta
       end do
@@ -319,19 +319,19 @@ subroutine Output_files(Ur, Up, T_real, step, Ra, Ek, ur_SH, ur_Cheb)
 
   do k = 1, kN
     do m = 1, mN
-      write(14, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, int(lN/2), m), Ut(k, int(lN/2), m) / SinTh(int(lN/2)), & 
-            & Up(k, int(lN/2), m) / SinTh(int(lN/2)), T_real(k, int(lN/2), m) ! We recall Ut and Up are multiplied by sin(theta)
+      write(14, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, int(lN/2), m), Ut(k, int(lN/2), m), & 
+            & Up(k, int(lN/2), m), T_real(k, int(lN/2), m)
     end do
     do l = 1, lN
-      write(15, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, l, merid_plane), Ut(k, l, merid_plane) / SinTh(l), &
-            & Up(k, l, merid_plane) / SinTh(l), T_real(k, l, merid_plane) ! We recall Ut and Up are multiplied by sin(theta)
+      write(15, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(k, l, merid_plane), Ut(k, l, merid_plane), &
+            & Up(k, l, merid_plane), T_real(k, l, merid_plane)
     end do
   end do
 
   do l = 1, lN
     do m = 1, mN
-      write(16, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(int(kN/2), l, m), Ut(int(kN/2), l, m)  / SinTh(l), &
-            & Up(int(kN/2), l, m)  / SinTh(l),  T_real(int(kN/2), l, m)  ! We recall Ut and Up are multiplied by sin(theta)
+      write(16, "(E16.6, 3x, E16.6, 3x, E16.6, 3x, E16.6)") Ur(int(kN/2), l, m), Ut(int(kN/2), l, m), &
+            & Up(int(kN/2), l, m),  T_real(int(kN/2), l, m)
     end do
   end do
 
