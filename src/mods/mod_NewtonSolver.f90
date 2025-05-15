@@ -861,7 +861,7 @@ subroutine newton_solver(NonLinTimeStep_ptr, LinNonLinTimeStep_ptr, C_base, newt
     end if
 
     ! Compute velocity components and temperature for output
-    call comp_U_from_EF(E, F, Qu, Su, Tu, Ur, Ut, Up)
+    call comp_U_from_EF(E, F, Ur, Ut, Up)
     call ToReal(T, T_real, KK2)
     
     if (present(cont_type)) then

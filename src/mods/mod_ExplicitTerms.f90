@@ -78,7 +78,7 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
   DT = 0.
 
   call comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
-  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+  call comp_U_cU_gT(Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
   call ToReal(T, T_real, KK2)
 
   !--- Forcing terms for U
@@ -172,7 +172,7 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
   DT = 0.
 
   call comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
-  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+  call comp_U_cU_gT(Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
   call ToReal(T, T_real, KK2)
   
   do k = 1, kN
@@ -261,7 +261,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   DT = 0.
 
   call comp_radial_derivatives(E, F, T, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
-  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+  call comp_U_cU_gT(Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
   call ToReal(T, T_real, KK2)
 
   !--- Differentiating by phi and multiplying by C_base
@@ -270,7 +270,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   ! call comp_Rotation(- C_base, E_base_rot, KK2)
   ! call comp_Rotation(- C_base, F_base_rot, KK4)
   ! call comp_Rotation(- C_base, T_base_rot, KK2)
-  call comp_U_from_EF(E_base_rot, F_base_rot, Qu, Su, Tu, Ur_rot, Ut_rot, Up_rot)
+  call comp_U_from_EF(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
   call ToReal(T_base_rot, T_real_rot, KK2)
 
   !--- Forcing terms for U
@@ -394,11 +394,10 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   DT = 0.
 
   call comp_radial_derivatives(E_base, F_base, T_base, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
-  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+  call comp_U_cU_gT(Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
 
   call comp_radial_derivatives(E_per, F_per, T_per, Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St)
-  call comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur_per, Ut_per, Up_per, cUr_per, cUt_per, &
-                    cUp_per, gTr_per, gTt_per, gTp_per)
+  call comp_U_cU_gT(Ur_per, Ut_per, Up_per, cUr_per, cUt_per, cUp_per, gTr_per, gTt_per, gTp_per)
 
   call ToReal(T_base, T_real, KK2)                         ! Turn T to real
   call ToReal(T_per, T_real_per, KK2)                      ! Turn t to real
@@ -416,8 +415,8 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   ! call comp_Rotation(- C_base, F_per_rot, KK4)
   ! call comp_Rotation(- C_base, T_per_rot, KK2)
 
-  call comp_U_from_EF(E_base_rot, F_base_rot, Qu, Su, Tu, Ur_rot, Ut_rot, Up_rot)
-  call comp_U_from_EF(E_per_rot, F_per_rot, Qu, Su, Tu, Ur_per_rot, Ut_per_rot, Up_per_rot)
+  call comp_U_from_EF(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
+  call comp_U_from_EF(E_per_rot, F_per_rot, Ur_per_rot, Ut_per_rot, Up_per_rot)
 
   call ToReal(T_base_rot, T_real_rot, KK2)
   call ToReal(T_per_rot, T_real_per_rot, KK2)
@@ -700,7 +699,7 @@ end subroutine comp_radial_derivatives
 
 !----------------------------------------------------------------------------
 
-subroutine comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
+subroutine comp_U_cU_gT(Ur, Ut, Up, cUr, cUt, cUp, gTr, gTt, gTp)
 
   !###########################################################################
   !    Compute U, curl(U) and grat(T) from auxiliary fields Qu, Su and Tu
@@ -708,10 +707,6 @@ subroutine comp_U_cU_gT(Qu, Su, Tu, Qcu, Scu, Tcu, Tr, St, Ur, Ut, Up, cUr, cUt,
   !###########################################################################
 
   implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu    ! Input auxiliary fields
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input auxiliary fields
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St        ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up ! Output real fields
   double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
@@ -744,15 +739,13 @@ end subroutine comp_U_cU_gT
 
 !----------------------------------------------------------------------------
 
-subroutine comp_U(Qu, Su, Tu, Ur, Ut, Up)
+subroutine comp_U(Ur, Ut, Up)
 
   !###########################################################################
   !      Compute velocity components from auxiliary fields Qu, Su and Tu
   !###########################################################################
 
   implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up ! Output real fields
 
@@ -772,15 +765,13 @@ end subroutine comp_U
 
 !----------------------------------------------------------------------------
 
-subroutine comp_curlU(Qcu, Scu, Tcu, cUr, cUt, cUp)
+subroutine comp_curlU(cUr, cUt, cUp)
 
   !###########################################################################
   !     Compute components of curl(U) auxiliary fields Qcu, Scu and Tcu
   !###########################################################################
 
   implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qcu, Scu, Tcu ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: cUr, cUt, cUp ! Output real fields
 
@@ -800,15 +791,13 @@ end subroutine comp_curlU
 
 !----------------------------------------------------------------------------
 
-subroutine comp_gradT(Tr, St, gTr, gTt, gTp)
+subroutine comp_gradT(gTr, gTt, gTp)
 
   !###########################################################################
   !         Compute components of grat(T) auxiliary fields Tr and St
   !###########################################################################
 
   implicit none
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Tr, St ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: gTr, gTt, gTp ! Output real fields
 
@@ -831,18 +820,16 @@ end subroutine comp_gradT
 
 !----------------------------------------------------------------------------
 
-subroutine comp_U_from_EF(E, F, Qu, Su, Tu, Ur, Ut, Up)
+subroutine comp_U_from_EF(E, F, Ur, Ut, Up)
 
   !###########################################################################
-  !      Compute velocity components from auxiliary fields Qu, Su and Tu
+  !                  Compute velocity components from E and F
   !###########################################################################
 
   implicit none
 
   double complex,   dimension(KK2, shtns%nlm), intent(in) :: E          ! Input e spectral field
   double complex,   dimension(KK4, shtns%nlm), intent(in) :: F          ! Input f spectral field
-
-  double complex, dimension(shtns%nlm, kN), intent(inout) :: Qu, Su, Tu ! Input auxiliary fields
 
   double precision, dimension(kN, lN, mN),  intent(out) :: Ur, Ut, Up   ! Output real fields
 
