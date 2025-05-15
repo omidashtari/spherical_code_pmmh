@@ -28,11 +28,13 @@
 ! - comp_cdphi: compute d/dphi and multiply by frequency c.
 ! - ToReal: go to real space.
 ! - BackToSpectral: go to spectral space.
-! - comp_U: compute velocity components in real space.
-! - comp_curlU: compute components of the curl of U in real space.
-! - comp_gradT: compute U \dot grad(T) in real space.
-! - rCurlF: compute the r component of the curl of F.
-! - rCurlCurlF: compute the r component of the curl of the curl of F.
+! - comp_radial_derivatives: compute radial derivatives from E, F and T and saves in auxiliary fields.
+! - comp_U_cU_gT: compute U, curl(U) and grad(T) based on the auxiliary fields.
+! - comp_U: compute U based on the auxiliary fields.
+! - comp_curlU: compute curl(U) based on the auxiliary fields.
+! - comp_gradT: compute grad(T) based on the auxiliary fields.
+! - comp_U_from_EF: compute U from poloidal and toroidal potentials.
+! - rCurl: compute rCurlF and rCurlCurlF.
 
 
 module mod_ExplicitTerms
@@ -111,8 +113,7 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
   call BackToSpectral(UgradT, UgradT_spec, KK)
 
   !--- Curl(F) and Curl(Curl(F))
-  call rCurlF(Gt_spec, Gp_spec, rCF_spec)
-  call rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
+  call rCurl(Fr_spec, Gt_spec, Gp_spec, rCF_spec, rCCF_spec)
 
   ! Now we allocate the RHS
   DE(:KK, :) = rCF_spec
@@ -193,8 +194,7 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
   call BackToSpectral(UgradT, UgradT_spec, KK)
 
   !--- Curl(F) and Curl(Curl(F))
-  call rCurlF(Gt_spec, Gp_spec, rCF_spec)
-  call rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
+  call rCurl(Fr_spec, Gt_spec, Gp_spec, rCF_spec, rCCF_spec)
 
   ! Now we allocate the RHS
   DE(:KK, :) = rCF_spec
@@ -316,8 +316,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   call BackToSpectral(UgradT, UgradT_spec, KK)
 
   !--- Curl(F) and Curl(Curl(F))
-  call rCurlF(Gt_spec, Gp_spec, rCF_spec)
-  call rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
+  call rCurl(Fr_spec, Gt_spec, Gp_spec, rCF_spec, rCCF_spec)
 
   ! Now we allocate the RHS
   DE(:KK, :) = rCF_spec
@@ -481,8 +480,7 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   call BackToSpectral(UgradT, UgradT_spec, KK)
 
   !--- Curl(F) and Curl(Curl(F))
-  call rCurlF(Gt_spec, Gp_spec, rCF_spec)
-  call rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
+  call rCurl(Fr_spec, Gt_spec, Gp_spec, rCF_spec, rCCF_spec)
 
   ! Now we allocate the RHS
   DE(:KK, :) = rCF_spec
@@ -861,65 +859,19 @@ end subroutine comp_U_from_EF
 
 !----------------------------------------------------------------------------
 
-subroutine rCurlF(Gt_spec, Gp_spec, rCF_spec)
+subroutine rCurl(Fr_spec, Gt_spec, Gp_spec, rCF_spec, rCCF_spec)
 
   !###########################################################################
-  !                       Compute e_r \cdot curl(F)
-  !###########################################################################
-
-  implicit none
- 
-  double complex, dimension(KK, shtns%nlm), intent(in) :: Gt_spec, Gp_spec     ! Input spectral fields
-
-  double complex, dimension(KK, shtns%nlm), intent(out) :: rCF_spec            ! Output spectral field
-
-  double complex,   dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
-
-  integer :: k, lm, m
-
-  Slm = 0. ; Slm_mul = 0. ;
-  rCF_spec = 0.
-
-  ! #### 1. We compute the d/dphi contributions to rCF
-  do lm = 1, shtns%nlm
-    rCF_spec(:, lm)%re = aimag(Gt_spec(:, lm)) * dphi(lm) ! This is -d/dphi(G_t)
-    rCF_spec(:, lm)%im = - real(Gt_spec(:, lm)) * dphi(lm)
-  end do
-
-  ! #### 2. We compute the sin(theta).d/dtheta and multiplication by cos(theta) contributions to rCF
-  do k = 1, KK
-    Slm = Gp_spec(k, :)
-    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
-    rCF_spec(k, :) = rCF_spec(k, :) + Slm_mul
-    
-    Slm = Gp_spec(k, :)
-    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
-    rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
-  end do
-
-  ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
-  do m = 0, MM*mres, mres
-    lm = shtns_lmidx(shtns_c, LL+1, m)
-    rCF_spec(:, lm) = 0.
-  end do
-
-end subroutine rCurlF
-
-!----------------------------------------------------------------------------
-
-subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
-
-  !###########################################################################
-  !                       Compute e_r \cdot curl(F)
+  !     Compute r * e_r \cdot curl(F) and r^2 * e_r \cdot curl(curl(F))
   !###########################################################################
 
   implicit none
  
   double complex, dimension(KK, shtns%nlm), intent(in) :: Fr_spec, Gt_spec, Gp_spec ! Input spectral fields
 
-  double complex, dimension(KK, shtns%nlm), intent(out) :: rCCF_spec                ! Output spectral field
+  double complex, dimension(KK, shtns%nlm), intent(out) :: rCF_spec, rCCF_spec      ! Output spectral field
 
-  double complex, dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
+  double complex,   dimension(shtns%nlm) :: Slm, Slm_mul ! Intermediate arrays for SH transform
 
   double complex, dimension(KK, shtns%nlm) :: Gt_spec_th ! Intermediate array to contain (2 cos(theta) + sin(theta) * d/dtheta) Gt
 
@@ -927,10 +879,22 @@ subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
 
   Slm = 0. ; Slm_mul = 0. ;
   Gt_spec_th = 0.
-  rCCF_spec = 0.
+  rCF_spec = 0. ; rCCF_spec = 0. ;
 
-  ! #### 1. We compute the (2 cos(theta) + sin(theta) * d/dtheta) Gt
+  ! #### 1. We compute:
+  ! - (2 cos(theta) + sin(theta) d/dtheta) Gp for  rCF
+  ! - (2 cos(theta) + sin(theta) d/dtheta) Gt for rCCF
   do k = 1, KK
+    ! For rCF
+    Slm = Gp_spec(k, :)
+
+    call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
+    rCF_spec(k, :) = Slm_mul
+    
+    call SH_mul_mx(shtns_c, costh_mul, Slm, Slm_mul)
+    rCF_spec(k, :) = rCF_spec(k, :) + 2. * Slm_mul
+
+    ! For rCCF
     Slm = Gt_spec(k, :)
     
     call SH_mul_mx(shtns_c, sth_dth, Slm, Slm_mul)
@@ -940,21 +904,29 @@ subroutine rCurlCurlF(Fr_spec, Gt_spec, Gp_spec, rCCF_spec)
     Gt_spec_th(k, :) = Gt_spec_th(k, :) + 2. * Slm_mul
   end do
 
-  ! #### 2. We compute the d/dphi and d/dr and laplacian
+  ! #### 2. Final computation
   do lm = 1, shtns%nlm
-    rCCF_spec(:, lm)%re = (Chb_mulR_deriv(:KK, :KK) .dot. real(Gt_spec_th(1:KK, lm))) + &
+    ! For rCF
+    rCF_spec(:, lm) = rCF_spec(:, lm) + cmplx(aimag(Gt_spec(:, lm)), - real(Gt_spec(:, lm))) * dphi(lm) ! This is -d/dphi(G_t)
+    
+    ! For rCCF
+    rCCF_spec(:, lm) = cmplx((Chb_mulR_deriv(:KK, :KK) .dot. real(Gt_spec_th(1:KK, lm))) + &
                         & - (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gp_spec(1:KK, lm)) * dphi(lm)) + &
-                        & + (real(Fr_spec(:, lm)) * ll1(lm))
-    rCCF_spec(:, lm)%im = (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gt_spec_th(1:KK, lm))) + &
+                        & + (real(Fr_spec(:, lm)) * ll1(lm)), &
+                        & (Chb_mulR_deriv(:KK, :KK) .dot. aimag(Gt_spec_th(1:KK, lm))) + &
                         & + (Chb_mulR_deriv(:KK, :KK) .dot. real(Gp_spec(1:KK, lm)) * dphi(lm)) + &
-                        & + (aimag(Fr_spec(:, lm)) * ll1(lm))
+                        & + (aimag(Fr_spec(:, lm)) * ll1(lm))) 
   end do
 
-  ! The following loop fixes a numerical issue and allows for correct computation of rCCF up to the l mode LL (excluded)
+  ! The following loop fixes a numerical issue and allows for correct computation of rCF up to the l mode LL (excluded)
   do m = 0, MM*mres, mres
     lm = shtns_lmidx(shtns_c, LL+1, m)
+    rCF_spec(:, lm) = 0.
     rCCF_spec(:, lm) = 0.
   end do
-end subroutine rCurlCurlF
+
+end subroutine rCurl
+
+!----------------------------------------------------------------------------
 
 end module mod_ExplicitTerms
