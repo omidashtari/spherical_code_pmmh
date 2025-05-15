@@ -266,10 +266,6 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
 
   !--- Differentiating by phi and multiplying by C_base
   call comp_cdphi(C_base, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
-  ! E_base_rot = E_base; F_base_rot = F_base; T_base_rot = T_base;
-  ! call comp_Rotation(- C_base, E_base_rot, KK2)
-  ! call comp_Rotation(- C_base, F_base_rot, KK4)
-  ! call comp_Rotation(- C_base, T_base_rot, KK2)
   call comp_U_from_EF(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
   call ToReal(T_base_rot, T_real_rot, KK2)
 
@@ -405,15 +401,6 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   call comp_cdphi(c_per, E_base, F_base, T_base, E_base_rot, F_base_rot, T_base_rot)
   call comp_cdphi(C_base, E_per, F_per, T_per, E_per_rot, F_per_rot, T_per_rot)
 
-  ! E_base_rot = E_base; F_base_rot = F_base; T_base_rot = T_base;
-  ! call comp_Rotation(- c_per, E_base_rot, KK2)
-  ! call comp_Rotation(- c_per, F_base_rot, KK4)
-  ! call comp_Rotation(- c_per, T_base_rot, KK2)
-  ! E_per_rot = E_per; F_per_rot = F_per; T_per_rot = T_per;
-  ! call comp_Rotation(- C_base, E_per_rot, KK2)
-  ! call comp_Rotation(- C_base, F_per_rot, KK4)
-  ! call comp_Rotation(- C_base, T_per_rot, KK2)
-
   call comp_U_from_EF(E_base_rot, F_base_rot, Ur_rot, Ut_rot, Up_rot)
   call comp_U_from_EF(E_per_rot, F_per_rot, Ur_per_rot, Ut_per_rot, Up_per_rot)
 
@@ -503,31 +490,6 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
   DF(KK + 4, :) = 0.
 
 end subroutine comp_LinNonLin
-
-!----------------------------------------------------------------------------
-
-! subroutine comp_Rotation(alpha, U, KK)
-
-!   implicit none
-
-!   double precision, intent(in) :: alpha ! Angle
-
-!   integer, intent(in) :: KK  ! Number of Chebyshev modes
-
-!   double complex, dimension(KK, shtns%nlm), intent(inout) :: U ! E, E_per, F, F_per, T or Tt
-
-!   double complex, dimension(shtns%nlm) :: Slm, Slm_rot ! Intermediate array for SH rotation
-
-!   integer :: k
-
-!   ! Perform rotation by angle alpha
-!   do k = 1, KK
-!     Slm = U(k, :)
-!     call SH_Zrotate(shtns_c, Slm, alpha, Slm_rot)
-!     U(k, :) = Slm_rot
-!   end do
-
-! end subroutine comp_Rotation
 
 !----------------------------------------------------------------------------
 
