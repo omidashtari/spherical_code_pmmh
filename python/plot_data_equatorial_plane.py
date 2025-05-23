@@ -217,8 +217,6 @@ ax.grid()
 
 """ Plot data of T """
 
-T -= np.transpose((Rout*Rin) / r_grid - Rin)
-
 min_val = np.nanmin(T)
 max_val = np.nanmax(T)
 

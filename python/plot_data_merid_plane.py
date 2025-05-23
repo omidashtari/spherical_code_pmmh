@@ -224,8 +224,6 @@ plt.legend()
 
 """ Plot data of T """
 
-T -= np.transpose((Rout*Rin) / r_grid - Rin)  # To compute temperature perturbation we subtract Tc(r) = Rout*Rin/r - Rin
-
 min_val = np.nanmin(T)
 max_val = np.nanmax(T)
 

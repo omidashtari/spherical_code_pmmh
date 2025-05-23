@@ -101,7 +101,7 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
                   & + 2.d0 * CosTh(l) * Up(k,l,:)) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
       Gp(k, l, :) = (Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) &
                   & - 2.d0 * (CosTh(l)*Ut(k,l,:) + SinTh(l)*Ur(k,l,:))) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
-      UgradT(k, l, :) = - Ur(k,l,:) * gTr(k,l,:) &
+      UgradT(k, l, :) = Ur(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                       & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:)
     end do
   end do
@@ -124,8 +124,9 @@ subroutine comp_ExplicitRHS(DE, DF, DT)
   ! For the temperature
   DT(KK + 1, :) = 0.
   DT(KK + 2, :) = 0.
-  DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
-                           ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
+  ! When solving for total temperature:
+  ! DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
+                             ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
 
   ! For E
   DE(KK + 1, :) = 0.
@@ -182,7 +183,7 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
                   & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1))
       Gt(k,l,:) = Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:)) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
       Gp(k,l,:) = Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
-      UgradT(k,l,:) = - Ur(k,l,:) * gTr(k,l,:) &
+      UgradT(k,l,:) = Ur(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                     & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:)
     end do
   end do
@@ -205,8 +206,9 @@ subroutine comp_ImplicitRHS(DE, DF, DT)
   ! For the temperature
   DT(KK + 1, :) = 0.
   DT(KK + 2, :) = 0.
-  DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
-                           ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
+  ! When solving for total temperature:
+  ! DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
+                             ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
 
   ! For E
   DE(KK + 1, :) = 0.
@@ -285,7 +287,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
                 & + Ra * T_real(k,l,:) / (Rout*rN(k)**(-1)) + Ur_rot(k,l,:) * Ek
         Gt(k,l,:) = Ek * (CUr(k,l,:)*Up(k,l,:) - CUp(k,l,:)*Ur(k,l,:) + Ut_rot(k,l,:)) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
         Gp(k,l,:) = Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:) + Up_rot(k,l,:)) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
-        UgradT(k,l,:) = - Ur(k,l,:) * gTr(k,l,:) &
+        UgradT(k,l,:) = Ur(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                   & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:) + T_real_rot(k,l,:)
       end do
     end do
@@ -299,7 +301,7 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
                     & + 2.d0 * CosTh(l) * Up(k,l,:) + Ut_rot(k,l,:) * Ek) / SinTh(l) ! Here we compute Gt = Ft / sin(theta)
         Gp(k, l, :) = (Ek * (CUt(k,l,:)*Ur(k,l,:) - CUr(k,l,:)*Ut(k,l,:)) &
                     & - 2.d0 * (CosTh(l)*Ut(k,l,:) +  SinTh(l)*Ur(k,l,:)) + Up_rot(k,l,:) * Ek) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
-        UgradT(k, l, :) = - Ur(k,l,:) * gTr(k,l,:) &
+        UgradT(k, l, :) = Ur(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                         & - Ut(k,l,:) * gTt(k,l,:) - Up(k,l,:) * gTp(k,l,:) + T_real_rot(k,l,:)
       end do
     end do
@@ -323,8 +325,9 @@ subroutine comp_RHS_with_rot(DE, DF, DT)
   ! For the temperature
   DT(KK + 1, :) = 0.
   DT(KK + 2, :) = 0.
-  DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
-                           ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
+  ! When solving for total temperature:
+  ! DT(KK + 1, 1) = (1., 0.) ! To get T_inner = 1. and T_outer = 0. 
+                             ! We fix the l=m=0 mode (cosine part) by fixing it to 1. / norm(0, 0), which is equal to 1.
 
   ! For E
   DE(KK + 1, :) = 0.
@@ -431,7 +434,7 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
                     & + Ek * (Up_rot(k,l,:) + Up_per_rot(k,l,:))) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
         UgradT(k,l,:) = - Ur(k,l,:) * gTr_per(k,l,:) &
                       & - Ut(k,l,:) * gTt_per(k,l,:) - Up(k,l,:) * gTp_per(k,l,:) &
-                      & - Ur_per(k,l,:) * gTr(k,l,:) &
+                      & + Ur_per(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                       & - Ut_per(k,l,:) * gTt(k,l,:) - Up_per(k,l,:) * gTp(k,l,:) &
                       & + T_real_rot(k,l,:) + T_real_per_rot(k,l,:)
       end do
@@ -453,7 +456,7 @@ subroutine comp_LinNonLin(E_base, F_base, T_base, E_per, F_per, T_per, DE, DF, D
                   & + Ek * (Up_rot(k,l,:) + Up_per_rot(k,l,:))) / SinTh(l) ! Here we compute Gp = Fp / sin(theta)
         UgradT(k,l,:) = - Ur(k,l,:) * gTr_per(k,l,:) &
                     & - Ut(k,l,:) * gTt_per(k,l,:) - Up(k,l,:) * gTp_per(k,l,:) &
-                    & - Ur_per(k,l,:) * gTr(k,l,:) &
+                    & + Ur_per(k,l,:) * (Rout * Rin * rN(k)**(-2) - gTr(k,l,:)) &
                     & - Ut_per(k,l,:) * gTt(k,l,:) - Up_per(k,l,:) * gTp(k,l,:) &
                     & + T_real_rot(k,l,:) + T_real_per_rot(k,l,:)
       end do

@@ -4,3 +4,6 @@ build/
 # Ignore README.md compilation files
 *.yaml
 *.pdf
+
+# Ignore .idea directory
+python/.idea/

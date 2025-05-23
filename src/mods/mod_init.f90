@@ -58,9 +58,9 @@ subroutine init_TEMP()
       do k = 1, kN
         do l = 1, lN
           do m = 1, mN
-            Ti(k, l, m) = Rout*Rin / rN(k) - Rin + 210 * A / sqrt(17920 * pi) &
+            Ti(k, l, m) = 210 * A / sqrt(17920 * pi) &
                           & * (1 - 3 * x(k) ** 2 + 3 * x(k) ** 4 - x(k) ** 6) * SinTh(l) ** 4 &
-                          & * cos(4 * phi(m))
+                          & * cos(4 * phi(m)) ! + Rout*Rin / rN(k) - Rin ! To add if solving for total temperature
           end do
         end do
       end do
