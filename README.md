@@ -1,6 +1,6 @@
 # Introduction to the code
 
-This code solves the Boussinesq equations in a rotating spherical shell using no slip boundary conditions.
+This code solves the Boussinesq equations in a rotating spherical shell using no slip and fixed temperature difference boundary conditions.
 Avalable solvers:
 
 * Timestepping solver (Predictor-corrector, Crank-Nicolson, Forward-Backward Euler, BDF2) using explicit or implicit Coriolis.
@@ -55,7 +55,7 @@ The objective of this part is to outline the different options that we can use w
     * `KK` (*integer*): number of Chebyshev modes.
     * `LL` (*integer*): number of Legendre modes.
     * `MM` (*integer*): number of Fourier modes.
-    * `mres` (*integer*): $\phi$ will span an angle range between 0 and $2 \pi/$mres.
+    * `mres` (*integer*): $\phi$ will span an angle range between 0 and $2 \pi$/mres.
     * `Rin` and `Rout` (*floats*): inner and outer radii. Default values are set to 7/13 and 20/13, respectively.
     * `Pr` (*float*): Prandtl number.
     * `Ek` (*float*): Ekman number.
@@ -64,7 +64,7 @@ The objective of this part is to outline the different options that we can use w
     * `init` (*string*): initial condition. Can be set to *Christensen* for the U.R. Christensen *et al.* *A numerical dynamo benchmark*, in Physics of the Earth and Planetary Interiors 128 (2001) initial condition. Otherwise, it can be set to *symmetric*, for an M-fold symmetry initial condition. Should this last option be chosen, two other parameters are to be set:
         * `sym` (*integer*): M-fold symmetry of choice.
         * `init_amp` (*float*): amplitude of the initial condition.
-    The resulting initial condition will be ${\rm init\_ amp} \cdot \cos ({\rm sym} \cdot \phi)$
+    The resulting initial condition will be ${\rm init\\_ amp} \cdot \cos ({\rm sym} \cdot \phi)$
     
     An example of a command line to begin a simulation from a symmetric initial condition would be:
 
@@ -127,7 +127,7 @@ There are other output files that the user may find useful. These can be read ea
 * `Ekin_spectral.dat`: Fourier spectrum of the kinetic energy density.
 * `T_k_spectral.dat`: square of the Euclidean norm of the spectral temperature field as for all Chebyshev modes. This will allow to study the resolution in the r coordinate.
 * `KE_timeserie.dat` (only in timestepping): timeseries of the kinetic energy density.
-* `Ur_mgep_timeserie.dat` (only in timestepping): timestepping of the r component of the velocity field at a point places in the equatorial plane at mid gap. Allows for the computation of drifting frequencies of rotating waves from timestepping simulations.
+* `Ur_mgep_timeserie.dat` (only in timestepping): timestepping of the r component of the velocity field at point places in the equatorial plane at mid gap. Allows for the computation of drifting frequencies of rotating waves from timestepping simulations.
 
 When performing continuation, there is also the `Continuation_params.dat` file that contains values of the control parameter, total number of Newton steps, total number of GMRES iterations, kinetic energy, drifting frequency and maximum r component of the velocity field in the equatorial plane.  
 
@@ -135,7 +135,7 @@ Finally, there is also the `parameters.dat` file that has a print of the paramet
 
 # Testing the code
 
-To test the code we will do a run using the timestepping solver and another one using the Newton solver. We will beign by creating a directory `test_timestepping` which we can place anywhere. If we open a terminal in the code directory, we can run the following line to execute the test:
+To test the code we will do a run using the timestepping solver and another one using the Newton solver. We will begin by creating a directory `test_timestepping` which we can place anywhere. If we open a terminal in the code directory, we can run the following line to execute the test:
 
 ```sh
 $ ./build/spherical_code_pmmh -delta_t 1e-4 -KK 30 -LL 40 -MM 10 -mres 4 -NTS 5000 -save_every 2500 -Pr 1. -Ek 1.0e-3 -Ra 100.0 -IER 0.8 -directory '../test_timestepping' -restart no -init christensen -dealiasing yes -solver convective_implicit
