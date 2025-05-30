@@ -44,18 +44,19 @@ subroutine gmresm(time_stepping_sub, m, n, itmax, tol, b, ubest, gmres_iters)
   ! requires lapack routines dgelsy, dgesvd.
   !----------------------------------------------------------------------
   ! Inputs
-  !   m	  - Integer: GMRES dimension
-  !   n 	- Integer: The size of the system (number of unknowns).
-  !   itmax   - Integer: The maximum number of iterations allowed.
-  !   tol     - Double precision: The convergence criterion.
-  !   b       - Double precision array: The right-hand-side vector.
+  !   m            - Integer: GMRES dimension
+  !   n            - Integer: The size of the system (number of unknowns).
+  !   itmax        - Integer: The maximum number of iterations allowed.
+  !   tol          - Double precision: The convergence criterion.
+  !   b            - Double precision array: The right-hand-side vector.
   ! Outputs
-  !   ubest   - Double precision array: Solution that fullfils criterion.
-  !   gmres_iters - Amounts of iterations until reaching criterion
+  !   ubest        - Double precision array: Solution that fullfils criterion.
+  !   gmres_iters  - Amounts of iterations until reaching criterion
   ! Work Arrays:
   !   h   Hessian matrix,  size (m+1)*m
   !   v   Krylov subspace, size n*(m+1)
-  ! w, z, y, p, work, piv - double precision arrays: Working arrays for the algorithm.
+  !   w, z, y, p   - double precision arrays: Working arrays for the gmres algorithm.
+  !   work, piv    - double precision and integer arrays: for the least-squares algorithm.
   !----------------------------------------------------------------------
 
   implicit none
@@ -86,7 +87,7 @@ subroutine gmresm(time_stepping_sub, m, n, itmax, tol, b, ubest, gmres_iters)
 
   double precision, dimension(m + 1) :: y, p
 
-  double precision, dimension(4*m+1) :: work
+  double precision, dimension(4*m+1) :: work  ! see LAPACK user manual for DGELSY
 
   integer :: its, rank, i, j
 
@@ -151,6 +152,19 @@ subroutine gmresm(time_stepping_sub, m, n, itmax, tol, b, ubest, gmres_iters)
       h_(1:j+1, 1:j) = h(1:j+1, 1:j)
 
       call dgelsy(j+1, j, 1, h_, m+1, p, m+1, piv, m, rank, work, 4*m+1, i)
+      ! dgelsy arguments:
+      !   j+1, j   top-left block size of h_ used as the coeff. matrix
+      !   1        num. of columns in the RHS (simultaneous problems)
+      !   h_       coeff. matrix. Will be overwritten on exit
+      !   m+1      total rows in h_; coeff. matrix is a block within h_
+      !   p        RHS vector. The solution will be stored in p on exit
+      !   m+1      total rows in p; the RHS is the j+1 top block of p
+      !   piv      vector storing the permuitations in h_ on exit
+      !   m        parameter related to rank determination threshold
+      !   rank     rank of the coeff. matrix
+      !   work     temporary workspace allocated for dgelsy calculations
+      !   4*m+1    length of the work vector
+      !   i        exit flag; 0 means successful
 
       if (i /= 0) stop 'gmresm: dgelsy failed'
       y = p
