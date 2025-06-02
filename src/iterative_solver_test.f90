@@ -1,26 +1,3 @@
-! spherical_code_pmmh: solve the Boussinesq equations in a rotating spherical shell
-! Copyright (C) 2025 Alan Riquier, Camille Rambert, Juan Cruz Gonzalez Sembla and Laurette Tuckerman
-
-! Contact: juan-cruz.gonzalez-sembla@espci.fr, laurette.tuckerman@espci.fr
-
-! This program is free software; you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation; either version 2 of the License, or
-! (at your option) any later version.
-
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-
-! You should have received a copy of the GNU General Public License along
-! with this program; if not, write to the Free Software Foundation, Inc.,
-! 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-! This code was developped progressively by Alan Riquier, Camille Rambert 
-! and Juan Cruz Gonzalez Sembla at the Laboratoire Physique et mécanique 
-! des milieux Hétérogènes (PMMH), under the supervision of Laurette Tuckerman.
-
 program iterative_solver_test
   
   use mod_Globalvars
@@ -34,30 +11,37 @@ program iterative_solver_test
   use mod_TimeSteppingSolver
   use mod_NewtonSolver
   use mod_TimeStep
-  use mod_IterativeSolvers
+  use mod_IterativeSolvers_test
   use mod_Output
 
   implicit none
+
 
   ! definition of program inputs and parameters
   integer, parameter :: m = 11                   ! the size of the linear system
   character(len = 100) :: coeff_dir = './A.txt'  ! coefficient matrix directory (column-major order)
   character(len = 100) :: rhs_dir = './b.txt'    ! RHS vector directory
+  double precision :: res_tol = 1.0d-6           ! solver convergence threshold
+  
+  ! declaring program outputs
+  double precision, dimension(m) :: ubest        ! iterative solver best approximation
+  integer :: iters                               ! number of solver itertations
   
   ! internal variables
-  double precision, dimension(m, m) :: A_     ! the coefficient matrix
-  double precision, dimension(m) :: b_        ! the RHS vector
-  integer :: unit = 0                         ! unit number for file input and output
-  integer :: ios                              ! input/output status
+  double precision, dimension(m, m) :: A_        ! the coefficient matrix
+  double precision, dimension(m) :: b_           ! the RHS vector
+  integer :: unit = 0                            ! unit number for file input and output
+  integer :: ios                                 ! input/output status
+  integer :: k                                   ! loop counter
 
-
+  
   print*, "################################################################"
   print*, "#                                                              #"
   print*, "#             Testing different iterative solvers              #"
   print*, "#                                                              #"
   print*, "# Solver 1: GMRES                                              #"
   print*, "# Solver 2: BiCGSTAB                                           #"
-  print*, "# Solver 3: IDR                                                #"
+  print*, "# Solver 3: IDR(s)                                             #"
   print*, "#                                                              #"
   print*, "################################################################"
 
@@ -88,5 +72,18 @@ program iterative_solver_test
   close(unit)
   unit = unit + 1
   print*, "...RHS vector successfully read from file."
+  
+  
+  ! ---------- test GMRES
+  print*, "                                                                "
+  print*, "############################ GMRES #############################"
+  
+  call GMRES(A_, m, m, m, 1.0d-6, b_, ubest, iters)
+  
+  print*, "                                                                "
+  print*, " solution:"
+  do k = 1, m
+    print*, ubest(k)
+  end do
   
 end program iterative_solver_test
