@@ -129,8 +129,20 @@ add_executable(spherical_code_pmmh
     ${MOD_FILES}
 )
 
+# Add executable
+add_executable(iterative_solver_test
+    src/iterative_solver_test.f90
+    ${MOD_FILES}
+)
+
 # Include directories
 target_include_directories(spherical_code_pmmh PRIVATE
+    src/mods
+    src/include
+)
+
+# Include directories
+target_include_directories(iterative_solver_test PRIVATE
     src/mods
     src/include
 )
@@ -148,8 +160,28 @@ if(HAVE_MKL)
         m
         c
     )
+    target_link_libraries(iterative_solver_test
+        ${MKL64}
+        ${MKLSEQ}
+        ${MKLCORE}
+        pthread
+        dl
+        ${SHTNS_LIB}
+        ${FFTW_LIB}
+        m
+        c
+    )
 else()
     target_link_libraries(spherical_code_pmmh
+        ${LAPACK_LIB}
+        ${BLAS_LIB}
+        ${EXTRA_LINK_LIBS}
+        ${SHTNS_LIB}
+        ${FFTW_LIB}
+        m
+        c
+    )
+    target_link_libraries(iterative_solver_test
         ${LAPACK_LIB}
         ${BLAS_LIB}
         ${EXTRA_LINK_LIBS}
