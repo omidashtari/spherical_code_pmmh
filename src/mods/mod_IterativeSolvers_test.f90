@@ -25,13 +25,14 @@ module mod_IterativeSolvers_test
 		double precision, dimension(n) :: w, z
 		double precision, dimension(m + 1) :: y, p
 		double precision, dimension(4*m+1) :: work
-		integer :: its, rank, i, j
+		integer :: its, evals, rank, i, j
 		integer, dimension(m) :: piv
 		double precision, save :: beta
 		logical :: done
 
 		! Initialize parameters
 		its = 0
+		evals = 0
 		x = 0.0    ! initial guess is zero vector
 		v = 0.0
 
@@ -40,7 +41,8 @@ module mod_IterativeSolvers_test
 			beta = sqrt(dot_product(x,x))
 
 			if (beta /= 0.0) then
-				w = matmul(A,x)
+				w = matmul(A, x)
+				evals = evals + 1
 			else
 				w = 0.0
 			end if
@@ -58,7 +60,8 @@ module mod_IterativeSolvers_test
 				its = its + 1
 				z = v(:, j)
 
-				w = matmul(A,z)
+				w = matmul(A, z)
+				evals = evals + 1
 
 				! Orthogonalize w against previous Krylov vectors
 				do i = 1, j
@@ -93,7 +96,7 @@ module mod_IterativeSolvers_test
 					stop
 				end if
 
-				print*, 'gmresm: iteration = ', its, ' residual = ', res
+				print*, 'gmresm: iteration = ', its, ' evals = ', evals, ' residual = ', res
 
 				done = (res <= tol .or. its == itmax)
 
@@ -118,6 +121,7 @@ module mod_IterativeSolvers_test
 	
 	
 	
+	
 	subroutine IDRs(A, b, s, n, tol, itmax, x0, ubest, idrs_iters)
 		implicit none
 		
@@ -130,10 +134,9 @@ module mod_IterativeSolvers_test
 		integer, intent(in) :: itmax                             ! maximum number of iterations
 		double precision, intent(in) :: tol                      ! convergence criterion (relative to the norm of b)
 
-		
 		! program outputs
 		double precision, dimension(n), intent(out) :: ubest     ! best x for Ax = b
-		integer, intent(out) :: idrs_iters                       ! number of IDR(s) iterations
+		integer, intent(out) :: idrs_iters                       ! number of IDR(s) iterations (A*x evaluations)
 		
 		! internal variables
 		double precision, dimension(n) :: x                      ! solution iterates
@@ -145,7 +148,7 @@ module mod_IterativeSolvers_test
 		double precision, dimension(n, s) :: dR, dX
 		double precision, dimension(s, s) :: M, W
 		double precision :: om
-		integer :: its, i, j, k, oldest
+		integer :: its, evals, i, j, k, oldest
 		double precision, dimension(n) :: random_vec, v, q, t
 		double precision, dimension(s) :: c_, m_, dm_
 		integer :: seed(33)                                      ! seed for random but reproducible vectors
@@ -158,8 +161,12 @@ module mod_IterativeSolvers_test
 		end if
 		
 		! compute initial residual --------------------------------------------------------------------------------------
+		its = 0
+		evals = 0
+		
 		x = x0
 		r = b - matmul(A, x)
+		evals = evals + 1
 		
 		normr = sqrt(dot_product(r, r))
 		normb = sqrt(dot_product(b, b))
@@ -205,13 +212,12 @@ module mod_IterativeSolvers_test
 		end do
 		
 		! produce start vectors -----------------------------------------------------------------------------------------
-		its = 0
 		dR = 0
 		dX = 0
 		
 		do k = 1, s
 			v = matmul(A, r)
-			its = its + 1
+			evals = evals + 1
 			
 			om = dot_product(v, r) / dot_product(v, v)
 			
@@ -233,8 +239,6 @@ module mod_IterativeSolvers_test
 	    		c_ = m_
 	    		W = M
     			call dgesv(s, 1, W, s, IPIV, c_, s, INFO)    ! directly solve the s-by-s system M * c_ = m_
-    			
-    			! print*, dot_product(matmul(M, c_) - m_, matmul(M, c_) - m_)
     		
 				if (INFO /= 0) then
 					stop 'IDR(s): dgesv failed to solve an s-by-s linear system.'
@@ -245,17 +249,19 @@ module mod_IterativeSolvers_test
     		
 				if (k == 0) then
 					t = matmul(A, v)
+					evals = evals + 1
+					
 					om = dot_product(t, v) / dot_product(t, t)
 	                dR(:, oldest) = q - om * t
 	                dX(:, oldest) = -matmul(dX, c_) + om * v
 				else
 	                dX(:, oldest) = -matmul(dX, c_) + om * v
 	                dR(:, oldest) = -matmul(A, dX(:, oldest))
+	                evals = evals + 1
 				end if
 				
 	            r = r + dR(:, oldest);
 	            x = x + dX(:, oldest);
-    	        its = its + 1
     	        
     	        normr = sqrt(dot_product(r, r))
     	        
@@ -269,10 +275,106 @@ module mod_IterativeSolvers_test
     	        end if
     		end do
     		
-    		print*, 'IDR(s): iteration = ', its, ' abs residual = ', normr, ' rel residual = ', normr/normb    		
+    		its = its + 1
+    		print*, 'IDR(s): iteration = ', its, ' evals = ', evals, ' residual = ', normr/normb    		
     	end do IDRs_loop
     	
 	end subroutine IDRs
+	
+	
+	
+	
+	subroutine BiCGSTAB(A, b, n, tol, itmax, x0, ubest, bicgstab_iters)
+		implicit none
+		
+		! program inputs ------------------------------------------------------------------------------------------------
+		double precision, dimension(n, n), intent(in) :: A       ! coefficient matrix
+		double precision, dimension(n), intent(in) :: b          ! RHS vector
+		double precision, dimension(n), intent(in) :: x0         ! initial guess
+		integer, intent(in) :: n                                 ! size of the linear system
+		integer, intent(in) :: itmax                             ! maximum number of iterations
+		double precision, intent(in) :: tol                      ! convergence criterion (relative to the norm of b)
+
+		! program outputs
+		double precision, dimension(n), intent(out) :: ubest     ! best x for Ax = b
+		integer, intent(out) :: bicgstab_iters                   ! number of BiCGSTAB iterations (A*x evaluations)
+
+		! internal variables
+		double precision, dimension(n) :: r                      ! residual vector
+		double precision, dimension(n) :: x                      ! solution iterates
+		double precision, dimension(n) :: rr, r_, p, t
+		double precision, dimension(n) :: Ap, At
+		double precision :: normr, normb, tolr
+		double precision :: alpha, beta, xi
+		integer :: its, evals
+		
+		! compute initial residual --------------------------------------------------------------------------------------
+		its = 0
+		evals = 0
+		x = x0
+		
+		r = b - matmul(A, x)
+		evals = evals + 1
+		
+		normr = sqrt(dot_product(r, r))
+		normb = sqrt(dot_product(b, b))
+		tolr = tol * normb
+		
+		if (normr <= tolr) then
+			print*, "Initial guess is good enough!"
+			stop
+		end if
+		
+		! BiCGSTAB loop -------------------------------------------------------------------------------------------------
+		rr = r
+		p = 0
+		beta = 0
+		xi = 0
+		Ap = 0
+		
+		BiCGSTAB_loop: do while (normr > tolr .and. its < itmax)
+			p = r + beta * (p - xi * AP)
+			
+			Ap = matmul(A, p)
+			evals = evals + 1
+			
+			alpha = dot_product(rr, r) / dot_product(rr, Ap)
+			t = r - alpha * Ap
+			
+			At = matmul(A, t)
+			evals = evals + 1
+			
+			xi = dot_product(At, t) / dot_product(At, At)
+			x = x + alpha * p + xi * t
+			
+			r_ = r
+			r = t - xi * At
+			normr = sqrt(dot_product(r, r))
+			
+			beta = (alpha / xi) * dot_product(rr, r) / dot_product(rr,r_)
+			
+			its = its + 1
+			print*, 'BiCGSTAB: iteration = ', its, ' evals = ', evals, ' residual = ', normr/normb
+		end do BiCGSTAB_loop
+		
+	end subroutine BiCGSTAB
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	subroutine print_vector(vec, n, q)

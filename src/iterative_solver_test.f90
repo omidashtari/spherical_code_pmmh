@@ -80,8 +80,7 @@ program iterative_solver_test
   print*, "############################ GMRES #############################"
   
   call GMRES(A_, m, m, m, 1.0d-6, b_, ubest, iters)
-  call print_vector(ubest, m, 10)
-  
+  ! call print_vector(ubest, m, 10)
   
   ! ---------- test IDR(s)
   print*, "                                                                "
@@ -89,15 +88,14 @@ program iterative_solver_test
   
   x0 = 0
   call IDRs(A_, b_, 8, m, 1.0d-6, m, x0, ubest, iters)
-  call print_vector(ubest, m, 10)
+  ! call print_vector(ubest, m, 10)
   
-
+  ! ---------- test BiCGSTAB
+  print*, "                                                                "
+  print*, "########################### BiCGSTAB ###########################"
   
-  
-  
-  
-  
-  
-
+  x0 = 0
+  call BiCGSTAB(A_, b_, m, 1.0d-6, m, x0, ubest, iters)
+  ! call print_vector(ubest, m, 10)
   
 end program iterative_solver_test
