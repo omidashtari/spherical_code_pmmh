@@ -7,3 +7,6 @@ build/
 
 # Ignore .idea directory
 python/.idea/
+
+# other temporary files
+*.asv
