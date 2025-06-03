@@ -22,20 +22,38 @@ module mod_IterativeSolvers_test
 		double precision, dimension(m+1, m) :: h, h_
 		double precision, dimension(n, m+1) :: v
 		double precision :: res
-		double precision, dimension(n) :: w, z
+		double precision, dimension(n) :: w, z, r
 		double precision, dimension(m + 1) :: y, p
 		double precision, dimension(4*m+1) :: work
 		integer :: its, evals, rank, i, j
 		integer, dimension(m) :: piv
 		double precision, save :: beta
+		double precision :: tolr, normr, normb
 		logical :: done
 
+		open(unit = 1, file = "./GMRES_residual.txt", status = "replace", action = "write")
+		open(unit = 2, file = "./GMRES_evals.txt", status = "replace", action = "write")
+		
 		! Initialize parameters
 		its = 0
 		evals = 0
 		x = 0.0    ! initial guess is zero vector
 		v = 0.0
+		normb = sqrt(dot_product(b, b))
+		tolr = tol * normb
 
+		r = b - matmul(A, x)
+		evals = evals + 1
+				
+		normr = sqrt(dot_product(r, r))
+		write(1, '(E12.5)') normr/normb
+		write(2, '(I0)') evals
+				
+		if (normr <= tolr) then
+			print*, "Initial guess is good enough!"
+			stop
+		end if
+						
 		outer_loop: do while (.true.)
 			! Initialize beta and the Krylov basis
 			beta = sqrt(dot_product(x,x))
@@ -96,9 +114,11 @@ module mod_IterativeSolvers_test
 					stop
 				end if
 
-				print*, 'gmresm: iteration = ', its, ' evals = ', evals, ' residual = ', res
+				print*, 'gmresm: iteration = ', its, ' evals = ', evals, ' residual = ', res/normb
+				write(1, '(E12.5)') res/normb
+				write(2, '(I0)') evals
 
-				done = (res <= tol .or. its == itmax)
+				done = (res <= tolr .or. its == itmax)
 
 				if (done .or. j == m) then
 					z = matmul(v(:, 1:j), y(1:j))
@@ -117,6 +137,8 @@ module mod_IterativeSolvers_test
 		gmres_iters = its
 		ubest = x
 
+	    close(1)
+	    close(2)
 	end subroutine GMRES
 	
 	
@@ -154,6 +176,9 @@ module mod_IterativeSolvers_test
 		integer :: seed(33)                                      ! seed for random but reproducible vectors
 		integer :: IPIV(s), INFO                                 ! working variables for x = inv(A) * b using LAPACK 
 		
+		open(unit = 1, file = "./IDRs_residual.txt", status = "replace", action = "write")
+		open(unit = 2, file = "./IDRs_evals.txt", status = "replace", action = "write")
+		
 		! consistency checks --------------------------------------------------------------------------------------------
 		if (s >= n) then
 			print*, "The dimension of the shadow space must be smaller than the system!"
@@ -171,6 +196,9 @@ module mod_IterativeSolvers_test
 		normr = sqrt(dot_product(r, r))
 		normb = sqrt(dot_product(b, b))
 		tolr = tol * normb
+		
+		write(1, '(E12.5)') normr/normb
+		write(2, '(I0)') evals
 		
 		if (normr <= tolr) then
 			print*, "Initial guess is good enough!"
@@ -277,8 +305,12 @@ module mod_IterativeSolvers_test
     		
     		its = its + 1
     		print*, 'IDR(s): iteration = ', its, ' evals = ', evals, ' residual = ', normr/normb    		
+			write(1, '(E12.5)') normr/normb
+			write(2, '(I0)') evals
     	end do IDRs_loop
     	
+	    close(1)
+	    close(2)
 	end subroutine IDRs
 	
 	
@@ -308,6 +340,9 @@ module mod_IterativeSolvers_test
 		double precision :: alpha, beta, xi
 		integer :: its, evals
 		
+		open(unit = 1, file = "./BiCGSTAB_residual.txt", status = "replace", action = "write")
+		open(unit = 2, file = "./BiCGSTAB_evals.txt", status = "replace", action = "write")
+		
 		! compute initial residual --------------------------------------------------------------------------------------
 		its = 0
 		evals = 0
@@ -320,6 +355,9 @@ module mod_IterativeSolvers_test
 		normb = sqrt(dot_product(b, b))
 		tolr = tol * normb
 		
+		write(1, '(E12.5)') normr/normb
+		write(2, '(I0)') evals
+			
 		if (normr <= tolr) then
 			print*, "Initial guess is good enough!"
 			stop
@@ -355,8 +393,12 @@ module mod_IterativeSolvers_test
 			
 			its = its + 1
 			print*, 'BiCGSTAB: iteration = ', its, ' evals = ', evals, ' residual = ', normr/normb
+			write(1, '(E12.5)') normr/normb
+			write(2, '(I0)') evals
 		end do BiCGSTAB_loop
 		
+	    close(1)
+	    close(2)
 	end subroutine BiCGSTAB
 	
 	
