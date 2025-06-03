@@ -115,4 +115,177 @@ module mod_IterativeSolvers_test
 		ubest = x
 
 	end subroutine GMRES
+	
+	
+	
+	subroutine IDRs(A, b, s, n, tol, itmax, x0, ubest, idrs_iters)
+		implicit none
+		
+		! program inputs ------------------------------------------------------------------------------------------------
+		double precision, dimension(n, n), intent(in) :: A       ! coefficient matrix
+		double precision, dimension(n), intent(in) :: b          ! RHS vector
+		double precision, dimension(n), intent(in) :: x0         ! initial guess
+		integer, intent(in) :: s                                 ! dimension of the shadow space
+		integer, intent(in) :: n                                 ! size of the linear system
+		integer, intent(in) :: itmax                             ! maximum number of iterations
+		double precision, intent(in) :: tol                      ! convergence criterion (relative to the norm of b)
+
+		
+		! program outputs
+		double precision, dimension(n), intent(out) :: ubest     ! best x for Ax = b
+		integer, intent(out) :: idrs_iters                       ! number of IDR(s) iterations
+		
+		! internal variables
+		double precision, dimension(n) :: x                      ! solution iterates
+		double precision, dimension(n) :: r                      ! residual vector
+		double precision :: normr                                ! norm of the residual vector
+		double precision :: normb                                ! norm of the RHS vector
+		double precision :: tolr                                 ! absolute convergence criterion
+		double precision, dimension(s, n) :: P                   ! Rows are orthonormal vectors spanning the shadow space
+		double precision, dimension(n, s) :: dR, dX
+		double precision, dimension(s, s) :: M, W
+		double precision :: om
+		integer :: its, i, j, k, oldest
+		double precision, dimension(n) :: random_vec, v, q, t
+		double precision, dimension(s) :: c_, m_, dm_
+		integer :: seed(33)                                      ! seed for random but reproducible vectors
+		integer :: IPIV(s), INFO                                 ! working variables for x = inv(A) * b using LAPACK 
+		
+		! consistency checks --------------------------------------------------------------------------------------------
+		if (s >= n) then
+			print*, "The dimension of the shadow space must be smaller than the system!"
+			stop
+		end if
+		
+		! compute initial residual --------------------------------------------------------------------------------------
+		x = x0
+		r = b - matmul(A, x)
+		
+		normr = sqrt(dot_product(r, r))
+		normb = sqrt(dot_product(b, b))
+		tolr = tol * normb
+		
+		if (normr <= tolr) then
+			print*, "Initial guess is good enough!"
+			stop
+		end if
+		
+		! construct the shadow space ------------------------------------------------------------------------------------
+		do i = 1, 33
+			seed(i) = i
+		end do
+    	call random_seed(put = seed)
+    
+		P(1,:) = r / normr
+		if (s > 1) then
+			do i = 2, s
+				call random_number(random_vec)
+				
+				do j = 1, i-1
+					random_vec = random_vec - dot_product(P(j,:), random_vec) * P(j,:)
+				end do
+				P(i,:) = random_vec / sqrt(dot_product(random_vec, random_vec))
+			end do			
+		end if
+		
+		do i = 1, s
+			if (dot_product(P(i,:), P(i,:)) - 1.0 > 1.0d-12) then
+				print*, "Problem with making a normal basis."
+				stop
+			end if
+			
+			if (i > 1) then
+				do j = 1, i-1
+					if (dot_product(P(i,:), P(j,:)) > 1.0d-12) then
+						print*, "Problem with making an orthogonal basis."
+						stop
+					end if
+				end do
+			end if
+		end do
+		
+		! produce start vectors -----------------------------------------------------------------------------------------
+		its = 0
+		dR = 0
+		dX = 0
+		
+		do k = 1, s
+			v = matmul(A, r)
+			its = its + 1
+			
+			om = dot_product(v, r) / dot_product(v, v)
+			
+	        dX(:, k) = om * r
+        	dR(:, k) = -om * v
+        	
+	        x = x + dX(:, k)
+	        r = r + dR(:, k)
+	        
+	        M(:, k) = matmul(P, dR(:,k))
+		end do
+		
+		! Main iteration loop, build G-spaces ---------------------------------------------------------------------------
+		oldest = 1
+    	m_ = matmul(P, r)
+    	
+    	IDRs_loop: do while (normr > tolr .and. its < itmax)
+    		do k = 0, s
+	    		c_ = m_
+	    		W = M
+    			call dgesv(s, 1, W, s, IPIV, c_, s, INFO)    ! directly solve the s-by-s system M * c_ = m_
+    			
+    			! print*, dot_product(matmul(M, c_) - m_, matmul(M, c_) - m_)
+    		
+				if (INFO /= 0) then
+					stop 'IDR(s): dgesv failed to solve an s-by-s linear system.'
+				end if
+			
+				q = -matmul(dR, c_)
+				v = r + q
+    		
+				if (k == 0) then
+					t = matmul(A, v)
+					om = dot_product(t, v) / dot_product(t, t)
+	                dR(:, oldest) = q - om * t
+	                dX(:, oldest) = -matmul(dX, c_) + om * v
+				else
+	                dX(:, oldest) = -matmul(dX, c_) + om * v
+	                dR(:, oldest) = -matmul(A, dX(:, oldest))
+				end if
+				
+	            r = r + dR(:, oldest);
+	            x = x + dX(:, oldest);
+    	        its = its + 1
+    	        
+    	        normr = sqrt(dot_product(r, r))
+    	        
+    	        dm_ = matmul(P, dR(:, oldest))
+    	        M(:, oldest) = dm_
+    	        m_ = m_ + dm_
+    	        
+    	        oldest = oldest + 1
+    	        if (oldest > s) then
+    	        	oldest = 1
+    	        end if
+    		end do
+    		
+    		print*, 'IDR(s): iteration = ', its, ' abs residual = ', normr, ' rel residual = ', normr/normb    		
+    	end do IDRs_loop
+    	
+	end subroutine IDRs
+	
+	
+	subroutine print_vector(vec, n, q)
+	! prints the first q entries of the n-dimensional vector vec
+		implicit none
+		double precision, dimension(n), intent(in) :: vec
+		integer, intent(in) :: n, q
+		integer :: k
+
+		do k = 1, q
+			print*, ' ', vec(k)
+		end do
+	end subroutine print_vector
+  
+  
 end module mod_IterativeSolvers_test
